@@ -17,6 +17,10 @@ class EncounterBuilder:
     def remove_player(self, player_lvl):
         self.players.remove(player_lvl)
 
+    def add_party(self, players_lvl, players_number):
+        for i in range(players_number):
+            self.add_player(players_lvl)
+
     def add_monster(self, monster_cr):
         self.monsters.append(monster_cr)
 
@@ -151,6 +155,7 @@ class CR_Finder:
         sugg_atk = self.monster_stats_by_cr[str(self.off_cr)][1]
         cr_index = self.cr_list.index(self.off_cr)
         if abs(sugg_atk - atk_bonus) == 0 or abs(sugg_atk - atk_bonus) == 1:
+            print("off_cr from atk bonus:", self.off_cr)
             return self.off_cr
 
         adj_index = cr_index - (sugg_atk - atk_bonus)//2
@@ -164,6 +169,7 @@ class CR_Finder:
         sugg_dc = self.monster_stats_by_cr[str(self.off_cr)][2]
         cr_index = self.cr_list.index(self.off_cr)
         if abs(sugg_dc - save_dc) == 0 or abs(sugg_dc - save_dc) == 1:
+            print("off_cr from atk bonus:", self.off_cr)
             return self.off_cr
 
         adj_index = cr_index - (sugg_dc - save_dc)//2
@@ -174,7 +180,7 @@ class CR_Finder:
         return self.off_cr
 
     def get_final_cr(self):
-        print("Adjusted challenge rating:", round((self.off_cr+self.def_cr)/2))
+        print("\n-------", "\nDefensive challenge rating:", self.def_cr, "\nOffensive challenge rating:", self.off_cr,"\nAdjusted challenge rating:", round((self.off_cr+self.def_cr)/2), "\n-------\n")
         return round((self.off_cr+self.def_cr)/2)
 
 
@@ -190,15 +196,19 @@ def find_cr_atk_bonus(ac=10, hp=10, atk_bonus=3):
     return finder.get_final_cr()
 
 
+def find_cr_save_dc(ac=10, hp=10, save_dc=10):
+    finder = CR_Finder()
+    finder.avg_dice(3, 6, 2)
+    finder.avg_dice_collector()
+    finder.cr_from_hp(hp)
+    finder.cr_from_ac(ac)
+    finder.cr_from_dmg()
+    finder.cr_from_atk_bonus(save_dc)
+    return finder.get_final_cr()
+
+
 
 test = EncounterBuilder()
-test.add_player(1)
-test.add_player(1)
-test.add_player(1)
-test.add_player(1)
-test.add_player(1)
-test.add_player(1)
+test.add_party(1, 6)
 test.add_monster(find_cr_atk_bonus(ac=18, hp=100, atk_bonus=4))
 test.get_difficulty()
-#print(test.party_threshold)
-#print(test.players)
