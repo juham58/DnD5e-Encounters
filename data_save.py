@@ -32,6 +32,7 @@ xp_monsters = {"0": 10, "1/8": 25, "1/4": 50, "1/2": 100, "1": 200, "2": 450,
                "24": 62000, "25": 75000, "26": 90000, "27": 105000, "28": 120000,
                "29": 135000, "30": 155000}
 
+
 def cr_hp():
     cr_hp_list = []
     for i in range(850):
@@ -181,11 +182,11 @@ def dmg_per_round():
 
 
 def cr_list():
-    list = [0, 1/8, 1/4, 1/2]
+    cr_list = [0, 1/8, 1/4, 1/2]
     for i in range(30):
         list.append(i+1)
-    print(list)
-    return list
+    print(cr_list)
+    return cr_list
 
 
 monster_stats_by_cr = {str(0): [13, 3, 13], str(1/8): [13, 3, 13], str(1/4): [13, 3, 13],

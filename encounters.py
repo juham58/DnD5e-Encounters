@@ -114,6 +114,9 @@ class CR_Finder:
         self.def_cr = 0
         self.off_cr = 0
         self.avg_dice_list = []
+        self.resistances = False
+        self.immunities = False
+        self.tier = 1
         self.cr_hp = pickle.load(open("cr_hp", "rb"))
         self.dmg_per_round = pickle.load(open("dmg_per_round", "rb"))
         self.monster_stats_by_cr = pickle.load(open("monster_stats_by_cr", "rb"))
@@ -128,7 +131,36 @@ class CR_Finder:
     def avg_dice(self, x, y, z):
         return self.avg_dice_list.append(x*((y+1)/2)+z)
 
+    def set_tier(self, tier):
+        self.tier = tier
+
+    def set_resistances(self, resistances):
+        self.resistances = resistances
+
+    def set_immunities(self, immunities):
+        self.immunities = immunities
+
     def cr_from_hp(self, hp):
+        if self.resistances is True:
+            if self.tier == 1:
+                hp = round(2*hp)
+            if self.tier == 2:
+                hp = round(1.5*hp)
+            if self.tier == 3:
+                hp = round(1.25*hp)
+            if self.tier == 4:
+                pass
+
+        if self.immunities is True and self.resistances is False:
+            if self.tier == 1:
+                hp = round(2*hp)
+            if self.tier == 2:
+                hp = round(2*hp)
+            if self.tier == 3:
+                hp = round(1.5*hp)
+            if self.tier == 4:
+                hp = round(1.25*hp)
+
         self.def_cr = self.cr_hp[hp]
         print("def_cr from hp:", self.def_cr)
         return self.def_cr
@@ -169,7 +201,7 @@ class CR_Finder:
         sugg_dc = self.monster_stats_by_cr[str(self.off_cr)][2]
         cr_index = self.cr_list.index(self.off_cr)
         if abs(sugg_dc - save_dc) == 0 or abs(sugg_dc - save_dc) == 1:
-            print("off_cr from atk bonus:", self.off_cr)
+            print("off_cr from save dc:", self.off_cr)
             return self.off_cr
 
         adj_index = cr_index - (sugg_dc - save_dc)//2
@@ -180,9 +212,8 @@ class CR_Finder:
         return self.off_cr
 
     def get_final_cr(self):
-        print("\n-------", "\nDefensive challenge rating:", self.def_cr, "\nOffensive challenge rating:", self.off_cr,"\nAdjusted challenge rating:", round((self.off_cr+self.def_cr)/2), "\n-------\n")
+        print("\n-------", "\nDefensive challenge rating:", self.def_cr, "\nOffensive challenge rating:", self.off_cr, "\nAdjusted challenge rating:", round((self.off_cr+self.def_cr)/2), "\n-------\n")
         return round((self.off_cr+self.def_cr)/2)
-
 
 
 def find_cr_atk_bonus(ac=10, hp=10, atk_bonus=3):
@@ -196,10 +227,12 @@ def find_cr_atk_bonus(ac=10, hp=10, atk_bonus=3):
     return finder.get_final_cr()
 
 
-def find_cr_save_dc(ac=10, hp=10, save_dc=10):
+def find_cr_save_dc(ac=10, hp=10, save_dc=10, tier=1, resistances=False, immunities=False):
     finder = CR_Finder()
     finder.avg_dice(3, 6, 2)
     finder.avg_dice_collector()
+    finder.set_tier(1)
+    finder.set_immunities(True)
     finder.cr_from_hp(hp)
     finder.cr_from_ac(ac)
     finder.cr_from_dmg()
@@ -207,8 +240,8 @@ def find_cr_save_dc(ac=10, hp=10, save_dc=10):
     return finder.get_final_cr()
 
 
-
 test = EncounterBuilder()
-test.add_party(1, 6)
-test.add_monster(find_cr_atk_bonus(ac=18, hp=100, atk_bonus=4))
+test.add_party(12, 6)
+test.add_monster(find_cr_save_dc(ac=18, hp=300, save_dc=18, tier=3, immunities=True))
+test.add_monster(9)
 test.get_difficulty()
