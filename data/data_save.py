@@ -1,4 +1,5 @@
 import pickle
+from pathlib import Path
 import numpy as np
 
 
@@ -182,11 +183,11 @@ def dmg_per_round():
 
 
 def cr_list():
-    cr_list = [0, 1/8, 1/4, 1/2]
+    cr_liste = [0, 1/8, 1/4, 1/2]
     for i in range(30):
-        list.append(i+1)
-    print(cr_list)
-    return cr_list
+        cr_liste.append(i+1)
+    print(cr_liste)
+    return cr_liste
 
 
 monster_stats_by_cr = {str(0): [13, 3, 13], str(1/8): [13, 3, 13], str(1/4): [13, 3, 13],
@@ -203,9 +204,9 @@ monster_stats_by_cr = {str(0): [13, 3, 13], str(1/8): [13, 3, 13], str(1/4): [13
                        str(30): [19, 14, 23]}
 
 
-pickle.dump(xp_thresholds, open("xp_thresholds", "w+b"))
-pickle.dump(xp_monsters, open("xp_monsters", "w+b"))
-pickle.dump(cr_hp(), open("cr_hp", "w+b"))
-pickle.dump(dmg_per_round(), open("dmg_per_round", "w+b"))
-pickle.dump(monster_stats_by_cr, open("monster_stats_by_cr", "w+b"))
-pickle.dump(cr_list(), open("cr_list", "w+b"))
+pickle.dump(xp_thresholds, open(Path.cwd()/"data"/"xp_thresholds", "w+b"))
+pickle.dump(xp_monsters, open(Path.cwd()/"data"/"xp_monsters", "w+b"))
+pickle.dump(cr_hp(), open(Path.cwd()/"data"/"cr_hp", "w+b"))
+pickle.dump(dmg_per_round(), open(Path.cwd()/"data"/"dmg_per_round", "w+b"))
+pickle.dump(monster_stats_by_cr, open(Path.cwd()/"data"/"monster_stats_by_cr", "w+b"))
+pickle.dump(cr_list(), open(Path.cwd()/"data"/"cr_list", "w+b"))
