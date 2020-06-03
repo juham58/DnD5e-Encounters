@@ -1,5 +1,6 @@
 from CR_Finder import CR_Finder
 from EncounterBuilder import EncounterBuilder
+from PlayersTools import PlayersTools
 
 
 def find_cr_atk_bonus(ac=10, hp=10, atk_bonus=3):
@@ -27,18 +28,19 @@ def find_cr_save_dc(ac=10, hp=10, save_dc=10, tier=1, resistances=False, immunit
 
 
 test = EncounterBuilder()
-players_dmg = CR_Finder()
+players_dmg = PlayersTools()
 players_dmg.avg_dice(1, 8, 3)
 players_dmg.avg_dice(1, 6, 3)
-players_dmg.avg_dice(1, 12, 0)
+players_dmg.avg_dice(3, 8, 0)
 players_dmg.avg_dice(1, 10, 3)
 players_dmg.avg_dice(1, 10, 3)
 players_dmg.avg_dice(1, 6, 0)
 players_dmg.avg_dice(1, 6, 0)
 players_dmg.avg_dice_collector()
+players_dmg.avg_hit_chance(17, 5)
 
-#test.add_party(1, 6)
+test.add_party(1, 6)
 
 #  test.add_monster(find_cr_save_dc(ac=18, hp=300, save_dc=18, tier=3, immunities=True))
-#test.add_monster(find_cr_atk_bonus(ac=18, hp=100, atk_bonus=7))
-#test.get_difficulty()
+test.add_monster(find_cr_atk_bonus(ac=17, hp=100, atk_bonus=7))
+test.get_difficulty()

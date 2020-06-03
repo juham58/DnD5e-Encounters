@@ -5,23 +5,19 @@ class PlayersTools(CR_Finder):
     def __init__(self):
         self.avg_dice_list = []
         self.dmg = 0
+        self.adjusted_dmg = 0
 
     def avg_dice_collector(self):
         if len(self.avg_dice_list) == 0:
             self.dmg = 0
             return self.dmg
         self.dmg = round(sum(self.avg_dice_list))
-        print("Players' average damage per round:", self.dmg)
+        print("Players' average damage per round with 100% hit rate:", self.dmg)
 
     def avg_dice(self, x, y, z):
         return self.avg_dice_list.append(x*((y+1)/2)+z)
 
-players_dmg = PlayersTools()
-players_dmg.avg_dice(1, 8, 3)
-players_dmg.avg_dice(1, 6, 3)
-players_dmg.avg_dice(1, 12, 0)
-players_dmg.avg_dice(1, 10, 3)
-players_dmg.avg_dice(1, 10, 3)
-players_dmg.avg_dice(1, 6, 0)
-players_dmg.avg_dice(1, 6, 0)
-players_dmg.avg_dice_collector()
+    def avg_hit_chance(self, monster_ac, avg_hit_mod):
+        avg_hit_percentage = 1 - (monster_ac - avg_hit_mod)*(5/100)
+        self.adjusted_dmg = avg_hit_percentage*self.dmg
+        print("Players' average damage per round with target AC of {} and avergage hit modifier of {}:".format(monster_ac, avg_hit_mod), self.adjusted_dmg)
