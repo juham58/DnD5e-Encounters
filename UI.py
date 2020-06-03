@@ -5,7 +5,7 @@ from PlayersTools import PlayersTools
 
 def find_cr_atk_bonus(ac=10, hp=10, atk_bonus=3):
     finder = CR_Finder()
-    finder.avg_dice(2, 6, 0)
+    finder.avg_dice(2, 6, 5)
     finder.avg_dice_collector()
     finder.cr_from_hp(hp)
     finder.cr_from_ac(ac)
