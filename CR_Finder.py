@@ -25,7 +25,7 @@ class CR_Finder:
             self.dmg = 0
             return self.dmg
         self.dmg = round(sum(self.avg_dice_list))
-        print("Monster's average damage per round:", self.dmg)
+        print("Monster's average damage per round with 100% hit rate:", self.dmg)
 
     def avg_dice(self, x, y, z):
         return self.avg_dice_list.append(x*((y+1)/2)+z)

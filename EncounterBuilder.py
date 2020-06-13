@@ -28,6 +28,10 @@ class EncounterBuilder:
     def remove_monster(self, monster_cr):
         self.monsters.remove(monster_cr)
 
+    def add_monsters_group(self, monster_cr, monsters_number):
+        for i in range(monsters_number):
+            self.add_monster(monster_cr)
+
     def set_party_thresholds(self):
         easy, medium, hard, deadly = 0, 0, 0, 0
         for i in self.players:
