@@ -111,5 +111,5 @@ class CR_Finder:
         return self.off_cr
 
     def get_final_cr(self):
-        print("\n-------", "\nDefensive challenge rating:", self.def_cr, "\nOffensive challenge rating:", self.off_cr, "\nAdjusted challenge rating:", round((self.off_cr+self.def_cr)/2), "\n-------\n")
+        print("\n-------", "\nDefensive challenge rating:", self.def_cr, "\nOffensive challenge rating:", self.off_cr, "\nAdjusted challenge rating:", round((self.off_cr+self.def_cr)/2), "(Beware of counter-intuitive Python rounding)", "\n-------\n")
         return round((self.off_cr+self.def_cr)/2)

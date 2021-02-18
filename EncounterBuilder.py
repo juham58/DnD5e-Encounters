@@ -19,7 +19,7 @@ class EncounterBuilder:
         self.players.remove(player_lvl)
 
     def add_party(self, players_lvl, players_number):
-        for i in range(players_number):
+        for _ in range(players_number):
             self.add_player(players_lvl)
 
     def add_monster(self, monster_cr):
@@ -29,7 +29,7 @@ class EncounterBuilder:
         self.monsters.remove(monster_cr)
 
     def add_monsters_group(self, monster_cr, monsters_number):
-        for i in range(monsters_number):
+        for _ in range(monsters_number):
             self.add_monster(monster_cr)
 
     def set_party_thresholds(self):

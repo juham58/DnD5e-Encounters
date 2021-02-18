@@ -21,3 +21,8 @@ class PlayersTools(CR_Finder):
         avg_hit_percentage = 1 - (monster_ac - avg_hit_mod)*(5/100)
         self.adjusted_dmg = avg_hit_percentage*self.dmg
         print("Players' average damage per round with target AC of {} and avergage hit modifier of {}:".format(monster_ac, avg_hit_mod), self.adjusted_dmg)
+
+avg_calc = PlayersTools()
+avg_calc.avg_dice(8, 6, 0)
+avg_calc.avg_dice_collector()
+print(avg_calc.dmg)
