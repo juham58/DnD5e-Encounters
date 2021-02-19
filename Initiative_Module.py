@@ -27,6 +27,10 @@ class Initiative_Module():
             self.combatants_hp[new_name] = new_dict["hp"]
             self.combatants_names.append(new_name)
 
+    def import_players(self, list_of_players):
+        for name in list_of_players:
+            self.import_stats(name)
+
     def d20(self):
         return random.randint(1, 20)
 
