@@ -53,7 +53,7 @@ class Initiative_Module():
             if straight_roll == 20:
                 self.combatants_hp[target_name] -= 2*self.combatants_stats[attacker_name]["avg_attack_dmg"]
                 if self.verbose is True:
-                    print(attacker_name, "CRITS with", attack_roll, "and does:", self.combatants_stats[attacker_name]["avg_attack_dmg"], " damage!")
+                    print(attacker_name, "CRITS with", attack_roll, "and does:", 2*self.combatants_stats[attacker_name]["avg_attack_dmg"], " damage!")
 
             if attack_roll >= self.combatants_stats[target_name]["ac"] and straight_roll != 20:
                 self.combatants_hp[target_name] -= self.combatants_stats[attacker_name]["avg_attack_dmg"]
@@ -133,7 +133,11 @@ class Initiative_Module():
 # Besoin d'une manière de séparer les monstres des joueurs (check)
 # Besoin d'une manière de décider qui est attaqué (Check: random pour l'instant)
 # Besoin d'une manière de distinguer les frontliners (facultatif)
-# Faire l'algorithme de simulation de combat
-# Vérifier s'il y a des morts
+# Faire l'algorithme de simulation de combat (check)
+# Vérifier s'il y a des morts (check)
 # Gérer les death saves
+# Gérer le healing
+# Gérer les debuffs
+# Simuler des stratégies
 # Retirer les combatants morts (check)
+# Actually rouler les dés (enregistrer des tuples dans le dictionnaire)
