@@ -46,28 +46,35 @@ class Initiative_Module():
     def attack(self, attacker_name, target_name):
         attack_roll = self.d20()+self.combatants_stats[attacker_name]["attack_mod"]
         straight_roll = attack_roll-self.combatants_stats[attacker_name]["attack_mod"]
-        if straight_roll == 20:
-            self.combatants_hp[target_name] -= 2*self.combatants_stats[attacker_name]["avg_attack_dmg"]
+        if target_name is None:
             if self.verbose is True:
-                print(attacker_name, " CRITS with ", attack_roll, " and does: ", self.combatants_stats[attacker_name]["avg_attack_dmg"], " damage!")
-
-        if attack_roll >= self.combatants_stats[target_name]["ac"] and straight_roll != 20:
-            self.combatants_hp[target_name] -= self.combatants_stats[attacker_name]["avg_attack_dmg"]
-            if self.verbose is True:
-                print(attacker_name, " hits with ", attack_roll, " and does: ", self.combatants_stats[attacker_name]["avg_attack_dmg"], " damage!")
+                print("There is no one to attack.")
         else:
-            if self.verbose is True:
-                print(attacker_name, " misses.")
+            if straight_roll == 20:
+                self.combatants_hp[target_name] -= 2*self.combatants_stats[attacker_name]["avg_attack_dmg"]
+                if self.verbose is True:
+                    print(attacker_name, "CRITS with", attack_roll, "and does:", self.combatants_stats[attacker_name]["avg_attack_dmg"], " damage!")
+
+            if attack_roll >= self.combatants_stats[target_name]["ac"] and straight_roll != 20:
+                self.combatants_hp[target_name] -= self.combatants_stats[attacker_name]["avg_attack_dmg"]
+                if self.verbose is True:
+                    print(attacker_name, "hits with", attack_roll, "and does:", self.combatants_stats[attacker_name]["avg_attack_dmg"], " damage!")
+            else:
+                if self.verbose is True:
+                    print(attacker_name, "misses.")
 
     def heal(self):
         pass
 
     def set_target(self, attacker_name):
-        if self.combatants_stats[attacker_name]["is_monster"] is True:
-            return random.choice(self.players_names)
+        try:
+            if self.combatants_stats[attacker_name]["is_monster"] is True:
+                return random.choice(self.players_names)
 
-        else:
-            return random.choice(self.monsters_names)
+            else:
+                return random.choice(self.monsters_names)
+        except IndexError:
+            return None
 
     def death(self, name):
         if self.combatants_stats[name]["is_monster"] is True:
@@ -86,7 +93,8 @@ class Initiative_Module():
                     self.death(name)
                     dead_list.append(name)
             for name in dead_list:
-                print(name, " dies.")
+                if self.verbose is True:
+                    print(name, " dies.")
                 del self.combatants_hp[name]
 
     def player_downed(self):
@@ -96,9 +104,10 @@ class Initiative_Module():
         rounds = 1
         self.roll_ini()
         self.separate_players_vs_monsters()
+        self.verbose = verbose
         while len(self.players_names) != 0 and len(self.monsters_names) != 0:
             for attacker_name in self.ini_order:
-                for n in range(self.combatants_stats[attacker_name]["number_of_attacks"]):
+                for _ in range(self.combatants_stats[attacker_name]["number_of_attacks"]):
                     target = self.set_target(attacker_name)
                     self.attack(attacker_name, target)
                     self.check_for_death()
@@ -106,12 +115,15 @@ class Initiative_Module():
                     if len(self.players_names) == 0 or len(self.monsters_names) == 0:
                         break
             rounds += 1
-        print("Combat ended")
+        if self.verbose is True:
+            print("Combat ended")
         if len(self.players_names) == 0:
-            print("The players were killed.")
+            if self.verbose is True:
+                print("The players were killed.")
             return 0
         else:
-            print("The monsters were killed.")
+            if self.verbose is True:
+                print("The monsters were killed.")
             return 1
                 
 
@@ -125,8 +137,3 @@ class Initiative_Module():
 # Vérifier s'il y a des morts
 # Gérer les death saves
 # Retirer les combatants morts (check)
-    
-test = Initiative_Module()
-test.import_group("Goblin", 8)
-test.import_stats("John")
-test.combat()
