@@ -10,6 +10,7 @@ class Initiative_Module():
         self.players_names = []
         self.monsters_names = []
         self.ini_order = {}
+        self.player_deaths = 0
         self.verbose = True
 
     def import_stats(self, name):
@@ -88,6 +89,7 @@ class Initiative_Module():
         else:
             self.players_names.remove(name)
             self.ini_order.remove(name)
+            self.player_deaths += 1
 
     def check_for_death(self):
         if any(v <= 0 for v in self.combatants_hp.values()):
@@ -124,11 +126,11 @@ class Initiative_Module():
         if len(self.players_names) == 0:
             if self.verbose is True:
                 print("The players were killed.")
-            return 0
+            return (0, self.player_deaths)
         else:
             if self.verbose is True:
                 print("The monsters were killed.")
-            return 1
+            return (1, self.player_deaths)
                 
 
 
