@@ -13,6 +13,25 @@ class MainStats():
         self.number_of_attacks = 1
         self.is_monster = True
         self.is_frontliner = True
+        self.combat_stats = {"is_downed": False,
+                            "condition": None,
+                            "death_saves": (0, 0),
+                            "advantage_on_attack": False,
+                            "advantage_if_attacked": False,
+                            "disadvantage_on_attack": False,
+                            "disadvantage_if_attacked": False}
+        self.abilities = {"str": 10,
+                          "dex": 10,
+                          "con": 10,
+                          "wis": 10,
+                          "int": 10,
+                          "cha": 10}
+        self.saves = {"str": 10,
+                      "dex": 10,
+                      "con": 10,
+                      "wis": 10,
+                      "int": 10,
+                      "cha": 10}
 
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
@@ -27,6 +46,22 @@ class MainStats():
         self.number_of_attacks = number_of_attacks
         self.is_monster = is_monster
         self.is_frontliner = is_frontliner
+
+    def set_abilities(self, str, dex, con, wis, int, cha):
+        self.abilities = {"str": str,
+                          "dex": dex,
+                          "con": con,
+                          "wis": wis,
+                          "int": int,
+                          "cha": cha}
+
+    def set_saves(self, str, dex, con, wis, int, cha):
+        self.saves = {"str": str,
+                      "dex": dex,
+                      "con": con,
+                      "wis": wis,
+                      "int": int,
+                      "cha": cha}
     
     def save_main_stats(self):
         dict = {self.name: {
@@ -38,15 +73,8 @@ class MainStats():
                 "attack_mod": self.attack_mod,
                 "number_of_attacks": self.number_of_attacks,
                 "is_monster": self.is_monster,
-                "is_frontliner": self.is_frontliner}}
+                "is_frontliner": self.is_frontliner,
+                "combat_stats": self.combat_stats,
+                "abilities": self.abilities,
+                "saves": self.saves}}
         pickle.dump(dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))
-
-test = MainStats()
-test.set_main_stats("Goblin", ac=15, hp=7, attack_mod=4)
-test.add_avg_dmg(1, 6, 2)
-test.save_main_stats()
-
-test.set_main_stats("John", ac=17, hp=83, dc=15, ini_mod=5, attack_mod=10, number_of_attacks=2, is_monster=False)
-test.add_avg_dmg(1, 8, 8)
-test.add_avg_dmg(1, 6, 0)
-test.save_main_stats()

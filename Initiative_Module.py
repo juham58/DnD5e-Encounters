@@ -32,8 +32,28 @@ class Initiative_Module():
         for name in list_of_players:
             self.import_stats(name)
 
-    def d20(self):
-        return random.randint(1, 20)
+    def d20(self, adv=False, dis=False):
+        if adv is False and dis is False:
+            return random.randint(1, 20)
+
+        if adv is True and dis is True:
+            return random.randint(1, 20)
+        
+        if adv is True and dis is False:
+            roll_1 = random.randint(1, 20)
+            roll_2 = random.randint(1, 20)
+            if roll_1 >= roll_2:
+                return roll_1
+            if roll_1 < roll_2:
+                return roll_2
+        
+        if adv is False and dis is True:
+            roll_1 = random.randint(1, 20)
+            roll_2 = random.randint(1, 20)
+            if roll_1 >= roll_2:
+                return roll_2
+            if roll_1 < roll_2:
+                return roll_1
 
     def roll_ini(self):
         temp_dict = {}
@@ -106,6 +126,40 @@ class Initiative_Module():
     def player_downed(self):
         pass
 
+    def dc_check(self, dc, stat, combatant_name):
+        pass
+
+    def set_condition(self, combatant_name, condition_name):
+        if condition_name == "Blinded":
+            pass
+        if condition_name == "Charmed":
+            pass
+        if condition_name == "Deafened":
+            pass
+        if condition_name == "Frightened":
+            pass
+        if condition_name == "Grappled":
+            pass
+        if condition_name == "Incapacited":
+            pass
+        if condition_name == "Invisible":
+            pass
+        if condition_name == "Paralyzed":
+            pass
+        if condition_name == "Petrified":
+            pass
+        if condition_name == "Poisoned":
+            pass
+        if condition_name == "Prone":
+            pass
+        if condition_name == "Restrained":
+            pass
+        if condition_name == "Stunned":
+            pass
+        if condition_name == "Unconscious":
+            pass
+
+
     def combat(self, verbose=True):
         rounds = 1
         self.roll_ini()
@@ -136,11 +190,9 @@ class Initiative_Module():
 
 
 # À FAIRE:
-# Besoin d'une manière de séparer les monstres des joueurs (check)
 # Besoin d'une manière de décider qui est attaqué (Check: random pour l'instant)
 # Besoin d'une manière de distinguer les frontliners (facultatif)
 # Faire l'algorithme de simulation de combat (check)
-# Vérifier s'il y a des morts (check)
 # Gérer les death saves
 # Gérer le healing
 # Gérer les debuffs

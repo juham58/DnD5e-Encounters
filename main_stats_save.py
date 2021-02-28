@@ -5,6 +5,10 @@ save.set_main_stats("Goblin", ac=15, hp=7, attack_mod=4)
 save.add_avg_dmg(1, 6, 2)
 save.save_main_stats()
 
+save.set_main_stats("Skeleton", ac=13, hp=13 attack_mod=4)
+save.add_avg_dmg(1, 6, 2)
+save.save_main_stats()
+
 save.set_main_stats("John", ac=17, hp=83, dc=15, ini_mod=5, attack_mod=10, number_of_attacks=2, is_monster=False)
 save.add_avg_dmg(1, 8, 8)
 save.add_avg_dmg(1, 6, 0) # Rite of the dawn
@@ -34,8 +38,20 @@ save.add_avg_dmg(1, 8, 2)
 save.add_avg_dmg(2, 10, 0) # estimation du 4d10 si la moitié du monde save le jet de con
 save.save_main_stats()
 
-save = MainStats()
 save.set_main_stats("Hobgoblin Captain", ac=17, hp=39, attack_mod=6, number_of_attacks=2)
 save.add_avg_dmg(2, 6, 2)
 save.add_avg_dmg(2, 4, 0)
+save.save_main_stats()
+
+save.set_main_stats("Core Spawn Seer", ac=17, hp=153, ini_mod=1, attack_mod=8, number_of_attacks=2, dc=19)
+save.add_avg_dmg(1, 6, 6+2) # Utilise seulement son attaque melee. +2 pour prendre en compte les debuff
+save.add_avg_dmg(4, 8, 0)
+save.save_main_stats()
+
+save.set_main_stats("Core Spawn Crawler", ac=12, hp=21, ini_mod=2, attack_mod=4, number_of_attacks=4, dc=11)
+save.add_avg_dmg(1, 4, 2) # Dommage moyen un peu moins bon que l'attaque Tail
+save.save_main_stats()
+
+save.set_main_stats("Gorgak Gro'brah", ac=17, hp=155, ini_mod=5, attack_mod=11, number_of_attacks=2, is_monster=False) # basé sur Giant Scorpion
+save.add_avg_dmg(1, 10, 16) # Bonus de rage + dvivine fury divisée par 2
 save.save_main_stats()

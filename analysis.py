@@ -67,4 +67,4 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players)
     plt.grid()
     plt.show()
 
-monsters_test(200, "Goblin", 250, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+monsters_test(100, "Core Spawn Crawler", 20, ["Core Spawn Seer", "Gorgak Gro'brah", "John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
