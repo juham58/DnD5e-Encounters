@@ -14,7 +14,8 @@ class MainStats():
         self.is_monster = True
         self.is_frontliner = True
         self.combat_stats = {"is_downed": False,
-                            "condition": None,
+                            "conditions": [],
+                            "conditions_info": [],
                             "death_saves": (0, 0),
                             "advantage_on_attack": False,
                             "advantage_if_attacked": False,
@@ -32,6 +33,7 @@ class MainStats():
                       "wis": 10,
                       "int": 10,
                       "cha": 10}
+        self.actions = []
 
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
@@ -47,21 +49,34 @@ class MainStats():
         self.is_monster = is_monster
         self.is_frontliner = is_frontliner
 
-    def set_abilities(self, str, dex, con, wis, int, cha):
-        self.abilities = {"str": str,
-                          "dex": dex,
-                          "con": con,
-                          "wis": wis,
-                          "int": int,
-                          "cha": cha}
+    def set_abilities(self, str_bonus, dex_bonus, con_bonus, wis_bonus, int_bonus, cha_bonus):
+        self.abilities = {"str": str_bonus,
+                          "dex": dex_bonus,
+                          "con": con_bonus,
+                          "wis": wis_bonus,
+                          "int": int_bonus,
+                          "cha": cha_bonus}
 
-    def set_saves(self, str, dex, con, wis, int, cha):
-        self.saves = {"str": str,
-                      "dex": dex,
-                      "con": con,
-                      "wis": wis,
-                      "int": int,
-                      "cha": cha}
+    def set_saves(self, str_bonus, dex_bonus, con_bonus, wis_bonus, int_bonus, cha_bonus):
+        self.saves = {"str": str_bonus,
+                      "dex": dex_bonus,
+                      "con": con_bonus,
+                      "wis": wis_bonus,
+                      "int": int_bonus,
+                      "cha": cha_bonus}
+
+    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical"):
+        dict = {}
+        dict["action_type"] = action_type
+        dict["name"] = name
+        dict["has_attack_mod"] = has_attack_mod
+        dict["has_dc"] = has_dc
+        dict["dc_type"] = has_attack_mod
+        dict["dice_rolls"] = dice_rolls
+        dict["condition"] = condition
+        dict["aoe"] = aoe
+        dict["damage_type"] = damage_type
+        self.actions.append(dict)
     
     def save_main_stats(self):
         dict = {self.name: {
@@ -76,5 +91,6 @@ class MainStats():
                 "is_frontliner": self.is_frontliner,
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
-                "saves": self.saves}}
+                "saves": self.saves},
+                "actions": self.actions}
         pickle.dump(dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))

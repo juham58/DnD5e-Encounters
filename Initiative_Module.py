@@ -32,6 +32,10 @@ class Initiative_Module():
         for name in list_of_players:
             self.import_stats(name)
 
+    def import_monsters(self, list_of_monsters):
+        for name in list_of_monsters:
+            self.import_stats(name)
+
     def d20(self, adv=False, dis=False):
         if adv is False and dis is False:
             return random.randint(1, 20)
@@ -55,6 +59,13 @@ class Initiative_Module():
             if roll_1 < roll_2:
                 return roll_1
 
+    def roll_dice(self, tuple):
+        result = 0
+        for _ in range(tuple[0]):
+            result += random.randint(1, tuple[1])
+        result += tuple[2]
+        return result
+
     def roll_ini(self):
         temp_dict = {}
         for name in self.combatants_names:
@@ -75,19 +86,25 @@ class Initiative_Module():
             dis = True
         attack_roll = self.d20(adv=adv, dis=dis)+self.combatants_stats[attacker_name]["attack_mod"]
         straight_roll = attack_roll-self.combatants_stats[attacker_name]["attack_mod"]
+        conditions = self.combatants_stats[target_name]["combat_stats"]["conditions"]
         if target_name is None:
             if self.verbose is True:
                 print("There is no one to attack.")
         else:
-            if straight_roll == 20:
+            if straight_roll == 20 and "Paralyzed" or "Unconscious" not in conditions:
                 self.combatants_hp[target_name] -= 2*self.combatants_stats[attacker_name]["avg_attack_dmg"]
                 if self.verbose is True:
                     print(attacker_name, "CRITS with", attack_roll, "and does:", 2*self.combatants_stats[attacker_name]["avg_attack_dmg"], " damage!")
 
-            if attack_roll >= self.combatants_stats[target_name]["ac"] and straight_roll != 20:
+            if attack_roll >= self.combatants_stats[target_name]["ac"] and straight_roll != 20 and "Paralyzed" or "Unconscious" not in conditions:
                 self.combatants_hp[target_name] -= self.combatants_stats[attacker_name]["avg_attack_dmg"]
                 if self.verbose is True:
                     print(attacker_name, "hits with", attack_roll, "and does:", self.combatants_stats[attacker_name]["avg_attack_dmg"], " damage!")
+
+            if attack_roll >= self.combatants_stats[target_name]["ac"] and "Paralyzed" or "Unconscious" in conditions:
+                self.combatants_hp[target_name] -= 2*self.combatants_stats[attacker_name]["avg_attack_dmg"]
+                if self.verbose is True:
+                    print(attacker_name, "CRITS with", attack_roll, "and does:", 2*self.combatants_stats[attacker_name]["avg_attack_dmg"], " damage!")
             else:
                 if self.verbose is True:
                     print(attacker_name, "misses.")
@@ -130,38 +147,121 @@ class Initiative_Module():
     def player_downed(self):
         pass
 
-    def dc_check(self, dc, stat, combatant_name):
-        pass
+    def dc_check(self, combatant_name, dc, stat, adv=False, dis=False):
+        if stat == "str" and "Petrified" in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+            return False
+        if stat == "dex" and "Petrified" in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+            return False
+        if stat == "str" and "Stunned" in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+            return False
+        if stat == "dex" and "Stunned" in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+            return False
+        if stat == "str" and "Unconscious" in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+            return False
+        if stat == "dex" and "Unconscious" in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+            return False
+        if stat == "dex" and "Restrained" in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+            dis=True
+        save_bonus = self.combatants_stats[combatant_name]["saves"][stat]
+        roll = self.d20(adv=adv, dis=dis)+save_bonus
+        if roll >= dc:
+            return True
+        else:
+            return False
 
-    def set_condition(self, combatant_name, condition_name):
+    def condition_check(self, combatant_name, condition_name, adv=False, dis=False):
+        if condition_name in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+            dc = self.combatants_stats[combatant_name]["combat_stats"]["conditions_info"][1]
+            stat = self.combatants_stats[combatant_name]["combat_stats"]["conditions_info"][2]
+            if self.dc_check(combatant_name, dc, stat, adv=adv, dis=dis) is True:
+                self.remove_condition(combatant_name, condition_name)
+
+    def remove_condition(self, combatant_name, condition_name):
+        if condition_name in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+            self.combatants_stats[combatant_name]["combat_stats"]["conditions"].remove(condition_name)
+            for index, condition in enumerate(self.combatants_stats["combat_stats"]["conditions_info"]):
+                if condition == condition_name:
+                    del self.combatants_stats[combatant_name]["combat_stats"]["conditions_info"][index]
+                    continue
+            if condition_name == "Blinded":
+                self.combatants_stats[combatant_name]["combat_stats"]["disadvantage_on_attack"] = False
+                self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = False
+            if condition_name == "Charmed":
+                pass
+            if condition_name == "Deafened":
+                pass
+            if condition_name == "Frightened":
+                pass
+            if condition_name == "Grappled":
+                pass
+            if condition_name == "Incapacitated":
+                pass
+            if condition_name == "Invisible":
+                self.combatants_stats[combatant_name]["combat_stats"]["advantage_on_attack"] = False
+                self.combatants_stats[combatant_name]["combat_stats"]["disadvantage_if_attacked"] = False
+            if condition_name == "Paralyzed":
+                self.remove_condition(combatant_name, "Incapacitated")
+                self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = False
+            if condition_name == "Petrified":
+                pass
+            if condition_name == "Poisoned":
+                self.combatants_stats[combatant_name]["combat_stats"]["disadvantage_on_attack"] = False
+            if condition_name == "Prone":
+                pass
+            if condition_name == "Restrained":
+                self.combatants_stats[combatant_name]["combat_stats"]["disadvantage_on_attack"] = False
+            self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = False
+            if condition_name == "Stunned":
+                self.remove_condition(combatant_name, "Incapacitated")
+                self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = False
+            if condition_name == "Unconscious":
+                self.remove_condition(combatant_name, "Incapacitated")
+                self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = False
+            if len(self.combatants_stats[combatant_name]["combat_stats"]["conditions"]) != 0:
+                for condition in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+                    for element in self.combatants_stats[combatant_name]["combat_stats"]["conditions_info"]:
+                        if condition == element[0]:
+                            self.set_condition(combatant_name, condition, element[1], element[2])
+
+    def set_condition(self, combatant_name, condition_name, dc, stat):
+        self.combatants_stats[combatant_name]["combat_stats"]["conditions"].append(condition_name)
+        self.combatants_stats[combatant_name]["combat_stats"]["conditions_info"].append((condition_name, dc, stat))
         if condition_name == "Blinded":
-            pass
+            self.combatants_stats[combatant_name]["combat_stats"]["disadvantage_on_attack"] = True
+            self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = True
         if condition_name == "Charmed":
             pass
         if condition_name == "Deafened":
             pass
         if condition_name == "Frightened":
-            pass
+            self.combatants_stats[combatant_name]["combat_stats"]["disadvantage_on_attack"] = True
         if condition_name == "Grappled":
             pass
-        if condition_name == "Incapacited":
+        if condition_name == "Incapacitated":
             pass
         if condition_name == "Invisible":
-            pass
+            self.combatants_stats[combatant_name]["combat_stats"]["advantage_on_attack"] = True
+            self.combatants_stats[combatant_name]["combat_stats"]["disadvantage_if_attacked"] = True
         if condition_name == "Paralyzed":
-            pass
+            self.set_condition(combatant_name, "Incapacitated", dc, stat)
+            self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = True
         if condition_name == "Petrified":
-            pass
+            self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = True
+            # resistance to all damage
         if condition_name == "Poisoned":
-            pass
+            self.combatants_stats[combatant_name]["combat_stats"]["disadvantage_on_attack"] = True
         if condition_name == "Prone":
+            # adv if attacked si attque melee et dis if attacked si attaque ranged
             pass
         if condition_name == "Restrained":
-            pass
+            self.combatants_stats[combatant_name]["combat_stats"]["disadvantage_on_attack"] = True
+            self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = True
         if condition_name == "Stunned":
-            pass
+            self.set_condition(combatant_name, "Incapacitated", dc, stat)
+            self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = True
         if condition_name == "Unconscious":
-            pass
+            self.set_condition(combatant_name, "Incapacitated", dc, stat)
+            self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = True
 
 
     def combat(self, verbose=True):
@@ -194,12 +294,12 @@ class Initiative_Module():
 
 
 # À FAIRE:
+# Gérer les debuffs (conditions)
+# Actually rouler les dés (enregistrer des tuples dans le dictionnaire)
+# Implémenter les aoe et les attaques différentes
+
 # Besoin d'une manière de décider qui est attaqué (Check: random pour l'instant)
 # Besoin d'une manière de distinguer les frontliners (facultatif)
-# Faire l'algorithme de simulation de combat (check)
 # Gérer les death saves
 # Gérer le healing
-# Gérer les debuffs
 # Simuler des stratégies
-# Retirer les combatants morts (check)
-# Actually rouler les dés (enregistrer des tuples dans le dictionnaire)
