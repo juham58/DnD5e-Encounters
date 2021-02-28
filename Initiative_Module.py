@@ -68,8 +68,12 @@ class Initiative_Module():
             else:
                 self.players_names.append(name)
 
-    def attack(self, attacker_name, target_name):
-        attack_roll = self.d20()+self.combatants_stats[attacker_name]["attack_mod"]
+    def attack(self, attacker_name, target_name, adv=False, dis=False):
+        if self.combatants_stats[attacker_name]["combat_stats"]["advantage_on_attack"] is True or self.combatants_stats[target_name]["combat_stats"]["advantage_if_attacked"] is True:
+            adv = True
+        if self.combatants_stats[attacker_name]["combat_stats"]["disadvantage_on_attack"] is True or self.combatants_stats[target_name]["combat_stats"]["disadvantage_if_attacked"] is True:
+            dis = True
+        attack_roll = self.d20(adv=adv, dis=dis)+self.combatants_stats[attacker_name]["attack_mod"]
         straight_roll = attack_roll-self.combatants_stats[attacker_name]["attack_mod"]
         if target_name is None:
             if self.verbose is True:
