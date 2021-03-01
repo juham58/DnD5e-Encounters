@@ -49,33 +49,37 @@ class MainStats():
         self.is_monster = is_monster
         self.is_frontliner = is_frontliner
 
-    def set_abilities(self, str_bonus, dex_bonus, con_bonus, wis_bonus, int_bonus, cha_bonus):
+    def set_abilities(self, str_bonus, dex_bonus, con_bonus, int_bonus, wis_bonus, cha_bonus):
         self.abilities = {"str": str_bonus,
                           "dex": dex_bonus,
                           "con": con_bonus,
-                          "wis": wis_bonus,
                           "int": int_bonus,
+                          "wis": wis_bonus,
                           "cha": cha_bonus}
 
-    def set_saves(self, str_bonus, dex_bonus, con_bonus, wis_bonus, int_bonus, cha_bonus):
+    def set_saves(self, str_bonus, dex_bonus, con_bonus, int_bonus, wis_bonus, cha_bonus):
         self.saves = {"str": str_bonus,
                       "dex": dex_bonus,
                       "con": con_bonus,
-                      "wis": wis_bonus,
                       "int": int_bonus,
+                      "wis": wis_bonus,
                       "cha": cha_bonus}
 
-    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical"):
+    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[]):
         dict = {}
         dict["action_type"] = action_type
         dict["name"] = name
         dict["has_attack_mod"] = has_attack_mod
         dict["has_dc"] = has_dc
-        dict["dc_type"] = has_attack_mod
+        dict["dc_type"] = dc_type
         dict["dice_rolls"] = dice_rolls
         dict["condition"] = condition
         dict["aoe"] = aoe
         dict["damage_type"] = damage_type
+        dict["if_save"] = if_save
+        dict["auto_success"] = auto_success
+        dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
+        dict["dc_effect_on_hit"] = dc_effect_on_hit
         self.actions.append(dict)
     
     def save_main_stats(self):
@@ -91,6 +95,7 @@ class MainStats():
                 "is_frontliner": self.is_frontliner,
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
-                "saves": self.saves},
-                "actions": self.actions}
+                "saves": self.saves,
+                "actions": self.actions}}
+        self.actions = []
         pickle.dump(dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))

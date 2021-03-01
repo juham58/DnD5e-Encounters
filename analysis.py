@@ -67,4 +67,9 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players)
     plt.grid()
     plt.show()
 
-monsters_test(100, "Core Spawn Crawler", 20, ["Core Spawn Seer", "Gorgak Gro'brah", "John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+#monsters_test(100, "Core Spawn Crawler", 20, ["Core Spawn Seer", "Gorgak Gro'brah", "John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+
+ini = Initiative_Module()
+ini.import_group("Core Spawn Crawler", 4)
+ini.import_players(["Core Spawn Seer", "Gorgak Gro'brah", "John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+ini.combat(verbose=True)
