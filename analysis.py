@@ -21,7 +21,7 @@ def combat_analysis(iterations):
     print("Total time:", end_time, "s")
     return (succes_rate, avg_player_deaths)
 
-def monsters_test(iterations, monster_name, number_of_monsters, list_of_players):
+def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, verbose=False):
     total_start_time = time.process_time()
     list_of_success_rates = []
     list_of_monsters = []
@@ -36,7 +36,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players)
             ini = Initiative_Module()
             ini.import_group(monster_name, i+1)
             ini.import_players(list_of_players)
-            combat_end = ini.combat(verbose=False)
+            combat_end = ini.combat(verbose=verbose)
             results.append(combat_end[0])
             player_deaths_list.append(combat_end[1])
         succes_rate = results.count(1)/len(results)*100
@@ -67,9 +67,9 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players)
     plt.grid()
     plt.show()
 
-#monsters_test(100, "Core Spawn Crawler", 20, ["Core Spawn Seer", "Gorgak Gro'brah", "John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+monsters_test(100, "Core Spawn Crawler", 20, ["Core Spawn Seer", "Gorgak Gro'brah", "John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=True)
 
-ini = Initiative_Module()
-ini.import_group("Core Spawn Crawler", 4)
-ini.import_players(["Core Spawn Seer", "Gorgak Gro'brah", "John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
-ini.combat(verbose=True)
+#ini = Initiative_Module()
+#ini.import_group("Core Spawn Crawler", 4)
+#ini.import_players(["Core Spawn Seer", "Gorgak Gro'brah", "John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+#ini.combat(verbose=True)
