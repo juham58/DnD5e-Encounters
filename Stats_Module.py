@@ -65,7 +65,7 @@ class MainStats():
                       "wis": wis_bonus,
                       "cha": cha_bonus}
 
-    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[]):
+    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
         dict = {}
         dict["action_type"] = action_type
         dict["name"] = name
@@ -80,6 +80,7 @@ class MainStats():
         dict["auto_success"] = auto_success
         dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
         dict["dc_effect_on_hit"] = dc_effect_on_hit
+        dict["has_advantage"] = has_advantage
         self.actions.append(dict)
     
     def save_main_stats(self):

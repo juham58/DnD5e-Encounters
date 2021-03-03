@@ -21,7 +21,7 @@ def combat_analysis(iterations):
     print("Total time:", end_time, "s")
     return (succes_rate, avg_player_deaths)
 
-def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, verbose=False):
+def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
     list_of_success_rates = []
     list_of_monsters = []
@@ -35,6 +35,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
         for _ in range(iterations):
             ini = Initiative_Module()
             ini.import_group(monster_name, i+1)
+            ini.import_monsters(list_of_monsters_to_import)
             ini.import_players(list_of_players)
             combat_end = ini.combat(verbose=verbose)
             results.append(combat_end[0])
@@ -57,17 +58,26 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     plt.grid()
 
     plt.figure()
-    plt.plot(list_of_monsters, list_of_avg_player_deaths)
-    plt.fill_between(np.array(list_of_monsters), np.array(list_of_std_player_deaths)+np.array(list_of_avg_player_deaths), np.array(list_of_avg_player_deaths)-np.array(list_of_std_player_deaths), color='r', alpha=0.1)
+    plt.plot(list_of_monsters, list_of_avg_player_deaths, label="Moyenne de morts de personnages")
+    plt.fill_between(np.array(list_of_monsters), np.array(list_of_std_player_deaths)+np.array(list_of_avg_player_deaths), np.array(list_of_avg_player_deaths)-np.array(list_of_std_player_deaths), color='r', alpha=0.1, label="Écart type")
     plt.ylim((0, len(list_of_players)))
+    plt.xlim(left=1)
+    plt.xlabel("Nombre de {}s".format(monster_name))
+    plt.ylabel("Nombre de morts de joueurs")
+    plt.title("Nombre moyen et écart type de morts de joueurs en fonction du nombre de {}s".format(monster_name))
     plt.grid()
 
     plt.figure()
     plt.plot(list_of_monsters, list_of_time)
     plt.grid()
+    plt.xlabel("Nombre de {}s".format(monster_name))
+    plt.ylabel("Temps par itération [s]")
     plt.show()
 
-monsters_test(100, "Core Spawn Crawler", 20, ["Core Spawn Seer", "Gorgak Gro'brah", "John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=True)
+#monsters_test(5, "Core Spawn Crawler", 50, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Core Spawn Seer"])
+monsters_test(100, "Skeleton", 25, ["Ewyn", "Gowon", "Iaachus", "Reaghan", "Vilgefortz", "Sartin"])
+monsters_test(5, "Core Spawn Crawler", 50, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+
 
 #ini = Initiative_Module()
 #ini.import_group("Core Spawn Crawler", 4)
