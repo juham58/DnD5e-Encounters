@@ -7,16 +7,18 @@ class MainStats():
         self.name = ""
         self.ac = 10
         self.dc = 10
-        self.hp = 25
+        self.max_hp = 25
         self.ini_mod = 0
         self.attack_mod = 0
         self.number_of_attacks = 1
         self.is_monster = True
         self.is_frontliner = True
         self.combat_stats = {"is_downed": False,
+                            "is_stable": False,
                             "conditions": [],
                             "conditions_info": [],
-                            "death_saves": (0, 0),
+                            "death_saves": [0, 0],
+                            "regeneration": 0,
                             "advantage_on_attack": False,
                             "advantage_if_attacked": False,
                             "disadvantage_on_attack": False,
@@ -34,18 +36,22 @@ class MainStats():
                       "int": 10,
                       "cha": 10}
         self.actions = []
+        self.legend_actions = []
+        self.legend_actions_charges = 0
+        self.legend_resistances = 0
 
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, attack_mod=0, number_of_attacks=1, is_monster=True, is_frontliner=True):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, attack_mod=0, number_of_attacks=1, legend_resistances=0, is_monster=True, is_frontliner=True):
         self.name = name
         self.ac = ac
-        self.hp = hp
+        self.max_hp = hp
         self.dc = dc
         self.ini_mod = ini_mod
         self.attack_mod = attack_mod
         self.number_of_attacks = number_of_attacks
+        self.legend_resistances = legend_resistances
         self.is_monster = is_monster
         self.is_frontliner = is_frontliner
 
@@ -88,7 +94,7 @@ class MainStats():
                 "avg_attack_dmg": self.avg_attack_dmg, 
                 "ac": self.ac, 
                 "dc": self.dc, 
-                "hp": self.hp,
+                "max_hp": self.max_hp,
                 "ini_mod": self.ini_mod,
                 "attack_mod": self.attack_mod,
                 "number_of_attacks": self.number_of_attacks,

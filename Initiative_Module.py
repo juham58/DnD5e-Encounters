@@ -20,7 +20,7 @@ class Initiative_Module():
     def import_stats(self, name):
         stats = pickle.load(open(Path.cwd()/"data"/"stats_{}".format(name), "rb"))
         self.combatants_stats[name] = stats[name]
-        self.combatants_hp[name] = stats[name]["hp"]
+        self.combatants_hp[name] = stats[name]["max_hp"]
         self.combatants_names.append(name)
 
     def import_group(self, base_name, quantity):
@@ -29,7 +29,7 @@ class Initiative_Module():
             new_name = "{}_{}".format(base_name, n+1)
             new_dict = stats[base_name]
             self.combatants_stats[new_name] = new_dict
-            self.combatants_hp[new_name] = new_dict["hp"]
+            self.combatants_hp[new_name] = new_dict["max_hp"]
             self.combatants_names.append(new_name)
 
     def import_players(self, list_of_players):
@@ -97,10 +97,14 @@ class Initiative_Module():
             damage += self.roll_dice(dice_roll)
         if dc_result is False:
             self.combatants_hp[target_name] -= damage
+            if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+                self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
             if self.verbose is True:
                 print(target_name, "fails to meet DC of", dc, "and takes:", damage, " damage!")
         if dc_result is True and attack["if_save"] == "half":
             self.combatants_hp[target_name] -= round(damage/2)
+            if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+                self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
             if self.verbose is True:
                 print(target_name, "succeeds DC of", dc, "and takes:", round(damage/2), " damage! (half damage)")
         if dc_result is True and attack["if_save"] == "no_damage":
@@ -177,12 +181,22 @@ class Initiative_Module():
                             self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                 if self.verbose is True:
                     print(attacker_name, "CRITS on paralyzed or unconscious", target_name, "with", attack_roll, "and does:", crit_damage, " damage!")
+        if attack_roll >= self.combatants_stats[target_name]["ac"] and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+            self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
         else:
             if self.verbose is True:
                 print(attacker_name, "misses.")
 
-    def heal(self):
-        pass
+    def heal(self, combatant_name, heal_amount):
+        self.combatants_hp[combatant_name] += heal_amount
+        if self.combatants_stats[combatant_name]["max_hp"] <= self.combatants_hp[combatant_name]:
+            self.combatants_hp[combatant_name] = self.combatants_stats[combatant_name]["max_hp"]
+        if self.combatants_stats[combatant_name]["combat_stats"]["is_downed"]:
+            self.combatants_stats[combatant_name]["combat_stats"]["death_saves"][0] = 0
+            self.combatants_stats[combatant_name]["combat_stats"]["death_saves"][1] = 0
+            self.combatants_stats[combatant_name]["combat_stats"]["is_downed"] = False
+            self.remove_condition(combatant_name, "Unconscious")
+        
 
     def set_target(self, attacker_name):
         try:
@@ -200,24 +214,60 @@ class Initiative_Module():
             self.ini_order.remove(name)
 
         else:
-            self.players_names.remove(name)
-            self.ini_order.remove(name)
-            self.player_deaths += 1
+            self.combatants_hp[name] = 0
+            self.set_condition(name, "Unconscious", 20, "con")
+            self.combatants_stats[name]["combat_stats"]["is_downed"] = True
 
     def check_for_death(self):
         if any(v <= 0 for v in self.combatants_hp.values()):
             dead_list = []
             for name in self.combatants_hp:
-                if self.combatants_hp[name] <= 0:
+                if self.combatants_hp[name] <= 0 and self.combatants_stats[name]["combat_stats"]["is_downed"] is False:
                     self.death(name)
-                    dead_list.append(name)
+                    if self.combatants_stats[name]["is_monster"]:
+                        dead_list.append(name)
+                    elif self.combatants_stats[name]["combat_stats"]["death_saves"][0] >= 3:
+                        dead_list.append(name)
+                elif self.combatants_stats[name]["combat_stats"]["death_saves"][0] >= 3:
+                        dead_list.append(name)
+                        self.players_names.remove(name)
+                        self.ini_order.remove(name)
+                        self.player_deaths += 1
             for name in dead_list:
                 if self.verbose is True:
                     print(name, " dies.")
                 del self.combatants_hp[name]
 
-    def player_downed(self):
-        pass
+    def death_saves(self, player_name, mod=0, adv=False):
+        self.combatants_hp[player_name] = 0
+        straight_roll = self.d20(adv=adv)
+        roll = straight_roll + mod
+        if straight_roll == 20:
+            self.heal(player_name, 1)
+            if self.verbose is True:
+                print("{} CRITS on their death save and comes back to 1 HP!".format(player_name), "Death saves:", self.combatants_stats[player_name]["combat_stats"]["death_saves"])
+            return
+        if roll >= 10:
+            self.combatants_stats[player_name]["combat_stats"]["death_saves"][1] += 1
+            if self.combatants_stats[player_name]["combat_stats"]["death_saves"][1] >= 3:
+                self.combatants_stats[player_name]["combat_stats"]["death_saves"][0] = 0
+                self.combatants_stats[player_name]["combat_stats"]["death_saves"][1] = 0
+                self.combatants_stats[player_name]["combat_stats"]["is_stable"] = True
+            if self.verbose is True:
+                print("{} succeeds on their death save.".format(player_name), "Death saves:", self.combatants_stats[player_name]["combat_stats"]["death_saves"])
+        if straight_roll == 1:
+            self.combatants_stats[player_name]["combat_stats"]["death_saves"][0] += 2
+            if self.verbose is True:
+                print("{} CRIT FAILS on their death save and and takes 2 death fails!".format(player_name), "Death saves:", self.combatants_stats[player_name]["combat_stats"]["death_saves"])
+            self.check_for_death()
+            return
+        if roll < 10:
+            self.combatants_stats[player_name]["combat_stats"]["death_saves"][0] += 1
+            if self.verbose is True:
+                print("{} fails on their death save.".format(player_name), "Death saves:", self.combatants_stats[player_name]["combat_stats"]["death_saves"])
+            self.check_for_death()
+
+        
 
     def dc_check(self, combatant_name, dc, stat, adv=False, dis=False):
         if stat == "str" and "Petrified" in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
@@ -253,7 +303,7 @@ class Initiative_Module():
                     index = self.combatants_stats[combatant_name]["combat_stats"]["conditions"].index(condition)
                     dc = self.combatants_stats[combatant_name]["combat_stats"]["conditions_info"][index][1]
                     stat = self.combatants_stats[combatant_name]["combat_stats"]["conditions_info"][index][2]
-                    if self.dc_check(combatant_name, dc, stat, adv=adv, dis=dis) is True:
+                    if self.dc_check(combatant_name, dc, stat, adv=adv, dis=dis) is True and condition != "Unconscious":
                         logging.info("Condition save: {}, Combatant name: {}".format(condition, combatant_name))
                         self.remove_condition(combatant_name, condition)
 
@@ -401,43 +451,50 @@ class Initiative_Module():
                 print("\n --- Round {} ---\n".format(rounds))
                 logging.info("\n --- Round {} ---\n".format(rounds))
             for attacker_name in self.ini_order:
-                for attack in self.combatants_stats[attacker_name]["actions"]:
-                    logging.info("{}, with {}".format(attacker_name, attack["name"]))
-                    self.check_for_death()
-                    if len(self.players_names) == 0 or len(self.monsters_names) == 0:
-                        break
-                    if attack["has_attack_mod"] is True:
-                        target = self.set_target(attacker_name)
-                        self.attack(attacker_name, target, attack)
+                if "Incapacitated" in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
+                    logging.info("{} incapacitated".format(attacker_name))
+                    if self.combatants_stats[attacker_name]["combat_stats"]["is_downed"]:
+                        self.death_saves(attacker_name)
+                else:
+                    for attack in self.combatants_stats[attacker_name]["actions"]:
+                        logging.info("{}, with {}".format(attacker_name, attack["name"]))
                         self.check_for_death()
-                    if attack["has_dc"] is True:
-                        target = self.set_target(attacker_name)
-                        self.dc_attack(attacker_name, target, attack)
-                        self.check_for_death()
-                    if attack["aoe"] is True:
-                        pass
-                    if len(self.players_names) == 0 or len(self.monsters_names) == 0:
-                        break
-                self.condition_check(attacker_name)
+                        if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+                            break
+                        if attack["has_attack_mod"] is True:
+                            target = self.set_target(attacker_name)
+                            self.attack(attacker_name, target, attack)
+                            self.check_for_death()
+                        if attack["has_dc"] is True:
+                            target = self.set_target(attacker_name)
+                            self.dc_attack(attacker_name, target, attack)
+                            self.check_for_death()
+                        if attack["aoe"] is True:
+                            pass
+                        if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+                            break
+                    self.condition_check(attacker_name)
+                    self.heal(attacker_name, self.combatants_stats[attacker_name]["combat_stats"]["regeneration"])
             rounds += 1
         if self.verbose is True:
             print("Combat ended")
         if len(self.players_names) == 0:
             if self.verbose is True:
                 print("The players were killed.")
-            return (0, self.player_deaths)
+            return (0, self.player_deaths, rounds)
         else:
             if self.verbose is True:
                 print("The monsters were killed.")
-            return (1, self.player_deaths)
+            return (1, self.player_deaths, rounds)
                 
 
 # fix incapacitated et doublons de conditions
 
 # À FAIRE:
-# Gérer les debuffs (conditions)
-# Actually rouler les dés (enregistrer des tuples dans le dictionnaire)
+# Gérer les debuffs (conditions) (Majoritairement done)
 # Implémenter les aoe et les attaques différentes
+# Legendary actions
+# Legendary resistances
 
 # Besoin d'une manière de décider qui est attaqué (Check: random pour l'instant)
 # Besoin d'une manière de distinguer les frontliners (facultatif)
