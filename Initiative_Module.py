@@ -1,5 +1,6 @@
 import random
 import pickle
+import copy
 from pathlib import Path
 import logging
 
@@ -13,6 +14,8 @@ class Initiative_Module():
         self.players_names = []
         self.monsters_names = []
         self.ini_order = {}
+        self.legendary_monsters = []
+        self.legend_actions_order = {}
         self.player_deaths = 0
         self.verbose = True
         self.conditions_list = ["Blinded", "Charmed", "Deafened", "Frightened", "Grappled", "Incapacitated", "Invisible", "Paralyzed", "Petrified", "Poisoned", "Prone", "Restrained", "Stunned", "Unconscious"]
@@ -22,6 +25,8 @@ class Initiative_Module():
         self.combatants_stats[name] = stats[name]
         self.combatants_hp[name] = stats[name]["max_hp"]
         self.combatants_names.append(name)
+        if self.combatants_stats[name]["legend_actions"] != []:
+            self.legendary_monsters.append(name)
 
     def import_group(self, base_name, quantity):
         stats = pickle.load(open(Path.cwd()/"data"/"stats_{}".format(base_name), "rb"))
@@ -31,6 +36,10 @@ class Initiative_Module():
             self.combatants_stats[new_name] = new_dict
             self.combatants_hp[new_name] = new_dict["max_hp"]
             self.combatants_names.append(new_name)
+            print(self.combatants_stats[new_name]["legend_actions"])
+            if self.combatants_stats[new_name]["legend_actions"] != []:
+                self.legendary_monsters.append(new_name)
+            print(self.legendary_monsters)
 
     def import_players(self, list_of_players):
         for name in list_of_players:
@@ -76,6 +85,7 @@ class Initiative_Module():
         for name in self.combatants_names:
             temp_dict[name] = self.d20()+self.combatants_stats[name]["ini_mod"]
         self.ini_order = list(dict(sorted(temp_dict.items(), key=lambda item: item[1], reverse=True)).keys())
+        print("INI_ORDER", self.ini_order)
 
     def separate_players_vs_monsters(self):
         for name in self.combatants_names:
@@ -440,6 +450,40 @@ class Initiative_Module():
                 self.set_condition(combatant_name, "Incapacitated", dc, stat)
                 self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = True
 
+    def set_legend_actions_order(self):
+        if self.players_names != []:
+            for monster_name in self.legendary_monsters:
+                initiative_order = copy.deepcopy(self.players_names)
+                legendary_actions_order = []
+                for possible_charge_use in range(self.combatants_stats[monster_name]["legend_actions_charges"]):
+                    if initiative_order == []:
+                        break
+                    charge_use = random.choice(initiative_order)
+                    initiative_order.remove(charge_use)
+                    legendary_actions_order.append(charge_use)
+                self.legend_actions_order[monster_name] = legendary_actions_order
+    
+    def execute_legend_action(self, monster_name):
+        attack = random.choice(self.combatants_stats[monster_name]["legend_actions"])
+        if attack["charge_cost"] > self.combatants_stats[monster_name]["legend_actions_charges"]:
+            while attack["charge_cost"] > self.combatants_stats[monster_name]["legend_actions_charges"]:
+                attack = random.choice(self.combatants_stats[monster_name]["legend_actions"])
+        logging.info("{}'s legendary action: {}".format(monster_name, attack["name"]))
+        self.check_for_death()
+        if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+            return
+        if attack["has_attack_mod"] is True:
+            target = self.set_target(monster_name)
+            self.attack(monster_name, target, attack)
+            self.check_for_death()
+        if attack["has_dc"] is True:
+            target = self.set_target(monster_name)
+            self.dc_attack(monster_name, target, attack)
+            self.check_for_death()
+        if attack["aoe"] is True:
+            pass
+        if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+            return
 
     def combat(self, verbose=True):
         rounds = 1
@@ -450,6 +494,7 @@ class Initiative_Module():
             if self.verbose is True:
                 print("\n --- Round {} ---\n".format(rounds))
                 logging.info("\n --- Round {} ---\n".format(rounds))
+            self.set_legend_actions_order()
             for attacker_name in self.ini_order:
                 if "Incapacitated" in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
                     logging.info("{} incapacitated".format(attacker_name))
@@ -475,7 +520,13 @@ class Initiative_Module():
                             break
                     self.condition_check(attacker_name)
                     self.heal(attacker_name, self.combatants_stats[attacker_name]["combat_stats"]["regeneration"])
+                    for monster_name in self.legendary_monsters:
+                        print(self.legend_actions_order)
+                        if attacker_name in self.legend_actions_order[monster_name]:
+                            self.execute_legend_action(monster_name)
             rounds += 1
+            for monster_name in self.legendary_monsters:
+                self.combatants_stats[monster_name]["legendary_actions_charges"] = 3
         if self.verbose is True:
             print("Combat ended")
         if len(self.players_names) == 0:

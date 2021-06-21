@@ -39,11 +39,12 @@ class MainStats():
         self.legend_actions = []
         self.legend_actions_charges = 0
         self.legend_resistances = 0
+        self.regeneration = 0
 
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, attack_mod=0, number_of_attacks=1, legend_resistances=0, is_monster=True, is_frontliner=True):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, attack_mod=0, number_of_attacks=1, legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -51,7 +52,9 @@ class MainStats():
         self.ini_mod = ini_mod
         self.attack_mod = attack_mod
         self.number_of_attacks = number_of_attacks
+        self.legend_actions_charges = legend_actions_charges
         self.legend_resistances = legend_resistances
+        self.regeneration = regeneration
         self.is_monster = is_monster
         self.is_frontliner = is_frontliner
 
@@ -88,6 +91,25 @@ class MainStats():
         dict["dc_effect_on_hit"] = dc_effect_on_hit
         dict["has_advantage"] = has_advantage
         self.actions.append(dict)
+
+    def set_legend_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
+        dict = {}
+        dict["action_type"] = action_type
+        dict["name"] = name
+        dict["charge_cost"] = charge_cost
+        dict["has_attack_mod"] = has_attack_mod
+        dict["has_dc"] = has_dc
+        dict["dc_type"] = dc_type
+        dict["dice_rolls"] = dice_rolls
+        dict["condition"] = condition
+        dict["aoe"] = aoe
+        dict["damage_type"] = damage_type
+        dict["if_save"] = if_save
+        dict["auto_success"] = auto_success
+        dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
+        dict["dc_effect_on_hit"] = dc_effect_on_hit
+        dict["has_advantage"] = has_advantage
+        self.legend_actions.append(dict)
     
     def save_main_stats(self):
         dict = {self.name: {
@@ -103,6 +125,8 @@ class MainStats():
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
                 "saves": self.saves,
-                "actions": self.actions}}
+                "actions": self.actions,
+                "legend_actions": self.legend_actions,
+                "legend_actions_charges": self.legend_actions_charges}}
         self.actions = []
         pickle.dump(dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))
