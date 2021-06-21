@@ -127,6 +127,7 @@ class MainStats():
                 "saves": self.saves,
                 "actions": self.actions,
                 "legend_actions": self.legend_actions,
-                "legend_actions_charges": self.legend_actions_charges}}
+                "legend_actions_charges": self.legend_actions_charges,
+                "legend_resistances": self.legend_resistances}}
         self.actions = []
         pickle.dump(dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))

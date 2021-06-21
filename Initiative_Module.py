@@ -36,10 +36,8 @@ class Initiative_Module():
             self.combatants_stats[new_name] = new_dict
             self.combatants_hp[new_name] = new_dict["max_hp"]
             self.combatants_names.append(new_name)
-            print(self.combatants_stats[new_name]["legend_actions"])
             if self.combatants_stats[new_name]["legend_actions"] != []:
                 self.legendary_monsters.append(new_name)
-            print(self.legendary_monsters)
 
     def import_players(self, list_of_players):
         for name in list_of_players:
@@ -85,7 +83,6 @@ class Initiative_Module():
         for name in self.combatants_names:
             temp_dict[name] = self.d20()+self.combatants_stats[name]["ini_mod"]
         self.ini_order = list(dict(sorted(temp_dict.items(), key=lambda item: item[1], reverse=True)).keys())
-        print("INI_ORDER", self.ini_order)
 
     def separate_players_vs_monsters(self):
         for name in self.combatants_names:
@@ -296,6 +293,11 @@ class Initiative_Module():
             dis=True
         save_bonus = self.combatants_stats[combatant_name]["saves"][stat]
         roll = self.d20(adv=adv, dis=dis)+save_bonus
+        if self.combatants_stats[combatant_name]["legend_resistances"] > 0:
+            roll = dc
+            self.combatants_stats[combatant_name]["legend_resistances"] -=1
+            if self.verbose is True:
+                print("{} uses a legendary resistance.".format(combatant_name))
         if roll >= dc:
             return True
         else:
@@ -521,7 +523,6 @@ class Initiative_Module():
                     self.condition_check(attacker_name)
                     self.heal(attacker_name, self.combatants_stats[attacker_name]["combat_stats"]["regeneration"])
                     for monster_name in self.legendary_monsters:
-                        print(self.legend_actions_order)
                         if attacker_name in self.legend_actions_order[monster_name]:
                             self.execute_legend_action(monster_name)
             rounds += 1

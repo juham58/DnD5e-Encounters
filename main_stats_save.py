@@ -234,3 +234,12 @@ save.set_action(action_type="melee", name="Bite", dice_rolls=[(2,8,4), (4,6,0)],
 save.set_action(action_type="melee", name="Claws", dice_rolls=[(2,6,4)], has_advantage=True, has_dc_effect_on_hit=True, condition="Prone", dc_type="str")
 save.set_legend_action(action_type="melee", charge_cost=1, name="Swipe", dice_rolls=[(2,6,4)], has_advantage=True, has_dc_effect_on_hit=True, condition="Prone", dc_type="str")
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Werewolf", ac=12, hp=58, dc=12, ini_mod=1, attack_mod=4, number_of_attacks=2)
+save.add_avg_dmg(2, 6, 6)
+save.set_abilities(2, 1, 2, 0, 0, 0)
+save.set_saves(2, 1, 2, 0, 0, 0)
+save.set_action(action_type="melee", name="Bite", dice_rolls=[(1,8,2)])
+save.set_action(action_type="melee", name="Claws", dice_rolls=[(2,4,2)])
+save.save_main_stats()
