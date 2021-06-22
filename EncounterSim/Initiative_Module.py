@@ -553,11 +553,7 @@ class Initiative_Module():
 # À FAIRE:
 # Gérer les debuffs (conditions) (Majoritairement done)
 # Implémenter les aoe et les attaques différentes
-# Legendary actions
-# Legendary resistances
 
 # Besoin d'une manière de décider qui est attaqué (Check: random pour l'instant)
-# Besoin d'une manière de distinguer les frontliners (facultatif)
-# Gérer les death saves
-# Gérer le healing
+# Besoin d'une manière de distinguer les frontliners
 # Simuler des stratégies
