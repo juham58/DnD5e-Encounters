@@ -198,6 +198,8 @@ class Initiative_Module():
                     print(attacker_name, "CRITS on paralyzed or unconscious", target_name, "with", attack_roll, "and does:", crit_damage, " damage!")
         if attack_roll >= self.combatants_stats[target_name]["ac"] and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
             self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
+		if straight_roll == 20 and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+            self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 2
         else:
             if self.verbose is True:
                 print(attacker_name, "misses.")
