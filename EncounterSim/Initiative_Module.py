@@ -104,12 +104,16 @@ class Initiative_Module():
             damage += self.roll_dice(dice_roll)
         if dc_result is False:
             self.combatants_hp[target_name] -= damage
+            if attack["heal"] is True and attack["heal_type"] == "damage_dealt":
+                self.heal(attacker_name, damage)
             if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
                 self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
             if self.verbose is True:
                 print(target_name, "fails to meet DC of", dc, "and takes:", damage, " damage!")
         if dc_result is True and attack["if_save"] == "half":
             self.combatants_hp[target_name] -= round(damage/2)
+            if attack["heal"] is True and attack["heal_type"] == "damage_dealt":
+                self.heal(attacker_name, round(damage/2))
             if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
                 self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
             if self.verbose is True:
@@ -125,9 +129,13 @@ class Initiative_Module():
             adv = True
         if self.combatants_stats[attacker_name]["combat_stats"]["disadvantage_on_attack"] is True or self.combatants_stats[target_name]["combat_stats"]["disadvantage_if_attacked"] is True:
             dis = True
+        conditions = self.combatants_stats[target_name]["combat_stats"]["conditions"]
+        if "Prone" in conditions and attack["action_type"] == "melee":
+            adv=True
+        if "Prone" in conditions and attack["action_type"] == "ranged":
+            dis=True
         attack_roll = self.d20(adv=adv, dis=dis)+self.combatants_stats[attacker_name]["attack_mod"]
         straight_roll = attack_roll-self.combatants_stats[attacker_name]["attack_mod"]
-        conditions = self.combatants_stats[target_name]["combat_stats"]["conditions"]
         normal_damage = 0
         for dice_roll in attack["dice_rolls"]:
             normal_damage += self.roll_dice(dice_roll)

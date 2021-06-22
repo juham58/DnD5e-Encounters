@@ -74,7 +74,7 @@ class MainStats():
                       "wis": wis_bonus,
                       "cha": cha_bonus}
 
-    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
+    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, heal=False, heal_type="damage_dealt"):
         dict = {}
         dict["action_type"] = action_type
         dict["name"] = name
@@ -90,6 +90,8 @@ class MainStats():
         dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
         dict["dc_effect_on_hit"] = dc_effect_on_hit
         dict["has_advantage"] = has_advantage
+        dict["heal"] = heal
+        dict["heal_type"] = heal_type
         self.actions.append(dict)
 
     def set_legend_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
