@@ -139,10 +139,18 @@ class Initiative_Module():
         normal_damage = 0
         for dice_roll in attack["dice_rolls"]:
             normal_damage += self.roll_dice(dice_roll)
+            if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
+                normal_damage = int(normal_damage/2)
+            if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
+                normal_damage = 0
         crit_damage = 0
         for dice_roll in attack["dice_rolls"]:
             dice_roll = (2*dice_roll[0], dice_roll[1], dice_roll[2])
             crit_damage += self.roll_dice(dice_roll)
+            if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
+                crit_damage = int(crit_damage/2)
+            if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
+                crit_damage = 0
         #if target_name is None:
             #if self.verbose is True:
                 #print("There is no one to attack.")
@@ -198,7 +206,7 @@ class Initiative_Module():
                     print(attacker_name, "CRITS on paralyzed or unconscious", target_name, "with", attack_roll, "and does:", crit_damage, " damage!")
         if attack_roll >= self.combatants_stats[target_name]["ac"] and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
             self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
-		if straight_roll == 20 and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+        if straight_roll == 20 and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
             self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 2
         else:
             if self.verbose is True:

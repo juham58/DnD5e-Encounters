@@ -113,8 +113,9 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 
 #monsters_test(50, "Skeleton", 150, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 #monsters_test(300, "Thug", 10, ["Ewyn", "Gowon", "Iaachus", "Melvin", "Reaghan", "Vilgefortz"])
-#monsters_test(100, "Werewolf", 20, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Loup Garou"])
-monsters_test(50, "Jiangshi", 10, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+#monsters_test(100, "Werewolf", 10, ["John", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Loup Garou"])
+#monsters_test(50, "Jiangshi", 10, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+monsters_test(300, "Spined Devil", 10, ["Gowon", "Iaachus", "Reaghan", "Vilgefortz"])
 
 #ini = Initiative_Module()
 #ini.import_group("Core Spawn Crawler", 4)
