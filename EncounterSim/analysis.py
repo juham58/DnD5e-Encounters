@@ -11,9 +11,9 @@ def combat_analysis(iterations):
     rounds = []
     for _ in range(iterations):
         ini = Initiative_Module()
-        ini.import_monsters(["Demetriu"])
-        ini.import_players(["Ewyn", "Iaachus", "Reaghan", "Vilgefortz"])
-        combat_end = ini.combat(verbose=True)
+        ini.import_monsters(["Higher Vampire"])
+        ini.import_players(["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran", "Friendly Higher Vampire"])
+        combat_end = ini.combat(verbose=False)
         results.append(combat_end[0])
         player_deaths_list.append(combat_end[1])
         rounds.append(combat_end[2])
@@ -22,9 +22,10 @@ def combat_analysis(iterations):
     avg_rounds = sum(rounds)/len(rounds)
     end_time = time.process_time() - start_time
     print("Total time:", end_time, "s")
+    print("----\nSuccess rate:", succes_rate, "\nAverage players deaths:", avg_player_deaths, "\nAverage number of rounds: ", avg_rounds, "\n----")
     return (succes_rate, avg_player_deaths, avg_rounds)
 
-#print(combat_analysis(10))
+combat_analysis(2000)
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
@@ -115,7 +116,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 #monsters_test(300, "Thug", 10, ["Ewyn", "Gowon", "Iaachus", "Melvin", "Reaghan", "Vilgefortz"])
 #monsters_test(100, "Werewolf", 10, ["John", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Loup Garou"])
 #monsters_test(50, "Jiangshi", 10, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
-monsters_test(300, "Spined Devil", 10, ["Gowon", "Iaachus", "Reaghan", "Vilgefortz"])
+#monsters_test(300, "Spined Devil", 10, ["Gowon", "Iaachus", "Reaghan", "Vilgefortz"], list_of_monsters_to_import=["Imp"])
 
 #ini = Initiative_Module()
 #ini.import_group("Core Spawn Crawler", 4)

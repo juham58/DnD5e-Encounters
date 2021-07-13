@@ -137,13 +137,23 @@ class Initiative_Module():
         attack_roll = self.d20(adv=adv, dis=dis)+self.combatants_stats[attacker_name]["attack_mod"]
         straight_roll = attack_roll-self.combatants_stats[attacker_name]["attack_mod"]
         normal_damage = 0
+        crit_damage = 0
+        if self.combatants_stats[attacker_name]["sneak_attack_dices"] != 0 and self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] == 1:
+                if straight_roll == 20:
+                    sneak_attack_damage = self.roll_dice((2*self.combatants_stats[attacker_name]["sneak_attack_dices"],6,0))
+                    crit_damage += sneak_attack_damage
+                else:
+                    sneak_attack_damage = self.roll_dice((self.combatants_stats[attacker_name]["sneak_attack_dices"],6,0))
+                    normal_damage += sneak_attack_damage
+                if self.verbose:
+                    print("Sneak attack damage", sneak_attack_damage)
+                self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] = 0
         for dice_roll in attack["dice_rolls"]:
             normal_damage += self.roll_dice(dice_roll)
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
                 normal_damage = int(normal_damage/2)
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
                 normal_damage = 0
-        crit_damage = 0
         for dice_roll in attack["dice_rolls"]:
             dice_roll = (2*dice_roll[0], dice_roll[1], dice_roll[2])
             crit_damage += self.roll_dice(dice_roll)
@@ -516,6 +526,7 @@ class Initiative_Module():
                 logging.info("\n --- Round {} ---\n".format(rounds))
             self.set_legend_actions_order()
             for attacker_name in self.ini_order:
+                self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] = 1
                 if "Incapacitated" in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
                     logging.info("{} incapacitated".format(attacker_name))
                     if self.combatants_stats[attacker_name]["combat_stats"]["is_downed"]:

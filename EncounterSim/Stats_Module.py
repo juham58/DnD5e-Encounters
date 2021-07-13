@@ -15,6 +15,7 @@ class MainStats():
         self.immunities = []
         self.is_monster = True
         self.is_frontliner = True
+        self.sneak_attack_dices = 0
         self.combat_stats = {"is_downed": False,
                             "is_stable": False,
                             "conditions": [],
@@ -24,7 +25,8 @@ class MainStats():
                             "advantage_on_attack": False,
                             "advantage_if_attacked": False,
                             "disadvantage_on_attack": False,
-                            "disadvantage_if_attacked": False}
+                            "disadvantage_if_attacked": False,
+                            "sneak_attack_charge": 1}
         self.abilities = {"str": 10,
                           "dex": 10,
                           "con": 10,
@@ -46,7 +48,7 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, advantage_if_attacked=False, disadvantage_if_attacked=False):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -61,6 +63,9 @@ class MainStats():
         self.regeneration = regeneration
         self.is_monster = is_monster
         self.is_frontliner = is_frontliner
+        self.sneak_attack_dices = sneak_attack_dices
+        self.combat_stats["advantage_if_attacked"] = advantage_if_attacked
+        self.combat_stats["disadvantage_if_attacked"] = disadvantage_if_attacked
 
     def set_abilities(self, str_bonus, dex_bonus, con_bonus, int_bonus, wis_bonus, cha_bonus):
         self.abilities = {"str": str_bonus,
@@ -130,6 +135,7 @@ class MainStats():
                 "immunities": self.immunities,
                 "is_monster": self.is_monster,
                 "is_frontliner": self.is_frontliner,
+                "sneak_attack_dices": self.sneak_attack_dices,
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
                 "saves": self.saves,
