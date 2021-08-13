@@ -4,18 +4,21 @@ import statistics as st
 import matplotlib.pyplot as plt
 import numpy as np
 
-def combat_analysis(iterations):
+def combat_analysis(iterations, list_of_players_to_import=[], list_of_monsters_to_import=[], import_group=False, name_to_import="", number_to_import=0):
     start_time = time.process_time()
     results = []
     player_deaths_list = []
     rounds = []
     for _ in range(iterations):
         ini = Initiative_Module()
-        ini.import_monsters(["Higher Vampire"])
-        ini.import_players(["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran", "Friendly Higher Vampire"])
+        ini.import_monsters(list_of_monsters_to_import)
+        ini.import_players(list_of_players_to_import)
+        if import_group:
+            ini.import_group(name_to_import, number_to_import)
         combat_end = ini.combat(verbose=False)
         results.append(combat_end[0])
-        player_deaths_list.append(combat_end[1])
+        if combat_end[0] == 1:
+            player_deaths_list.append(combat_end[1])
         rounds.append(combat_end[2])
     succes_rate = results.count(1)/len(results)*100
     avg_player_deaths = sum(player_deaths_list)/len(player_deaths_list)
@@ -25,7 +28,8 @@ def combat_analysis(iterations):
     print("----\nSuccess rate:", succes_rate, "\nAverage players deaths:", avg_player_deaths, "\nAverage number of rounds: ", avg_rounds, "\n----")
     return (succes_rate, avg_player_deaths, avg_rounds)
 
-combat_analysis(2000)
+combat_analysis(200, list_of_players_to_import=["Dorran", "Victoriana", "Gaspard Maupassant", "Rand al'Thor", "Augustin"], list_of_monsters_to_import=["Urmelena Mirimm", "Zyn Daev'yana", "Ereldra Icoszrin"])
+#combat_analysis(200, list_of_players_to_import=["Dorran", "Victoriana", "Gaspard Maupassant", "Rand al'Thor", "Augustin"], import_group=True, name_to_import="Drow Elite Warrior", number_to_import=3)
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
@@ -48,7 +52,8 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
             ini.import_players(list_of_players)
             combat_end = ini.combat(verbose=verbose)
             results.append(combat_end[0])
-            player_deaths_list.append(combat_end[1])
+            if combat_end[0] == 1:
+                player_deaths_list.append(combat_end[1])
             number_of_rounds.append(combat_end[2])
         succes_rate = results.count(1)/len(results)*100
         list_of_avg_player_deaths.append(st.mean(player_deaths_list))
@@ -78,7 +83,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     plt.ylim((0, len(list_of_players)))
     plt.xlim(left=1)
     plt.xlabel("Nombre de {}s".format(monster_name))
-    plt.ylabel("Nombre de morts de joueurs")
+    plt.ylabel("Nombre de morts de joueurs moyen lors d'une victoire")
     plt.title("Nombre moyen et écart type de morts de joueurs en fonction du nombre de {}s".format(monster_name))
     plt.grid()
     plt.minorticks_on()
@@ -114,7 +119,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 
 #monsters_test(50, "Skeleton", 150, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 #monsters_test(300, "Thug", 10, ["Ewyn", "Gowon", "Iaachus", "Melvin", "Reaghan", "Vilgefortz"])
-#monsters_test(100, "Werewolf", 10, ["John", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Loup Garou"])
+#monsters_test(100, "Drow Elite Warrior", 10, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Urmelena Mirimm", "Zyn Daev'yana", "Ereldra Icoszrin"])
 #monsters_test(50, "Jiangshi", 10, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 #monsters_test(300, "Spined Devil", 10, ["Gowon", "Iaachus", "Reaghan", "Vilgefortz"], list_of_monsters_to_import=["Imp"])
 
