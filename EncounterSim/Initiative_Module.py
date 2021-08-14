@@ -72,12 +72,16 @@ class Initiative_Module():
             if roll_1 < roll_2:
                 return roll_1
 
-    def roll_dice(self, tuple):
-        result = 0
-        for _ in range(tuple[0]):
-            result += random.randint(1, tuple[1])
-        result += tuple[2]
-        return result
+    def roll_dice(self, dice_input):
+        if type(dice_input) == tuple:
+            string_input = "{}d{}+{}".format(dice_input[0], dice_input[1], dice_input[2])
+            return d20.roll(string_input).total
+
+        if type(dice_input) == str:
+            return d20.roll(dice_input).total
+
+        else:
+            print("dice_input should be a tuple or a string")
 
     def roll_ini(self):
         temp_dict = {}
