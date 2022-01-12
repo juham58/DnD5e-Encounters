@@ -9,6 +9,7 @@ class MainStats():
         self.dc = 10
         self.max_hp = 25
         self.ini_mod = 0
+        self.ini_adv = False
         self.attack_mod = 0
         self.number_of_attacks = 1
         self.resistances = []
@@ -48,12 +49,13 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, advantage_if_attacked=False, disadvantage_if_attacked=False):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, advantage_if_attacked=False, disadvantage_if_attacked=False):
         self.name = name
         self.ac = ac
         self.max_hp = hp
         self.dc = dc
         self.ini_mod = ini_mod
+        self.ini_adv = ini_adv
         self.attack_mod = attack_mod
         self.number_of_attacks = number_of_attacks
         self.resistances = resistances
@@ -129,6 +131,7 @@ class MainStats():
                 "dc": self.dc, 
                 "max_hp": self.max_hp,
                 "ini_mod": self.ini_mod,
+                "ini_adv": self.ini_adv,
                 "attack_mod": self.attack_mod,
                 "number_of_attacks": self.number_of_attacks,
                 "resistances": self.resistances,

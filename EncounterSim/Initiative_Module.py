@@ -3,6 +3,7 @@ import pickle
 import copy
 from pathlib import Path
 import logging
+import d20
 
 logging.basicConfig(filename='Debug.log', level=logging.INFO)
 
@@ -17,7 +18,7 @@ class Initiative_Module():
         self.legendary_monsters = []
         self.legend_actions_order = {}
         self.player_deaths = 0
-        self.verbose = True
+        self.verbose = False
         self.conditions_list = ["Blinded", "Charmed", "Deafened", "Frightened", "Grappled", "Incapacitated", "Invisible", "Paralyzed", "Petrified", "Poisoned", "Prone", "Restrained", "Stunned", "Unconscious"]
 
     def import_stats(self, name):
@@ -48,40 +49,34 @@ class Initiative_Module():
             for name in list_of_monsters:
                 self.import_stats(name)
 
-    def d20(self, adv=False, dis=False):
+    def roll_d20(self, adv=False, dis=False):
         if adv is False and dis is False:
-            return random.randint(1, 20)
+            return d20.roll("1d20").total
 
         if adv is True and dis is True:
-            return random.randint(1, 20)
+            return d20.roll("1d20").total
         
         if adv is True and dis is False:
-            roll_1 = random.randint(1, 20)
-            roll_2 = random.randint(1, 20)
-            if roll_1 >= roll_2:
-                return roll_1
-            if roll_1 < roll_2:
-                return roll_2
+            return d20.roll("2d20kh1").total
         
         if adv is False and dis is True:
-            roll_1 = random.randint(1, 20)
-            roll_2 = random.randint(1, 20)
-            if roll_1 >= roll_2:
-                return roll_2
-            if roll_1 < roll_2:
-                return roll_1
+            return d20.roll("2d20kl1").total
 
-    def roll_dice(self, tuple):
-        result = 0
-        for _ in range(tuple[0]):
-            result += random.randint(1, tuple[1])
-        result += tuple[2]
-        return result
+    def roll_dice(self, dice_input):
+        if type(dice_input) == tuple:
+            string_input = "{}d{}+{}".format(dice_input[0], dice_input[1], dice_input[2])
+            return d20.roll(string_input).total
+
+        if type(dice_input) == str:
+            return d20.roll(dice_input).total
+
+        else:
+            print("dice_input should be a tuple or a string")
 
     def roll_ini(self):
         temp_dict = {}
         for name in self.combatants_names:
-            temp_dict[name] = self.d20()+self.combatants_stats[name]["ini_mod"]
+            temp_dict[name] = self.roll_d20(adv=self.combatants_stats[name]["ini_adv"])+self.combatants_stats[name]["ini_mod"]
         self.ini_order = list(dict(sorted(temp_dict.items(), key=lambda item: item[1], reverse=True)).keys())
 
     def separate_players_vs_monsters(self):
@@ -134,7 +129,7 @@ class Initiative_Module():
             adv=True
         if "Prone" in conditions and attack["action_type"] == "ranged":
             dis=True
-        attack_roll = self.d20(adv=adv, dis=dis)+self.combatants_stats[attacker_name]["attack_mod"]
+        attack_roll = self.roll_d20(adv=adv, dis=dis)+self.combatants_stats[attacker_name]["attack_mod"]
         straight_roll = attack_roll-self.combatants_stats[attacker_name]["attack_mod"]
         normal_damage = 0
         crit_damage = 0
@@ -275,7 +270,7 @@ class Initiative_Module():
 
     def death_saves(self, player_name, mod=0, adv=False):
         self.combatants_hp[player_name] = 0
-        straight_roll = self.d20(adv=adv)
+        straight_roll = self.roll_d20(adv=adv)
         roll = straight_roll + mod
         if straight_roll == 20:
             self.heal(player_name, 1)
@@ -320,7 +315,7 @@ class Initiative_Module():
         if stat == "dex" and "Restrained" in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
             dis=True
         save_bonus = self.combatants_stats[combatant_name]["saves"][stat]
-        roll = self.d20(adv=adv, dis=dis)+save_bonus
+        roll = self.roll_d20(adv=adv, dis=dis)+save_bonus
         if self.combatants_stats[combatant_name]["legend_resistances"] > 0:
             roll = dc
             self.combatants_stats[combatant_name]["legend_resistances"] -=1

@@ -4,15 +4,15 @@ import statistics as st
 import matplotlib.pyplot as plt
 import numpy as np
 
-def combat_analysis(iterations):
+def combat_analysis(iterations, monsters_list, players_list):
     start_time = time.process_time()
     results = []
     player_deaths_list = []
     rounds = []
     for _ in range(iterations):
         ini = Initiative_Module()
-        ini.import_monsters(["Higher Vampire"])
-        ini.import_players(["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran", "Friendly Higher Vampire"])
+        ini.import_monsters(monsters_list)
+        ini.import_players(players_list)
         combat_end = ini.combat(verbose=False)
         results.append(combat_end[0])
         player_deaths_list.append(combat_end[1])
@@ -22,10 +22,10 @@ def combat_analysis(iterations):
     avg_rounds = sum(rounds)/len(rounds)
     end_time = time.process_time() - start_time
     print("Total time:", end_time, "s")
-    print("----\nSuccess rate:", succes_rate, "\nAverage players deaths:", avg_player_deaths, "\nAverage number of rounds: ", avg_rounds, "\n----")
+    print("----\nSuccess rate:", succes_rate, "%", "\nAverage players deaths:", avg_player_deaths, "\nAverage number of rounds: ", avg_rounds, "\n----")
     return (succes_rate, avg_player_deaths, avg_rounds)
 
-combat_analysis(2000)
+#combat_analysis(2000, ["Tommy", "Tony"], ["Ewyn", "Gowon", "Melvin", "Reaghan", "Vilgefortz"])
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
@@ -103,7 +103,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     plt.ylabel("Temps par itération [s]")
     plt.show()
 
-#monsters_test(1000, "Core Spawn Crawler", 1, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Core Spawn Seer"])
+monsters_test(100, "Stone Golem", 5, ["John", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 #monsters_test(100, "Skeleton", 25, ["Ewyn", "Gowon", "Iaachus", "Reaghan", "Vilgefortz", "Sartin"])
 
 
