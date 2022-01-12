@@ -103,7 +103,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     plt.ylabel("Temps par itération [s]")
     plt.show()
 
-monsters_test(100, "Stone Golem", 5, ["John", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+monsters_test(5, "Skeleton", 300, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=True)
 #monsters_test(100, "Skeleton", 25, ["Ewyn", "Gowon", "Iaachus", "Reaghan", "Vilgefortz", "Sartin"])
 
 

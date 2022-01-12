@@ -1,14 +1,16 @@
 import random
+import re
 import pickle
 import copy
 from pathlib import Path
 import logging
 import d20
+from d20 import dice
 
 logging.basicConfig(filename='Debug.log', level=logging.INFO)
 
 class Initiative_Module():
-    def __init__(self):
+    def __init__(self, pythagore=False):
         self.combatants_stats = {}
         self.combatants_hp = {}
         self.combatants_names = []
@@ -20,6 +22,7 @@ class Initiative_Module():
         self.player_deaths = 0
         self.verbose = False
         self.conditions_list = ["Blinded", "Charmed", "Deafened", "Frightened", "Grappled", "Incapacitated", "Invisible", "Paralyzed", "Petrified", "Poisoned", "Prone", "Restrained", "Stunned", "Unconscious"]
+        self.pythagore = pythagore
 
     def import_stats(self, name):
         stats = pickle.load(open(Path.cwd()/"data"/"stats_{}".format(name), "rb"))
@@ -72,6 +75,13 @@ class Initiative_Module():
 
         else:
             print("dice_input should be a tuple or a string")
+    
+    def calculate_crit_damage(self, dice_input):
+        valeurs = re.findall(r"\d?\d?\d?\d(?=d)", dice_input)
+        for n, membre in enumerate([(m.start(0), m.end(0)) for m in re.finditer(r"\d?\d?\d?\d(?=d)", dice_input)]):
+            valeur_crit = str(2*int(valeurs[n]))
+            dice_input = dice_input[:membre[0]] + dice_input[membre[0]:membre[1]].replace(valeurs[n], valeur_crit) + dice_input[membre[1]:]
+        return d20.roll(dice_input).total
 
     def roll_ini(self):
         temp_dict = {}
@@ -134,15 +144,15 @@ class Initiative_Module():
         normal_damage = 0
         crit_damage = 0
         if self.combatants_stats[attacker_name]["sneak_attack_dices"] != 0 and self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] == 1:
-                if straight_roll == 20:
-                    sneak_attack_damage = self.roll_dice((2*self.combatants_stats[attacker_name]["sneak_attack_dices"],6,0))
-                    crit_damage += sneak_attack_damage
-                else:
-                    sneak_attack_damage = self.roll_dice((self.combatants_stats[attacker_name]["sneak_attack_dices"],6,0))
-                    normal_damage += sneak_attack_damage
-                if self.verbose:
-                    print("Sneak attack damage", sneak_attack_damage)
-                self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] = 0
+            if straight_roll == 20:
+                sneak_attack_damage = self.roll_dice((2*self.combatants_stats[attacker_name]["sneak_attack_dices"],6,0))
+                crit_damage += sneak_attack_damage
+            else:
+                sneak_attack_damage = self.roll_dice((self.combatants_stats[attacker_name]["sneak_attack_dices"],6,0))
+                normal_damage += sneak_attack_damage
+            if self.verbose:
+                print("Sneak attack damage", sneak_attack_damage)
+            self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] = 0
         for dice_roll in attack["dice_rolls"]:
             normal_damage += self.roll_dice(dice_roll)
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
@@ -150,8 +160,11 @@ class Initiative_Module():
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
                 normal_damage = 0
         for dice_roll in attack["dice_rolls"]:
-            dice_roll = (2*dice_roll[0], dice_roll[1], dice_roll[2])
-            crit_damage += self.roll_dice(dice_roll)
+            if type(dice_roll) == tuple:
+                dice_roll = (2*dice_roll[0], dice_roll[1], dice_roll[2])
+                crit_damage += self.roll_dice(dice_roll)
+            else:
+                crit_damage += self.calculate_crit_damage(dice_roll)
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
                 crit_damage = int(crit_damage/2)
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
@@ -226,7 +239,34 @@ class Initiative_Module():
             self.combatants_stats[combatant_name]["combat_stats"]["death_saves"][1] = 0
             self.combatants_stats[combatant_name]["combat_stats"]["is_downed"] = False
             self.remove_condition(combatant_name, "Unconscious")
-        
+
+    def gauss_circle_problem(self, rayon):
+        resultat = 1
+        for i in range(20):
+            resultat += 4*(((rayon**2)//(4*i+1))-((rayon**2)//(4*i+3)))
+        return resultat
+
+    def calculate_aoe_number_of_targets(self, attacker_name, aoe_size, aoe_shape, pythagore):
+        maximum_number_of_squares = 1
+        if aoe_shape == "sphere":
+            if pythagore:
+                maximum_number_of_squares = self.gauss_circle_problem(aoe_size//5)
+            else:
+                maximum_number_of_squares = ((2*aoe_size+1)//5)**2
+        if aoe_shape == "cylinder":
+            if pythagore:
+                maximum_number_of_squares = self.gauss_circle_problem(aoe_size//5)
+            else:
+                maximum_number_of_squares = ((2*aoe_size+1)//5)**2
+        if aoe_shape == "square":
+            maximum_number_of_squares = (aoe_size//5)**2
+        if self.combatants_stats[attacker_name]["is_monster"]:
+            number_of_targets = len(self.players_names)
+        if self.combatants_stats[attacker_name]["is_monster"] is False:
+            number_of_targets = len(self.monsters_names)
+        if number_of_targets <= maximum_number_of_squares:
+            maximum_number_of_squares = number_of_targets
+        return random.randint(maximum_number_of_squares//2, maximum_number_of_squares)
 
     def set_target(self, attacker_name):
         try:
@@ -237,6 +277,73 @@ class Initiative_Module():
                 return random.choice(self.monsters_names)
         except IndexError:
             return None
+
+    def set_multiple_targets(self, attacker_name, number_of_targets):
+        try:
+            targets_list = []
+            if self.combatants_stats[attacker_name]["is_monster"] is True:
+                players_list_copy = copy.deepcopy(self.players_names)
+                for _ in range(number_of_targets):
+                    chosen_element = random.choice(players_list_copy)
+                    players_list_copy.remove(chosen_element)
+                    targets_list.append(chosen_element)
+                return targets_list
+
+            else:
+                monsters_list_copy = copy.deepcopy(self.monsters_names)
+                for _ in range(number_of_targets):
+                    chosen_element = random.choice(monsters_list_copy)
+                    monsters_list_copy.remove(chosen_element)
+                    targets_list.append(chosen_element)
+                return targets_list
+        except IndexError:
+            return None
+
+    def aoe_attack(self, attacker_name, attack):
+        aoe_size = attack["aoe_size"]
+        aoe_shape = attack["aoe_shape"]
+        number_of_targets = self.calculate_aoe_number_of_targets(attacker_name, aoe_size, aoe_shape, self.pythagore)
+        list_of_targets = self.set_multiple_targets(attacker_name, number_of_targets)
+
+        if self.verbose:
+            print("{} casts {} on {} targets.".format(attacker_name, attack["name"], number_of_targets))
+
+        dc_type = attack["dc_type"]
+        dc = self.combatants_stats[attacker_name]["dc"]
+        damage = 0
+        dice_rolls = attack["dice_rolls"]
+        for dice_roll in dice_rolls:
+            damage += self.roll_dice(dice_roll)
+
+        for target_name in list_of_targets:
+            if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
+                damage = int(damage/2)
+            if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
+                damage = 0
+            dc_result = self.dc_check(target_name, dc, dc_type)
+            if attack["condition"] != "":
+                if dc_result is False:
+                    self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
+            if dc_result is False:
+                self.combatants_hp[target_name] -= damage
+                if attack["heal"] is True and attack["heal_type"] == "damage_dealt":
+                    self.heal(attacker_name, damage)
+                if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+                    self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
+                if self.verbose is True:
+                    print(target_name, "fails to meet DC of", dc, "and takes:", damage, " damage!")
+            if dc_result is True and attack["if_save"] == "half":
+                self.combatants_hp[target_name] -= round(damage/2)
+                if attack["heal"] is True and attack["heal_type"] == "damage_dealt":
+                    self.heal(attacker_name, round(damage/2))
+                if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+                    self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
+                if self.verbose is True:
+                    print(target_name, "succeeds DC of", dc, "and takes:", round(damage/2), " damage! (half damage)")
+            if dc_result is True and attack["if_save"] == "no_damage":
+                if self.verbose is True:
+                    print(target_name, "succeeds to meet DC of", dc, "and takes no damage!")
+
 
     def death(self, name):
         if self.combatants_stats[name]["is_monster"] is True:
@@ -536,12 +643,13 @@ class Initiative_Module():
                             target = self.set_target(attacker_name)
                             self.attack(attacker_name, target, attack)
                             self.check_for_death()
-                        if attack["has_dc"] is True:
+                        if attack["has_dc"] is True and attack["aoe"] is False:
                             target = self.set_target(attacker_name)
                             self.dc_attack(attacker_name, target, attack)
                             self.check_for_death()
                         if attack["aoe"] is True:
-                            pass
+                            self.aoe_attack(attacker_name, attack)
+                            self.check_for_death()
                         if len(self.players_names) == 0 or len(self.monsters_names) == 0:
                             break
                     self.condition_check(attacker_name)

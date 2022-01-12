@@ -85,7 +85,7 @@ class MainStats():
                       "wis": wis_bonus,
                       "cha": cha_bonus}
 
-    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, heal=False, heal_type="damage_dealt"):
+    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, heal=False, heal_type="damage_dealt"):
         dict = {}
         dict["action_type"] = action_type
         dict["name"] = name
@@ -95,6 +95,8 @@ class MainStats():
         dict["dice_rolls"] = dice_rolls
         dict["condition"] = condition
         dict["aoe"] = aoe
+        dict["aoe_size"] = aoe_size
+        dict["aoe_shape"] = aoe_shape
         dict["damage_type"] = damage_type
         dict["if_save"] = if_save
         dict["auto_success"] = auto_success
@@ -105,7 +107,7 @@ class MainStats():
         dict["heal_type"] = heal_type
         self.actions.append(dict)
 
-    def set_legend_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
+    def set_legend_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
         dict = {}
         dict["action_type"] = action_type
         dict["name"] = name
@@ -116,6 +118,8 @@ class MainStats():
         dict["dice_rolls"] = dice_rolls
         dict["condition"] = condition
         dict["aoe"] = aoe
+        dict["aoe_size"] = aoe_size
+        dict["aoe_shape"] = aoe_shape
         dict["damage_type"] = damage_type
         dict["if_save"] = if_save
         dict["auto_success"] = auto_success

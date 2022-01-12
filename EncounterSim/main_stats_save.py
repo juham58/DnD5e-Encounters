@@ -62,11 +62,7 @@ save.set_main_stats("Victoriana", ac=16, hp=60, dc=17, ini_mod=8, attack_mod=10,
 save.add_avg_dmg(7, 8, 0) # basé sur Chromatic orb lvl 5
 save.set_abilities(-1, 3, 1, 5, 1, 0)
 save.set_saves(-1, 3, 1, 9, 5, 0)
-save.set_action(action_type="ranged", name="Level 4 Scorching Ray", dice_rolls=[(2,6,0)], damage_type="fire")
-save.set_action(action_type="ranged", name="Level 4 Scorching Ray", dice_rolls=[(2,6,0)], damage_type="fire")
-save.set_action(action_type="ranged", name="Level 4 Scorching Ray", dice_rolls=[(2,6,0)], damage_type="fire")
-save.set_action(action_type="ranged", name="Level 4 Scorching Ray", dice_rolls=[(2,6,0)], damage_type="fire")
-save.set_action(action_type="ranged", name="Level 4 Scorching Ray", dice_rolls=[(2,6,0)], damage_type="fire")
+save.set_action(action_type="ranged", name="Level 4 Fireball", dice_rolls=["9d6"], damage_type="fire", dc_type="dex", has_dc=True, has_attack_mod=False, aoe=True, aoe_size=20, aoe_shape="sphere")
 save.save_main_stats()
 
 save = MainStats()
@@ -185,8 +181,8 @@ save.set_main_stats("Stone Golem", ac=17, hp=178, attack_mod=10, number_of_attac
 save.add_avg_dmg(3, 8, 6)
 save.set_abilities(6, -1, 5, -4, 0, -5)
 save.set_saves(6, -1, 5, -4, 0, -5)
-save.set_action(action_type="melee", name="Slam", dice_rolls=[(3,8,6)]) # on oublie l'abilité Slow
-save.set_action(action_type="melee", name="Slam", dice_rolls=[(3,8,6)])
+save.set_action(action_type="melee", name="Slam", dice_rolls=["3d8+6"]) # on oublie l'abilité Slow
+save.set_action(action_type="melee", name="Slam", dice_rolls=["3d8+6"])
 save.save_main_stats()
 
 save = MainStats()
@@ -371,7 +367,7 @@ save = MainStats()
 save.set_main_stats("Troglodyte", ac=11, hp=13, attack_mod=4, number_of_attacks=3)
 save.set_abilities(2, 0, 2, -2, 0, -2)
 save.set_saves(2, 0, 2, -2, 0, -2)
-save.set_action(action_type="melee", name="Bite", dice_rolls=[(1,4,2)])
-save.set_action(action_type="melee", name="Claw", dice_rolls=[(1,4,2)])
-save.set_action(action_type="melee", name="Claw", dice_rolls=[(1,4,2)])
+save.set_action(action_type="melee", name="Bite", dice_rolls=["1d4+2"])
+save.set_action(action_type="melee", name="Claw", dice_rolls=["1d4+2"])
+save.set_action(action_type="melee", name="Claw", dice_rolls=["1d4+2"])
 save.save_main_stats()
