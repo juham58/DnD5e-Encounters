@@ -40,6 +40,16 @@ class MainStats():
                       "wis": 10,
                       "int": 10,
                       "cha": 10}
+        self.spell_slots = {1: 0, 
+                            2: 0, 
+                            3: 0, 
+                            4: 0, 
+                            5: 0, 
+                            6: 0, 
+                            7: 0, 
+                            8: 0, 
+                            9: 0}
+        self.spellbook = []
         self.actions = []
         self.legend_actions = []
         self.legend_actions_charges = 0
@@ -84,6 +94,17 @@ class MainStats():
                       "int": int_bonus,
                       "wis": wis_bonus,
                       "cha": cha_bonus}
+
+    def set_spell_slots(self, lvl_1, lvl_2, lvl_3, lvl_4, lvl_5, lvl_6, lvl_7, lvl_8, lvl_9):
+        self.spell_slots = {1: lvl_1, 
+                            2: lvl_2, 
+                            3: lvl_3, 
+                            4: lvl_4, 
+                            5: lvl_5, 
+                            6: lvl_6, 
+                            7: lvl_7, 
+                            8: lvl_8, 
+                            9: lvl_9}
 
     def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, heal=False, heal_type="damage_dealt"):
         dict = {}
@@ -146,9 +167,14 @@ class MainStats():
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
                 "saves": self.saves,
+                "spell_slots": self.spell_slots,
+                "spellbook": self.spellbook,
                 "actions": self.actions,
                 "legend_actions": self.legend_actions,
                 "legend_actions_charges": self.legend_actions_charges,
                 "legend_resistances": self.legend_resistances}}
         self.actions = []
         pickle.dump(dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))
+
+# TODO créer une action "cast spell" où l'action est déterminée pendant le combat
+# TODO créer une méthode pour créer un spellbook
