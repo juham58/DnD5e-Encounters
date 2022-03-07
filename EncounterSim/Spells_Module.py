@@ -1,4 +1,6 @@
 import pickle
+import json
+import re
 from pathlib import Path
 
 class Spells_Database():
@@ -29,3 +31,12 @@ class Spells_Database():
         spell_dict["is_upcastable"] = is_upcastable
         spell_dict["upcast_effect"] = upcast_effect
         self.database[name] = spell_dict
+
+    def parse_spells_json(self):
+        with open(Path.cwd()/"data"/"spells.json", encoding='utf-8') as fichier:
+            file = json.load(fichier)
+            for k in file:
+                print(k["name"])
+
+sd = Spells_Database()
+sd.parse_spells_json()
