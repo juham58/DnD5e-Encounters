@@ -32,7 +32,7 @@ def combat_analysis(iterations, monsters_list, list_of_players):
     print("----\nSuccess rate:", succes_rate, "%", "\nAverage players deaths:", avg_player_deaths, "\nAverage number of rounds: ", avg_rounds, "\nAverage damage dealt by player:", players_damage, "\n----")
 
 #combat_analysis(200, ["Tommy", "Tony"], ["Ewyn", "Gowon", "Melvin", "Reaghan", "Vilgefortz"])
-combat_analysis(2000, ["Higher Vampire"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+#combat_analysis(2000, ["Higher Vampire"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
@@ -113,9 +113,8 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
 
     plt.figure()
-    plt.bar(players_damage.keys(), players_damage.values())
-    plt.xlabel("Nom du joueur")
-    plt.ylabel("Pourcentage de dommage fait en combat")
+    plt.pie(players_damage.values(), labels=players_damage.keys(), autopct='%1.1f%%')
+    #plt.bar(players_damage.keys(), players_damage.values())
     plt.title("Pourcentage du dommage fait en combat parmis les joueurs sur toutes les itérations")
     plt.grid()
     
@@ -142,6 +141,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 #monsters_test(100, "Werewolf", 10, ["John", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Loup Garou"])
 #monsters_test(50, "Jiangshi", 10, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 #monsters_test(300, "Spined Devil", 10, ["Gowon", "Iaachus", "Reaghan", "Vilgefortz"], list_of_monsters_to_import=["Imp"])
+monsters_test(100, "Hobgoblin Devastator", 6, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Hobgoblin Warlord", "Hobgoblin Devastator"])
 
 #ini = Initiative_Module()
 #ini.import_group("Core Spawn Crawler", 4)

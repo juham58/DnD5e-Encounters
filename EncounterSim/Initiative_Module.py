@@ -704,7 +704,7 @@ class Initiative_Module():
                 else:
                     continue
         if self.combatants_stats[caster_name]["is_monster"]:
-            if outlier_count >= len(self.players_names)/4 or outlier_count == 0:
+            if outlier_count >= len(self.players_names)/8 or outlier_count == 0:
                 if len(self.players_names) > 3:
                     spell_type_decision = "is_aoe"
                 else:
@@ -736,14 +736,20 @@ class Initiative_Module():
                         chosen_spell = spell_known
                         break
                 else:
-                    if not self.spells_database[spell_known[0]]["is_aoe"] is False and self.spells_database[spell_known[0]]["level"] <= spell_level_to_use:
-                        print(spell_known)
+                    if self.spells_database[spell_known[0]]["is_aoe"] is False and self.spells_database[spell_known[0]]["level"] <= spell_level_to_use:
                         chosen_spell = spell_known
                         break
+
         if type(chosen_spell) == str:
             spell_name = chosen_spell
             chosen_spell = self.spells_database[chosen_spell]
+        elif type(chosen_spell) == tuple:
+            spell_name = chosen_spell[0]
+            spell = self.spells_database[chosen_spell[0]]
+            spell["dice_rolls"] = chosen_spell[1]
+            chosen_spell = spell
         else:
+            chosen_spell = spellbook[-1]
             spell_name = chosen_spell[0]
             spell = self.spells_database[chosen_spell[0]]
             spell["dice_rolls"] = chosen_spell[1]
