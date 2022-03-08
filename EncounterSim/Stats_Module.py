@@ -27,7 +27,17 @@ class MainStats():
                             "advantage_if_attacked": False,
                             "disadvantage_on_attack": False,
                             "disadvantage_if_attacked": False,
-                            "sneak_attack_charge": 1}
+                            "sneak_attack_charge": 1,
+                            "damage_dealt": 0,
+                            "spell_slots": {1: 0, 
+                                            2: 0, 
+                                            3: 0, 
+                                            4: 0, 
+                                            5: 0, 
+                                            6: 0, 
+                                            7: 0, 
+                                            8: 0, 
+                                            9: 0}}
         self.abilities = {"str": 10,
                           "dex": 10,
                           "con": 10,
@@ -40,15 +50,6 @@ class MainStats():
                       "wis": 10,
                       "int": 10,
                       "cha": 10}
-        self.spell_slots = {1: 0, 
-                            2: 0, 
-                            3: 0, 
-                            4: 0, 
-                            5: 0, 
-                            6: 0, 
-                            7: 0, 
-                            8: 0, 
-                            9: 0}
         self.spellbook = []
         self.actions = []
         self.legend_actions = []
@@ -96,7 +97,7 @@ class MainStats():
                       "cha": cha_bonus}
 
     def set_spell_slots(self, lvl_1, lvl_2, lvl_3, lvl_4, lvl_5, lvl_6, lvl_7, lvl_8, lvl_9):
-        self.spell_slots = {1: lvl_1, 
+        self.combat_stats["spell_slots"] = {1: lvl_1, 
                             2: lvl_2, 
                             3: lvl_3, 
                             4: lvl_4, 
@@ -106,7 +107,7 @@ class MainStats():
                             8: lvl_8, 
                             9: lvl_9}
 
-    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, heal=False, heal_type="damage_dealt"):
+    def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt"):
         dict = {}
         dict["action_type"] = action_type
         dict["name"] = name
@@ -115,7 +116,7 @@ class MainStats():
         dict["dc_type"] = dc_type
         dict["dice_rolls"] = dice_rolls
         dict["condition"] = condition
-        dict["aoe"] = aoe
+        dict["is_aoe"] = is_aoe
         dict["aoe_size"] = aoe_size
         dict["aoe_shape"] = aoe_shape
         dict["damage_type"] = damage_type
@@ -124,11 +125,11 @@ class MainStats():
         dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
         dict["dc_effect_on_hit"] = dc_effect_on_hit
         dict["has_advantage"] = has_advantage
-        dict["heal"] = heal
+        dict["is_heal"] = is_heal
         dict["heal_type"] = heal_type
         self.actions.append(dict)
 
-    def set_legend_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
+    def set_legend_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
         dict = {}
         dict["action_type"] = action_type
         dict["name"] = name
@@ -138,7 +139,7 @@ class MainStats():
         dict["dc_type"] = dc_type
         dict["dice_rolls"] = dice_rolls
         dict["condition"] = condition
-        dict["aoe"] = aoe
+        dict["is_aoe"] = is_aoe
         dict["aoe_size"] = aoe_size
         dict["aoe_shape"] = aoe_shape
         dict["damage_type"] = damage_type
@@ -148,6 +149,9 @@ class MainStats():
         dict["dc_effect_on_hit"] = dc_effect_on_hit
         dict["has_advantage"] = has_advantage
         self.legend_actions.append(dict)
+
+    def set_spellbook(self, list_of_available_spells):
+        self.spellbook = list_of_available_spells
     
     def save_main_stats(self):
         dict = {self.name: {
@@ -167,7 +171,6 @@ class MainStats():
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
                 "saves": self.saves,
-                "spell_slots": self.spell_slots,
                 "spellbook": self.spellbook,
                 "actions": self.actions,
                 "legend_actions": self.legend_actions,

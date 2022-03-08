@@ -4,28 +4,35 @@ import statistics as st
 import matplotlib.pyplot as plt
 import numpy as np
 
-def combat_analysis(iterations, monsters_list, players_list):
+def combat_analysis(iterations, monsters_list, list_of_players):
     start_time = time.process_time()
     results = []
     player_deaths_list = []
     rounds = []
+    players_damage = {}
+    for player in list_of_players:
+        players_damage[player] = 0
     for _ in range(iterations):
         ini = Initiative_Module()
         ini.import_monsters(monsters_list)
-        ini.import_players(players_list)
+        ini.import_players(list_of_players)
         combat_end = ini.combat(verbose=False)
         results.append(combat_end[0])
         player_deaths_list.append(combat_end[1])
         rounds.append(combat_end[2])
+        for player in list_of_players:
+            players_damage[player] += combat_end[3][player]
+    for player in list_of_players:
+        players_damage[player] = players_damage[player]/iterations
     succes_rate = results.count(1)/len(results)*100
     avg_player_deaths = sum(player_deaths_list)/len(player_deaths_list)
     avg_rounds = sum(rounds)/len(rounds)
     end_time = time.process_time() - start_time
     print("Total time:", end_time, "s")
-    print("----\nSuccess rate:", succes_rate, "%", "\nAverage players deaths:", avg_player_deaths, "\nAverage number of rounds: ", avg_rounds, "\n----")
-    return (succes_rate, avg_player_deaths, avg_rounds)
+    print("----\nSuccess rate:", succes_rate, "%", "\nAverage players deaths:", avg_player_deaths, "\nAverage number of rounds: ", avg_rounds, "\nAverage damage dealt by player:", players_damage, "\n----")
 
-#combat_analysis(2000, ["Tommy", "Tony"], ["Ewyn", "Gowon", "Melvin", "Reaghan", "Vilgefortz"])
+#combat_analysis(200, ["Tommy", "Tony"], ["Ewyn", "Gowon", "Melvin", "Reaghan", "Vilgefortz"])
+combat_analysis(2000, ["Higher Vampire"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
@@ -39,6 +46,9 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     results = []
     player_deaths_list = []
     number_of_rounds = []
+    players_damage = {}
+    for player in list_of_players:
+        players_damage[player] = 0
     for i in range(number_of_monsters):
         start_time = time.process_time()
         for _ in range(iterations):
@@ -50,6 +60,8 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
             results.append(combat_end[0])
             player_deaths_list.append(combat_end[1])
             number_of_rounds.append(combat_end[2])
+            for player in list_of_players:
+                players_damage[player] += combat_end[3][player]
         succes_rate = results.count(1)/len(results)*100
         list_of_avg_player_deaths.append(st.mean(player_deaths_list))
         list_of_std_player_deaths.append(st.stdev(player_deaths_list))
@@ -60,6 +72,11 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
         list_of_success_rates.append(succes_rate)
         list_of_monsters.append(i+1)
         list_of_time.append(end_time)
+    total_damage = 0
+    for player in list_of_players:
+        total_damage += players_damage[player]
+    for player in list_of_players:
+        players_damage[player] = 100*players_damage[player]/total_damage
     total_time = time.process_time() - total_start_time
     print("Total time:", total_time)
     plt.figure()
@@ -94,8 +111,14 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     plt.grid()
     plt.minorticks_on()
     plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
-    
 
+    plt.figure()
+    plt.bar(players_damage.keys(), players_damage.values())
+    plt.xlabel("Nom du joueur")
+    plt.ylabel("Pourcentage de dommage fait en combat")
+    plt.title("Pourcentage du dommage fait en combat parmis les joueurs sur toutes les itérations")
+    plt.grid()
+    
     plt.figure()
     plt.plot(list_of_monsters, list_of_time)
     plt.grid()
@@ -103,7 +126,9 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     plt.ylabel("Temps par itération [s]")
     plt.show()
 
-monsters_test(5, "Skeleton", 300, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=True)
+#monsters_test(5, "Skeleton", 200, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+#monsters_test(5, "Skeleton", 200, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+#monsters_test(5, "Skeleton", 25, ["Victoriana"], verbose=True)
 #monsters_test(100, "Skeleton", 25, ["Ewyn", "Gowon", "Iaachus", "Reaghan", "Vilgefortz", "Sartin"])
 
 
