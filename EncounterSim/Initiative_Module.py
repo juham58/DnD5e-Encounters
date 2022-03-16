@@ -369,6 +369,15 @@ class Initiative_Module():
                     self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
                 if self.verbose is True:
                     print(target_name, "fails to meet DC of", dc, "and takes:", damage, " damage!")
+            if dc_result is True and attack["if_save"] == "no_effect":
+                self.combatants_hp[target_name] -= damage
+                self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
+                if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
+                    self.heal(attacker_name, damage)
+                if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+                    self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
+                if self.verbose is True:
+                    print(target_name, "takes:", damage, " damage!")
             if dc_result is True and attack["if_save"] == "half":
                 self.combatants_hp[target_name] -= round(damage/2)
                 self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += round(damage/2)
