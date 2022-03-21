@@ -285,6 +285,11 @@ class Initiative_Module():
                 maximum_number_of_squares = ((2*aoe_size+1)//5)**2
         if aoe_shape == "square":
             maximum_number_of_squares = (aoe_size//5)**2
+        if aoe_shape == "cone":
+            if pythagore:
+                maximum_number_of_squares = self.gauss_circle_problem(aoe_size//5)//4
+            else:
+                maximum_number_of_squares = (((2*aoe_size+1)//5)**2)//4
         if self.combatants_stats[attacker_name]["is_monster"]:
             number_of_targets = len(self.players_names)
         if self.combatants_stats[attacker_name]["is_monster"] is False:
