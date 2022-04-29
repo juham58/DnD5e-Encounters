@@ -3,6 +3,7 @@ import time
 import statistics as st
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 def combat_analysis(iterations, monsters_list, list_of_players):
     start_time = time.process_time()
@@ -12,7 +13,7 @@ def combat_analysis(iterations, monsters_list, list_of_players):
     players_damage = {}
     for player in list_of_players:
         players_damage[player] = 0
-    for _ in range(iterations):
+    for _ in tqdm(range(iterations)):
         ini = Initiative_Module()
         ini.import_monsters(monsters_list)
         ini.import_players(list_of_players)
@@ -50,7 +51,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     players_damage = {}
     for player in list_of_players:
         players_damage[player] = 0
-    for i in range(number_of_monsters):
+    for i in tqdm(range(number_of_monsters)):
         start_time = time.process_time()
         for _ in range(iterations):
             ini = Initiative_Module()
