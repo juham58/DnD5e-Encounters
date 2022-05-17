@@ -414,6 +414,7 @@ class Initiative_Module():
                         self.ini_order.remove(name)
                         self.player_deaths += 1
             for name in dead_list:
+                logging.info("{} dies.".format(name))
                 if self.verbose is True:
                     print(name, " dies.")
                 del self.combatants_hp[name]
@@ -747,16 +748,16 @@ class Initiative_Module():
 
         if type(chosen_spell) == str:
             spell_name = chosen_spell
-            chosen_spell = self.spells_database[chosen_spell]
+            chosen_spell = copy.deepcopy(self.spells_database[chosen_spell])
         elif type(chosen_spell) == tuple:
             spell_name = chosen_spell[0]
-            spell = self.spells_database[chosen_spell[0]]
+            spell = copy.deepcopy(self.spells_database[chosen_spell[0]])
             spell["dice_rolls"] = chosen_spell[1]
             chosen_spell = spell
         else:
             chosen_spell = spellbook[-1]
             spell_name = chosen_spell[0]
-            spell = self.spells_database[chosen_spell[0]]
+            spell = copy.deepcopy(self.spells_database[chosen_spell[0]])
             spell["dice_rolls"] = chosen_spell[1]
             chosen_spell = spell
         if chosen_spell["level"] < spell_level_to_use and chosen_spell["is_upcastable"]:
