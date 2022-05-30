@@ -82,10 +82,12 @@ class Initiative_Module():
         else:
             print("dice_input should be a tuple or a string")
     
-    def calculate_crit_damage(self, dice_input):
+    def calculate_crit_damage(self, attacker_name, dice_input):
         valeurs = re.findall(r"\d?\d?\d?\d(?=d)", dice_input)
         for n, membre in enumerate([(m.start(0), m.end(0)) for m in re.finditer(r"\d?\d?\d?\d(?=d)", dice_input)]):
             valeur_crit = str(2*int(valeurs[n]))
+            if n == 0:
+                valeur_crit = str(int(valeur_crit) + self.combatants_stats[attacker_name]["brutal_critical"])
             dice_input = dice_input[:membre[0]] + dice_input[membre[0]:membre[1]].replace(valeurs[n], valeur_crit) + dice_input[membre[1]:]
         return d20.roll(dice_input).total
 
@@ -179,7 +181,7 @@ class Initiative_Module():
                 if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
                     normal_damage = 0
         if type(attack["dice_rolls"]) == str:
-            crit_damage += self.calculate_crit_damage(dice_roll)
+            crit_damage += self.calculate_crit_damage(attacker_name, dice_roll)
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
                 crit_damage = int(crit_damage/2)
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:

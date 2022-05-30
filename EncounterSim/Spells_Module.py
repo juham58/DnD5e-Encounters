@@ -194,5 +194,6 @@ sd.add_spell("Chromatic Orb", 1, dice_rolls="3d8", range=90, has_attack_mod=True
 sd.add_spell("Call Lightning", 3, dice_rolls="3d10", range=120, has_attack_mod=False, has_dc=True, is_aoe=True, aoe_size=5, aoe_shape="cylinder", dc_type="dex", is_upcastable=True, upcast_effect="1d10", damage_type="lightning", if_save="half")
 sd.edit_spell("Ice Storm", ["dice_rolls"], ["2d8+4d6"])
 #sd.add_spell("Firebolt", 0, dice_rolls="1d10", range=120, has_attack_mod=True, has_dc=False, is_aoe=False, damage_type="fire")
-sd.print_spell("Fire Bolt")
+#sd.print_spell("Fire Bolt")
+sd.print_spell("Blight")
 sd.save_spells()
