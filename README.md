@@ -10,7 +10,7 @@ The section CRFinder is a simple implementation of the rules given in the Dungeo
 
 ## EncounterSim
 
-The section EncounterSim is used to simulate encounters from the stats.
+The section EncounterSim is used to simulate encounters from the stats. To use it, add stats using monsters_stats_save.py or players_stats_save.py to add stats for a player or a monster. Then use analysis.py to run a simulation and get plots for data analysis.
 
 Right now, it takes into account:
 * HP
