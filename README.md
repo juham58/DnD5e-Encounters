@@ -1,6 +1,6 @@
 # Encounters
 
-This repo is a 2 parts project which gives me tools to balance encounters for 5e Dungeons and Dragons
+This repo is a 2 parts project which gives me tools to balance encounters for 5e Dungeons and Dragons. This is mostly for personal use so it is not well documented for now.
 
 ## NOTE À MES JOUEURS: Allez pas voir dans le dossier "data" si vous voulez pas vous faire spoil des encounters futurs :)
 
@@ -22,9 +22,12 @@ Right now, it takes into account:
 * Death saves for players
 * Legendary Actions
 * Legendary Resistances
+* Area of Effect
+* Damage spells
+* Simple decision system to choose spells to use
 
 As of now, it doesn't take into account:
 * Any strategy
-* Area of effect abilities
 * Movement
-* Spells for players
+* Non-damage spells
+* Specific class features
