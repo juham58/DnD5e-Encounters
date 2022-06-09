@@ -82,6 +82,8 @@ class Initiative_Module():
         return dice_output
 
     def roll_dice(self, dice_input):
+        if dice_input == "":
+            return 0
         if type(dice_input) == tuple:
             string_input = "{}d{}+{}".format(dice_input[0], dice_input[1], dice_input[2])
             return d20.roll(string_input).total
