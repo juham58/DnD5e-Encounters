@@ -12,12 +12,14 @@ class MainStats():
         self.ini_adv = False
         self.attack_mod = 0
         self.number_of_attacks = 1
+        self.creature_type = "humanoid"
         self.resistances = []
         self.immunities = []
         self.is_monster = True
         self.is_frontliner = True
         self.sneak_attack_dices = 0
         self.brutal_critical = 0
+        self.bardic_inspiration = [False, "1d6"]
         self.combat_stats = {"is_downed": False,
                             "is_stable": False,
                             "conditions": [],
@@ -30,6 +32,9 @@ class MainStats():
                             "disadvantage_if_attacked": False,
                             "sneak_attack_charge": 1,
                             "damage_dealt": 0,
+                            "casted_smite_spell": False,
+                            "has_bardic_inspiration": [False, "1d6"],
+                            "bardic_inspiration_charges": 0,
                             "spell_slots": {1: 0, 
                                             2: 0, 
                                             3: 0, 
@@ -61,7 +66,7 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, advantage_if_attacked=False, disadvantage_if_attacked=False):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -72,6 +77,7 @@ class MainStats():
         self.number_of_attacks = number_of_attacks
         self.resistances = resistances
         self.immunities = immunities
+        self.creature_type = creature_type
         self.legend_actions_charges = legend_actions_charges
         self.legend_resistances = legend_resistances
         self.regeneration = regeneration
@@ -79,6 +85,8 @@ class MainStats():
         self.is_frontliner = is_frontliner
         self.sneak_attack_dices = sneak_attack_dices
         self.brutal_critical = brutal_critical
+        self.divine_smite = divine_smite
+        self.bardic_inspiration = bardic_inspiration
         self.combat_stats["advantage_if_attacked"] = advantage_if_attacked
         self.combat_stats["disadvantage_if_attacked"] = disadvantage_if_attacked
 
@@ -167,10 +175,13 @@ class MainStats():
                 "number_of_attacks": self.number_of_attacks,
                 "resistances": self.resistances,
                 "immunities": self.immunities,
+                "creature_type": self.creature_type,
                 "is_monster": self.is_monster,
                 "is_frontliner": self.is_frontliner,
                 "sneak_attack_dices": self.sneak_attack_dices,
                 "brutal_critical": self.brutal_critical,
+                "divine_smite": self.divine_smite,
+                "bardic_inspiration": self.bardic_inspiration,
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
                 "saves": self.saves,
@@ -179,5 +190,7 @@ class MainStats():
                 "legend_actions": self.legend_actions,
                 "legend_actions_charges": self.legend_actions_charges,
                 "legend_resistances": self.legend_resistances}}
+        if dict[self.name]["bardic_inspiration"][0]:
+            dict[self.name]["combat_stats"]["bardic_inspiration_charges"] = dict[self.name]["abilities"]["cha"]
         self.actions = []
         pickle.dump(dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))

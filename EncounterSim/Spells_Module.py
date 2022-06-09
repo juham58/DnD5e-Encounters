@@ -61,7 +61,7 @@ class Spells_Database():
         return conditions_found
 
 
-    def add_spell(self, name, level, spell_type="damage", dice_rolls="8d6", range=120, has_attack_mod=False, has_dc=False, is_aoe=False, dc_type="", condition="", aoe_size=20, aoe_shape="sphere", damage_type="", if_save="", has_dc_effect_on_hit=False, dc_effect_on_hit="", is_heal=False, heal_type="damage_dealt", is_upcastable=False, upcast_effect="", concentration=False):
+    def add_spell(self, name, level, spell_type="damage", dice_rolls="8d6", range=120, has_attack_mod=False, has_dc=False, is_aoe=False, dc_type="", condition="", aoe_size=20, aoe_shape="sphere", damage_type="", if_save="", has_dc_effect_on_hit=False, dc_effect_on_hit="", is_heal=False, heal_type="damage_dealt", is_upcastable=False, upcast_effect="", concentration=False, is_smite=False):
         spell_dict = {}
         spell_dict["level"] = level
         spell_dict["range"] = range
@@ -83,6 +83,7 @@ class Spells_Database():
         spell_dict["upcast_effect"] = upcast_effect
         spell_dict["has_advantage"] = False
         spell_dict["concentration"] = concentration
+        spell_dict["is_smite"] = is_smite
         self.database[name] = spell_dict
     
     def edit_spell(self, spell_name, elements_to_edit=[], edits=[]):
@@ -112,6 +113,10 @@ class Spells_Database():
             for spell in file:
                 print(spell["name"])
                 name = spell["name"]
+                if "Smite" in name or "smite" in name:
+                    is_smite = True
+                else:
+                    is_smite = False
                 if spell["level"] == "cantrip":
                     level = 0
                 else:
@@ -130,6 +135,9 @@ class Spells_Database():
                 if has_attack_mod is False and len(re.findall("make \w+\s(\w+)\ssaving throw", spell["description"])) > 0:
                     has_dc = True
                     dc_type = self.convert_ability_type(re.findall("make \w+\s(\w+)\ssaving throw", spell["description"])[0])
+                elif has_attack_mod is False and len(re.findall("succeed on \w+\s(\w+)\ssaving throw", spell["description"])) > 0:
+                    has_dc = True
+                    dc_type = self.convert_ability_type(re.findall("succeed on \w+\s(\w+)\ssaving throw", spell["description"])[0])
                 else:
                     has_dc = False
                     dc_type = ""
@@ -184,7 +192,7 @@ class Spells_Database():
                             aoe_size=aoe_size, aoe_shape=aoe_shape, damage_type=damage_type, 
                             if_save=if_save, has_dc_effect_on_hit=has_dc_effect_on_hit, dc_effect_on_hit=dc_effect_on_hit, 
                             is_heal=is_heal, heal_type=heal_type, is_upcastable=is_upcastable, upcast_effect=upcast_effect,
-                            concentration=concentration)
+                            concentration=concentration, is_smite=is_smite)
 
 sd = Spells_Database()
 sd.parse_spells_json()
@@ -192,8 +200,9 @@ sd.add_spell("Toll the Dead", 0, dice_rolls="1d12", range=60, has_attack_mod=Fal
 sd.add_spell("Disintegrate", 6, dice_rolls="10d6+40", range=60, has_attack_mod=False, has_dc=True, is_aoe=False, dc_type="dex", condition="", damage_type="force", if_save="no_damage", is_upcastable=True, upcast_effect="3d6")
 sd.add_spell("Chromatic Orb", 1, dice_rolls="3d8", range=90, has_attack_mod=True, has_dc=False, is_aoe=False, damage_type="acid", is_upcastable=True, upcast_effect="1d8")
 sd.add_spell("Call Lightning", 3, dice_rolls="3d10", range=120, has_attack_mod=False, has_dc=True, is_aoe=True, aoe_size=5, aoe_shape="cylinder", dc_type="dex", is_upcastable=True, upcast_effect="1d10", damage_type="lightning", if_save="half")
+sd.edit_spell("Cloud of Daggers", ["dc_type", "if_save"], ["dex", "no_effect"])
 sd.edit_spell("Ice Storm", ["dice_rolls"], ["2d8+4d6"])
 #sd.add_spell("Firebolt", 0, dice_rolls="1d10", range=120, has_attack_mod=True, has_dc=False, is_aoe=False, damage_type="fire")
 #sd.print_spell("Fire Bolt")
-sd.print_spell("Blight")
+sd.print_spell("Blinding Smite")
 sd.save_spells()

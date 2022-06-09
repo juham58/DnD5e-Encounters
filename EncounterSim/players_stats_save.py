@@ -11,9 +11,10 @@ save.set_action(action_type="melee", name="Rapier, +1", dice_rolls=[(1,8,8), (1,
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Faramir", ac=19, hp=98, dc=17, ini_mod=0, attack_mod=10, number_of_attacks=2, is_monster=False)
+save.set_main_stats("Faramir", ac=19, hp=98, dc=17, ini_mod=0, attack_mod=10, number_of_attacks=2, is_monster=False, divine_smite=True)
 save.set_abilities(4, 0, 2, 0, -1, 5)
 save.set_saves(9, 5, 7, 5, 8, 14)
+save.set_spell_slots(4, 3, 3, 0, 0, 0, 0, 0, 0)
 save.set_action(action_type="melee", name="Meteor Core Halberd", dice_rolls=[(1,10,6), (2,8,0)], damage_type="magical")
 save.set_action(action_type="melee", name="Meteor Core Halberd", dice_rolls=[(1,10,6), (2,8,0)], damage_type="magical")
 save.save_main_stats()
@@ -64,9 +65,10 @@ save.save_main_stats()
 ### DND WITH THE BOYZ
 
 save = MainStats()
-save.set_main_stats("Ewyn", ac=21, hp=71, ini_mod=-1, ini_adv=True, attack_mod=7, number_of_attacks=2, is_monster=False)
+save.set_main_stats("Ewyn", ac=21, hp=71, ini_mod=-1, ini_adv=True, attack_mod=7, number_of_attacks=2, is_monster=False, divine_smite=True)
 save.set_abilities(3, -1, 4, 0, 0, 2)
 save.set_saves(3, -1, 4, 0, 2, 4)
+save.set_spell_slots(4, 2, 0, 0, 0, 0, 0, 0, 0)
 save.set_action(action_type="melee", name="Battleaxe +1", dice_rolls=[(1,8,4), (2,8,0)], damage_type="magical")
 save.set_action(action_type="melee", name="Battleaxe +1", dice_rolls=[(1,8,4), (2,8,0)], damage_type="magical")
 save.save_main_stats()
@@ -95,7 +97,7 @@ save.set_action(action_type="ranged", name="Guiding Bolt", dice_rolls=[(5,6,0)],
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Reaghan", ac=13, hp=54, ini_mod=2, attack_mod=5, number_of_attacks=1, is_monster=False, dc=15)
+save.set_main_stats("Reaghan", ac=13, hp=54, ini_mod=2, attack_mod=5, number_of_attacks=1, is_monster=False, dc=15, bardic_inspiration=[True, "1d8"])
 save.set_abilities(0, 1, 3, 0, -1, 3)
 save.set_saves(0, 3, 3, 0, -1, 5)
 save.set_action(name="Spellcasting", action_type="spell")
