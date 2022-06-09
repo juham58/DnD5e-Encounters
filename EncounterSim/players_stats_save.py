@@ -125,3 +125,13 @@ save.set_saves(-1, 7, 0, 5, 0, 3)
 save.set_action(action_type="melee", name="Psychic Blade", dice_rolls=[(1,6,4)], damage_type="psychic")
 save.set_action(action_type="melee", name="Psychic Blade", dice_rolls=[(1,4,4)], damage_type="psychic")
 save.save_main_stats()
+
+
+save = MainStats()
+save.set_main_stats("Ardorius", ac=16, hp=46, ini_mod=4, attack_mod=8, number_of_attacks=2, is_monster=False)
+save.set_abilities(0, 4, 2, 2, 0, 1)
+save.set_saves(0, 7, 2, 5, 0, 1)
+save.set_action(action_type="melee", name="Rapier +1", dice_rolls="1d8+1d6", damage_type="magical")
+save.set_action(action_type="melee", name="Rapier +1", dice_rolls="1d8+1d6", damage_type="magical")
+save.save_main_stats()
+
