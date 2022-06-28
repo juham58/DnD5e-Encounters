@@ -70,7 +70,20 @@ class Initiative_Module():
         if adv is False and dis is True:
             return d20.roll("2d20kl1").total
 
+    def dice_tuple_to_string(self, dice_input):
+        dice_output = ""
+        total_damage_modifier = 0
+        for i, dice in enumerate(dice_input):
+            if i == 0:
+                dice_output += "{}d{}".format(dice[0], dice[1])
+            else:
+                dice_output += "+{}d{}".format(dice[0], dice[1])
+            total_damage_modifier += dice[2]
+        return dice_output
+
     def roll_dice(self, dice_input):
+        if dice_input == "":
+            return 0
         if type(dice_input) == tuple:
             string_input = "{}d{}+{}".format(dice_input[0], dice_input[1], dice_input[2])
             return d20.roll(string_input).total
@@ -127,6 +140,17 @@ class Initiative_Module():
                 self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
             if self.verbose is True:
                 print(target_name, "fails to meet DC of", dc, "and takes:", damage, " damage!")
+
+        if dc_result is True and attack["if_save"] == "no_effect":
+            self.combatants_hp[target_name] -= damage
+            self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
+            if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
+                self.heal(attacker_name, damage)
+            if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+                self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
+            if self.verbose is True:
+                print(target_name, "takes:", damage, " damage!")
+
         if dc_result is True and attack["if_save"] == "half":
             self.combatants_hp[target_name] -= round(damage/2)
             self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += round(damage/2)
@@ -152,8 +176,10 @@ class Initiative_Module():
             adv=True
         if "Prone" in conditions and attack["action_type"] == "ranged":
             dis=True
-        attack_roll = self.roll_d20(adv=adv, dis=dis)+self.combatants_stats[attacker_name]["attack_mod"]
-        straight_roll = attack_roll-self.combatants_stats[attacker_name]["attack_mod"]
+        straight_roll = self.roll_d20(adv=adv, dis=dis)
+        attack_roll = straight_roll+self.combatants_stats[attacker_name]["attack_mod"]
+        if self.combatants_stats[attacker_name]["combat_stats"]["has_bardic_inspiration"][0]:
+            attack_roll += self.use_bardic_inspiration(attacker_name)
         normal_damage = 0
         crit_damage = 0
         if self.combatants_stats[attacker_name]["sneak_attack_dices"] != 0 and self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] == 1:
@@ -167,6 +193,12 @@ class Initiative_Module():
                 print("Sneak attack damage", sneak_attack_damage)
             self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] = 0
         dice_roll = attack["dice_rolls"]
+        if self.combatants_stats[attacker_name]["divine_smite"]:
+            divine_smite_choice = self.divine_smite_decision(attacker_name, target_name, straight_roll)
+            if divine_smite_choice != "":
+                if type(attack["dice_rolls"]) != str:
+                    dice_roll = self.dice_tuple_to_string(dice_roll)
+                dice_roll = dice_roll+self.divine_smite(attacker_name, target_name)
         if type(attack["dice_rolls"]) == str:
             normal_damage += self.roll_dice(dice_roll)
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
@@ -478,6 +510,8 @@ class Initiative_Module():
             dis=True
         save_bonus = self.combatants_stats[combatant_name]["saves"][stat]
         roll = self.roll_d20(adv=adv, dis=dis)+save_bonus
+        if self.combatants_stats[combatant_name]["combat_stats"]["has_bardic_inspiration"][0]:
+            roll += self.use_bardic_inspiration(combatant_name)
         if self.combatants_stats[combatant_name]["legend_resistances"] > 0:
             roll = dc
             self.combatants_stats[combatant_name]["legend_resistances"] -=1
@@ -784,7 +818,7 @@ class Initiative_Module():
         if spell_level > 0:
             self.combatants_stats[caster_name]["combat_stats"]["spell_slots"][spell_level] -= 1
             if self.combatants_stats[caster_name]["combat_stats"]["spell_slots"][spell_level] < 0:
-                self.combatants_stats[caster_name]["combat_stats"]["spell_slots"][spell_level] = 0
+                self.combatants_stats[caster_name]["combat_stats"]["spell_slots"][spell_level] = 0 # just to be sure
         if self.verbose:
             print("{} casts {} at level {}!".format(caster_name, spell_name, spell_level))
         if spell["has_attack_mod"]:
@@ -794,7 +828,50 @@ class Initiative_Module():
         elif spell["is_aoe"]:
             self.aoe_attack(caster_name, spell, attack_name=spell_name)
 
+    
+    def divine_smite_decision(self, attacker_name, target_name, straight_roll):
+        if straight_roll == 20:
+            # je crit, je smite
+            return self.divine_smite(attacker_name, target_name)
+        if self.combatants_stats[attacker_name]["divine_smite"] and self.roll_d20()>=10:
+            return self.divine_smite(attacker_name, target_name)
+        else:
+            return ""
 
+    def divine_smite(self, attacker_name, target_name):
+        bonus_dice_roll = ""
+        number_of_dice = 2
+        level = 0
+        for spell_slot_level in self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"].keys():
+            if self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][spell_slot_level] > 0:
+                level = self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][spell_slot_level]
+        if level == 0:
+            return bonus_dice_roll
+        self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][level] -= 1
+        if self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][level] < 0:
+                self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][level] = 0 # just to be sure
+        number_of_dice += level-1
+        target_creature_type = self.combatants_stats[target_name]["creature_type"]
+        if target_creature_type == "undead" or target_creature_type == "fiend":
+            number_of_dice += 1
+        if number_of_dice > 6:
+            number_of_dice = 6
+        bonus_dice_roll = "+{}d8".format(number_of_dice)
+        logging.info("{} used a level {} divine smite on {} ({}) and added {} to their roll".format(attacker_name, level, target_name, target_creature_type, bonus_dice_roll))
+        return bonus_dice_roll
+
+    def give_bardic_inspiration(self, bard_name, target_name):
+        self.combatants_stats[target_name]["combat_stats"]["has_bardic_inspiration"] = self.combatants_stats[bard_name]["bardic_inspiration"]
+        self.combatants_stats[bard_name]["combat_stats"]["bardic_inspiration_charges"] -= 1
+        logging.info("{} gave a {} bardic inspiration to {}".format(bard_name, self.combatants_stats[bard_name]["bardic_inspiration"][1], target_name))
+
+    def use_bardic_inspiration(self, user_name):
+        self.combatants_stats[user_name]["combat_stats"]["has_bardic_inspiration"][0] = False
+        bonus = self.roll_dice(self.combatants_stats[user_name]["combat_stats"]["has_bardic_inspiration"][1])
+        logging.info("{} used a {} bardic inspiration and added {} to their roll".format(user_name, self.combatants_stats[user_name]["combat_stats"]["has_bardic_inspiration"][1], bonus))
+        return bonus
+        
+        
     def combat(self, verbose=True):
         rounds = 1
         players_damage = {}
@@ -837,6 +914,12 @@ class Initiative_Module():
                         elif attack["is_aoe"] is True:
                             self.aoe_attack(attacker_name, attack)
                             self.check_for_death()
+                        if self.combatants_stats[attacker_name]["bardic_inspiration"][0] and self.combatants_stats[attacker_name]["combat_stats"]["bardic_inspiration_charges"] > 0:
+                            if self.combatants_stats[attacker_name]["is_monster"]:
+                                target_choice = random.choice(self.monsters_names)
+                            else:
+                                target_choice = random.choice(self.players_names)
+                            self.give_bardic_inspiration(attacker_name, target_choice)
                         if self.combatants_stats[attacker_name]["is_monster"] is False:
                             players_damage[attacker_name] += self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"]
                         if len(self.players_names) == 0 or len(self.monsters_names) == 0:
