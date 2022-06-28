@@ -82,10 +82,12 @@ class Initiative_Module():
         else:
             print("dice_input should be a tuple or a string")
     
-    def calculate_crit_damage(self, dice_input):
+    def calculate_crit_damage(self, attacker_name, dice_input):
         valeurs = re.findall(r"\d?\d?\d?\d(?=d)", dice_input)
         for n, membre in enumerate([(m.start(0), m.end(0)) for m in re.finditer(r"\d?\d?\d?\d(?=d)", dice_input)]):
             valeur_crit = str(2*int(valeurs[n]))
+            if n == 0:
+                valeur_crit = str(int(valeur_crit) + self.combatants_stats[attacker_name]["brutal_critical"])
             dice_input = dice_input[:membre[0]] + dice_input[membre[0]:membre[1]].replace(valeurs[n], valeur_crit) + dice_input[membre[1]:]
         return d20.roll(dice_input).total
 
@@ -179,7 +181,7 @@ class Initiative_Module():
                 if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
                     normal_damage = 0
         if type(attack["dice_rolls"]) == str:
-            crit_damage += self.calculate_crit_damage(dice_roll)
+            crit_damage += self.calculate_crit_damage(attacker_name, dice_roll)
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
                 crit_damage = int(crit_damage/2)
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
@@ -285,6 +287,11 @@ class Initiative_Module():
                 maximum_number_of_squares = ((2*aoe_size+1)//5)**2
         if aoe_shape == "square":
             maximum_number_of_squares = (aoe_size//5)**2
+        if aoe_shape == "cone":
+            if pythagore:
+                maximum_number_of_squares = self.gauss_circle_problem(aoe_size//5)//4
+            else:
+                maximum_number_of_squares = (((2*aoe_size+1)//5)**2)//4
         if self.combatants_stats[attacker_name]["is_monster"]:
             number_of_targets = len(self.players_names)
         if self.combatants_stats[attacker_name]["is_monster"] is False:
@@ -418,6 +425,7 @@ class Initiative_Module():
                         self.ini_order.remove(name)
                         self.player_deaths += 1
             for name in dead_list:
+                logging.info("{} dies.".format(name))
                 if self.verbose is True:
                     print(name, " dies.")
                 del self.combatants_hp[name]
@@ -751,16 +759,16 @@ class Initiative_Module():
 
         if type(chosen_spell) == str:
             spell_name = chosen_spell
-            chosen_spell = self.spells_database[chosen_spell]
+            chosen_spell = copy.deepcopy(self.spells_database[chosen_spell])
         elif type(chosen_spell) == tuple:
             spell_name = chosen_spell[0]
-            spell = self.spells_database[chosen_spell[0]]
+            spell = copy.deepcopy(self.spells_database[chosen_spell[0]])
             spell["dice_rolls"] = chosen_spell[1]
             chosen_spell = spell
         else:
             chosen_spell = spellbook[-1]
             spell_name = chosen_spell[0]
-            spell = self.spells_database[chosen_spell[0]]
+            spell = copy.deepcopy(self.spells_database[chosen_spell[0]])
             spell["dice_rolls"] = chosen_spell[1]
             chosen_spell = spell
         if chosen_spell["level"] < spell_level_to_use and chosen_spell["is_upcastable"]:
