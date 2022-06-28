@@ -36,6 +36,14 @@ save.set_action(action_type="melee", name="Wrath of the Seasons", dice_rolls="2d
 save.save_main_stats()
 
 save = MainStats()
+save.set_main_stats("Rand al'Thor 2", ac=16, hp=89, dc=17, ini_mod=3, attack_mod=11, number_of_attacks=2, is_monster=False)
+save.set_abilities(-1, 3, 2, -1, 1, 5)
+save.set_saves(-1, 3, 2, -1, 5, 9)
+save.set_action(action_type="melee", name="Wrath of the Seasons", dice_rolls="2d6+2d8+12", damage_type="magical")
+save.set_action(action_type="melee", name="Wrath of the Seasons", dice_rolls="2d6+2d8+12", damage_type="magical")
+save.save_main_stats()
+
+save = MainStats()
 save.set_main_stats("Victoriana", ac=16, hp=72, dc=17, ini_mod=8, attack_mod=10, number_of_attacks=1, is_monster=False) # avec mage armor
 save.set_abilities(-1, 3, 1, 5, 1, 0)
 save.set_saves(-1, 3, 1, 9, 5, 0)

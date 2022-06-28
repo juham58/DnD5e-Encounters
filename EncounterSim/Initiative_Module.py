@@ -887,6 +887,8 @@ class Initiative_Module():
                 logging.info("\n --- Round {} ---\n".format(rounds))
             self.set_legend_actions_order()
             for attacker_name in self.ini_order:
+                if self.verbose:
+                    print("{}'s turn.".format(attacker_name))
                 self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] = 1
                 if "Incapacitated" in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
                     logging.info("{} incapacitated".format(attacker_name))
@@ -900,7 +902,8 @@ class Initiative_Module():
                             break
 
                         # TODO déterminer si les spells nécessitent de voir!
-                        if attack["action_type"] == "spell" and "Blinded" not in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
+                        #if attack["action_type"] == "spell" and "Blinded" not in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
+                        if attack["action_type"] == "spell":
                             self.cast_spell(attacker_name)
                             self.check_for_death()
                         elif attack["has_attack_mod"] is True:

@@ -119,6 +119,14 @@ save.set_action(action_type="melee", name="Tail", dice_rolls=[(1,6,2)], has_adva
 save.save_main_stats()
 
 save = MainStats()
+save.set_main_stats("Core Spawn Worm", ac=18, hp=279, ini_mod=-3, attack_mod=13, number_of_attacks=2, dc=18)
+save.set_abilities(8, -3, 5, -2, -1, -3)
+save.set_saves(8, -3, 10, -2, 4, -3)
+save.set_action(action_type="melee", name="Barbed Tentacles", dice_rolls="5d6+8", has_dc_effect_on_hit=True, dc_effect_on_hit=[(0,0,0)], condition="Restrained", dc_type="dex")
+save.set_action(action_type="melee", name="Bite", dice_rolls="5d8+4d6+8", has_dc=True, dc_effect_on_hit=["0"], condition="Blinded", dc_type="dex")
+save.save_main_stats()
+
+save = MainStats()
 save.set_main_stats("Gorgak Gro'brah", ac=17, hp=155, ini_mod=5, attack_mod=11, number_of_attacks=2, is_monster=False)
 save.add_avg_dmg(1, 10, 16) # Bonus de rage + dvivine fury divisée par 2
 save.set_abilities(5, 2, 5, 1, 1, 2)
