@@ -58,6 +58,7 @@ class MainStats():
                       "cha": 10}
         self.spellbook = []
         self.actions = []
+        self.action_arsenal = {}
         self.legend_actions = []
         self.legend_actions_charges = 0
         self.legend_resistances = 0
@@ -118,53 +119,84 @@ class MainStats():
                             9: lvl_9}
 
     def set_action(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt"):
-        dict = {}
-        dict["action_type"] = action_type
-        dict["name"] = name
-        dict["has_attack_mod"] = has_attack_mod
-        dict["has_dc"] = has_dc
-        dict["dc_type"] = dc_type
-        dict["dice_rolls"] = dice_rolls
-        dict["condition"] = condition
-        dict["is_aoe"] = is_aoe
-        dict["aoe_size"] = aoe_size
-        dict["aoe_shape"] = aoe_shape
-        dict["damage_type"] = damage_type
-        dict["if_save"] = if_save
-        dict["auto_success"] = auto_success
-        dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
-        dict["dc_effect_on_hit"] = dc_effect_on_hit
-        dict["has_advantage"] = has_advantage
-        dict["is_heal"] = is_heal
-        dict["heal_type"] = heal_type
-        self.actions.append(dict)
+        act_dict = {}
+        act_dict["action_type"] = action_type
+        act_dict["name"] = name
+        act_dict["has_attack_mod"] = has_attack_mod
+        act_dict["has_dc"] = has_dc
+        act_dict["dc_type"] = dc_type
+        act_dict["dice_rolls"] = dice_rolls
+        act_dict["condition"] = condition
+        act_dict["is_aoe"] = is_aoe
+        act_dict["aoe_size"] = aoe_size
+        act_dict["aoe_shape"] = aoe_shape
+        act_dict["damage_type"] = damage_type
+        act_dict["if_save"] = if_save
+        act_dict["auto_success"] = auto_success
+        act_dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
+        act_dict["dc_effect_on_hit"] = dc_effect_on_hit
+        act_dict["has_advantage"] = has_advantage
+        act_dict["is_heal"] = is_heal
+        act_dict["heal_type"] = heal_type
+        self.actions.append(act_dict)
+
+    def set_action_in_arsenal(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", has_recharge=True, recharge=6, recharge_ready=True, is_multiattack=False, multiattack_list=[]):
+        act_dict = {}
+        act_dict["action_type"] = action_type
+        act_dict["name"] = name
+        act_dict["has_attack_mod"] = has_attack_mod
+        act_dict["has_dc"] = has_dc
+        act_dict["dc_type"] = dc_type
+        act_dict["dice_rolls"] = dice_rolls
+        act_dict["condition"] = condition
+        act_dict["is_aoe"] = is_aoe
+        if action_type == "aoe":
+            act_dict["is_aoe"] = True
+        act_dict["aoe_size"] = aoe_size
+        act_dict["aoe_shape"] = aoe_shape
+        act_dict["damage_type"] = damage_type
+        act_dict["if_save"] = if_save
+        act_dict["auto_success"] = auto_success
+        act_dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
+        act_dict["dc_effect_on_hit"] = dc_effect_on_hit
+        act_dict["has_advantage"] = has_advantage
+        act_dict["is_heal"] = is_heal
+        act_dict["heal_type"] = heal_type
+        act_dict["has_recharge"] = has_recharge
+        act_dict["recharge_ready"] = recharge_ready
+        act_dict["recharge"] = recharge
+        act_dict["is_multiattack"] = is_multiattack
+        if action_type == "multiattack":
+            act_dict["is_multiattack"] = True
+        act_dict["multiattack_list"] = multiattack_list
+        self.action_arsenal[name] = act_dict
 
     def set_legend_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
-        dict = {}
-        dict["action_type"] = action_type
-        dict["name"] = name
-        dict["charge_cost"] = charge_cost
-        dict["has_attack_mod"] = has_attack_mod
-        dict["has_dc"] = has_dc
-        dict["dc_type"] = dc_type
-        dict["dice_rolls"] = dice_rolls
-        dict["condition"] = condition
-        dict["is_aoe"] = is_aoe
-        dict["aoe_size"] = aoe_size
-        dict["aoe_shape"] = aoe_shape
-        dict["damage_type"] = damage_type
-        dict["if_save"] = if_save
-        dict["auto_success"] = auto_success
-        dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
-        dict["dc_effect_on_hit"] = dc_effect_on_hit
-        dict["has_advantage"] = has_advantage
-        self.legend_actions.append(dict)
+        act_dict = {}
+        act_dict["action_type"] = action_type
+        act_dict["name"] = name
+        act_dict["charge_cost"] = charge_cost
+        act_dict["has_attack_mod"] = has_attack_mod
+        act_dict["has_dc"] = has_dc
+        act_dict["dc_type"] = dc_type
+        act_dict["dice_rolls"] = dice_rolls
+        act_dict["condition"] = condition
+        act_dict["is_aoe"] = is_aoe
+        act_dict["aoe_size"] = aoe_size
+        act_dict["aoe_shape"] = aoe_shape
+        act_dict["damage_type"] = damage_type
+        act_dict["if_save"] = if_save
+        act_dict["auto_success"] = auto_success
+        act_dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
+        act_dict["dc_effect_on_hit"] = dc_effect_on_hit
+        act_dict["has_advantage"] = has_advantage
+        self.legend_actions.append(act_dict)
 
     def set_spellbook(self, list_of_available_spells):
         self.spellbook = list_of_available_spells
     
     def save_main_stats(self):
-        dict = {self.name: {
+        act_dict = {self.name: {
                 "avg_attack_dmg": self.avg_attack_dmg, 
                 "ac": self.ac, 
                 "dc": self.dc, 
@@ -187,10 +219,11 @@ class MainStats():
                 "saves": self.saves,
                 "spellbook": self.spellbook,
                 "actions": self.actions,
+                "action_arsenal": self.action_arsenal,
                 "legend_actions": self.legend_actions,
                 "legend_actions_charges": self.legend_actions_charges,
                 "legend_resistances": self.legend_resistances}}
-        if dict[self.name]["bardic_inspiration"][0]:
-            dict[self.name]["combat_stats"]["bardic_inspiration_charges"] = dict[self.name]["abilities"]["cha"]
+        if act_dict[self.name]["bardic_inspiration"][0]:
+            act_dict[self.name]["combat_stats"]["bardic_inspiration_charges"] = act_dict[self.name]["abilities"]["cha"]
         self.actions = []
-        pickle.dump(dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))
+        pickle.dump(act_dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))

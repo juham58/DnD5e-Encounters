@@ -84,6 +84,13 @@ class Initiative_Module():
     def roll_dice(self, dice_input):
         if dice_input == "":
             return 0
+
+        if type(dice_input) == list:
+            total = 0
+            for dice in dice_input:
+                total += self.roll_dice(dice)
+            return total
+
         if type(dice_input) == tuple:
             string_input = "{}d{}+{}".format(dice_input[0], dice_input[1], dice_input[2])
             return d20.roll(string_input).total
@@ -164,6 +171,22 @@ class Initiative_Module():
             if self.verbose is True:
                 print(target_name, "succeeds to meet DC of", dc, "and takes no damage!")
 
+    def general_attack(self, attacker_name, attack):
+        if attack["action_type"] == "spell":
+            self.cast_spell(attacker_name)
+            self.check_for_death()
+        elif attack["has_attack_mod"] is True:
+            target = self.set_target(attacker_name)
+            self.attack(attacker_name, target, attack)
+            self.check_for_death()
+        elif attack["has_dc"] is True and attack["is_aoe"] is False:
+            target = self.set_target(attacker_name)
+            self.dc_attack(attacker_name, target, attack)
+            self.check_for_death()
+        elif attack["is_aoe"] is True:
+            self.aoe_attack(attacker_name, attack)
+            self.check_for_death()
+
     def attack(self, attacker_name, target_name, attack, adv=False, dis=False):
         if attack["has_advantage"] is True:
             adv = True
@@ -240,8 +263,7 @@ class Initiative_Module():
                         dc = self.combatants_stats[attacker_name]["dc"]
                         if self.dc_check(target_name, dc, attack["dc_type"]) is False:
                             if attack["has_dc_effect_on_hit"] is True:
-                                for dice_roll in attack["dc_effect_on_hit"]:
-                                    crit_damage += self.roll_dice(dice_roll)
+                                crit_damage += self.roll_dice(attack["dc_effect_on_hit"])
                             self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                 if self.verbose is True:
                     print(attacker_name, "CRITS with", attack_roll, "and does:", crit_damage, " damage!")
@@ -258,8 +280,7 @@ class Initiative_Module():
                         dc = self.combatants_stats[attacker_name]["dc"]
                         if self.dc_check(target_name, dc, attack["dc_type"]) is False:
                             if attack["has_dc_effect_on_hit"] is True:
-                                for dice_roll in attack["dc_effect_on_hit"]:
-                                    normal_damage += self.roll_dice(dice_roll)
+                                normal_damage += self.roll_dice(attack["dc_effect_on_hit"])
                             self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                 if self.verbose is True:
                     print(attacker_name, "hits with", attack_roll, "and does:", normal_damage, " damage!")
@@ -276,8 +297,7 @@ class Initiative_Module():
                         dc = self.combatants_stats[attacker_name]["dc"]
                         if self.dc_check(target_name, dc, attack["dc_type"]) is False:
                             if attack["has_dc_effect_on_hit"] is True:
-                                for dice_roll in attack["dc_effect_on_hit"]:
-                                    crit_damage += self.roll_dice(dice_roll)
+                                crit_damage += self.roll_dice(attack["dc_effect_on_hit"])
                             self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                 if self.verbose is True:
                     print(attacker_name, "CRITS on paralyzed or unconscious", target_name, "with", attack_roll, "and does:", crit_damage, " damage!")
@@ -324,6 +344,8 @@ class Initiative_Module():
                 maximum_number_of_squares = self.gauss_circle_problem(aoe_size//5)//4
             else:
                 maximum_number_of_squares = (((2*aoe_size+1)//5)**2)//4
+        if aoe_shape == "line":
+            maximum_number_of_squares = aoe_shape[1]*aoe_shape[2]//2
         if self.combatants_stats[attacker_name]["is_monster"]:
             number_of_targets = len(self.players_names)
         if self.combatants_stats[attacker_name]["is_monster"] is False:
@@ -706,26 +728,44 @@ class Initiative_Module():
         if len(self.players_names) == 0 or len(self.monsters_names) == 0:
             return
 
-    def spell_decision(self, caster_name):
-        spellbook = self.combatants_stats[caster_name]["spellbook"]
-        spell_slots = self.combatants_stats[caster_name]["combat_stats"]["spell_slots"]
-        spell_level_to_use = 0
-        spell_type_decision = ""
-        chosen_spell = {}
-        spell_name = ""
+    def execute_multiattack(self, attacker_name, attack):
+        multiattack_list = attack["multiattack_list"]
+        for attack in multiattack_list:
+            self.general_attack(attacker_name, attack)
 
-        # Détermine le niveau le plus élevé disponible
-        for spell_level in reversed(spell_slots.keys()):
-            if spell_slots[spell_level] > 0:
-                spell_level_to_use = spell_level
-                break
-            else:
-                continue
-        
-        # Détermine si single target ou is_aoe
+    def choose_attack(self, attacker_name):
+        recharge_seen = True
+        multiattack_seen = True
+        attack_not_chosen = True
+        arsenal = self.combatants_stats[attacker_name]["action_arsenal"]
+        for attack_name in arsenal.keys():
+            attack = arsenal[attack_name]
+            if attack["has_recharge"]:
+                recharge_seen = False
+            elif attack["is_multiattack"]:
+                multiattack_seen = False
+        while attack_not_chosen:
+            for attack_name in arsenal.keys():
+                attack = arsenal[attack_name]
+                if attack["has_recharge"] and attack["recharge_ready"]:
+                    return attack
+                elif attack["has_recharge"] and attack["recharge_ready"] is False:
+                    recharge_roll = self.roll_dice("1d6")
+                    if recharge_roll >= attack["recharge"]:
+                        return attack
+                    else:
+                        recharge_seen = True
+                elif attack["has_recharge"] is False and attack["is_multiattack"]:
+                    return attack
+                elif attack["has_recharge"] is False and attack["is_multiattack"] is False:
+                    if recharge_seen and multiattack_seen:
+                        return attack
+
+    def choose_aoe_or_single(self, attacker_name):
         enemy_hps = []
+        attack_type_decision = ""
         for name in self.combatants_hp.keys():
-            if self.combatants_stats[caster_name]["is_monster"]:
+            if self.combatants_stats[attacker_name]["is_monster"]:
                 if self.combatants_stats[name]["is_monster"]:
                     continue
                 else:
@@ -742,7 +782,7 @@ class Initiative_Module():
             enemy_hps_std = 0
         outlier_count = 0
         for name in self.combatants_hp.keys():
-            if self.combatants_stats[caster_name]["is_monster"]:
+            if self.combatants_stats[attacker_name]["is_monster"]:
                 if self.combatants_stats[name]["is_monster"]:
                     continue
                 else:
@@ -754,22 +794,41 @@ class Initiative_Module():
                         outlier_count += 1
                 else:
                     continue
-        if self.combatants_stats[caster_name]["is_monster"]:
+        if self.combatants_stats[attacker_name]["is_monster"]:
             if outlier_count >= len(self.players_names)/8 or outlier_count == 0:
                 if len(self.players_names) > 3:
-                    spell_type_decision = "is_aoe"
+                    attack_type_decision = "is_aoe"
                 else:
-                    spell_type_decision = "single"
+                    attack_type_decision = "single"
             else:
-                spell_type_decision = "single"
+                attack_type_decision = "single"
         else:
             if outlier_count >= len(self.monsters_names)/4  or outlier_count == 0:
                 if len(self.monsters_names) > 3:
-                    spell_type_decision = "is_aoe"
+                    attack_type_decision = "is_aoe"
                 else:
-                    spell_type_decision = "single"
+                    attack_type_decision = "single"
             else:
-                spell_type_decision = "single"
+                attack_type_decision = "single"
+        return attack_type_decision
+
+    def spell_decision(self, caster_name):
+        spellbook = self.combatants_stats[caster_name]["spellbook"]
+        spell_slots = self.combatants_stats[caster_name]["combat_stats"]["spell_slots"]
+        spell_level_to_use = 0
+        spell_type_decision = self.choose_aoe_or_single(caster_name)
+        chosen_spell = {}
+        spell_name = ""
+
+        # Détermine le niveau le plus élevé disponible
+        for spell_level in reversed(spell_slots.keys()):
+            if spell_slots[spell_level] > 0:
+                spell_level_to_use = spell_level
+                break
+            else:
+                continue
+        
+        # Détermine si single target ou is_aoe
         if spell_type_decision == "is_aoe":
             for spell_known in spellbook:
                 if type(spell_known) == str:
@@ -810,7 +869,7 @@ class Initiative_Module():
                 chosen_spell["dice_rolls"] += "+"+chosen_spell["upcast_effect"]
         else:
             spell_level_to_use = chosen_spell["level"]
-        logging.info("Chose {} at level {}. Average enemy_hp and std: {}, {}. Outlier count: {}".format(spell_name, spell_level_to_use, average_enemy_hp, enemy_hps_std, outlier_count))
+        logging.info("Chose {} at level {}.".format(spell_name, spell_level_to_use))
         return chosen_spell, spell_name, spell_level_to_use
 
     def cast_spell(self, caster_name):
@@ -907,38 +966,45 @@ class Initiative_Module():
                     if self.combatants_stats[attacker_name]["combat_stats"]["is_downed"]:
                         self.death_saves(attacker_name)
                 else:
-                    for attack in self.combatants_stats[attacker_name]["actions"]:
-                        logging.info("{}, with {}".format(attacker_name, attack["name"]))
-                        self.check_for_death()
-                        if len(self.players_names) == 0 or len(self.monsters_names) == 0:
-                            break
+                    if self.combatants_stats[attacker_name]["action_arsenal"] != {}:
+                        attack_choice = self.choose_attack(attacker_name)
+                        if attack_choice["is_multiattack"]:
+                            self.execute_multiattack(attacker_name, attack_choice)
+                        else:
+                            self.general_attack(attacker_name, attack_choice)
+                    else:
+                        for attack in self.combatants_stats[attacker_name]["actions"]:
+                            logging.info("{}, with {}".format(attacker_name, attack["name"]))
+                            self.check_for_death()
+                            if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+                                break
 
-                        # TODO déterminer si les spells nécessitent de voir!
-                        #if attack["action_type"] == "spell" and "Blinded" not in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
-                        if attack["action_type"] == "spell":
-                            self.cast_spell(attacker_name)
-                            self.check_for_death()
-                        elif attack["has_attack_mod"] is True:
-                            target = self.set_target(attacker_name)
-                            self.attack(attacker_name, target, attack)
-                            self.check_for_death()
-                        elif attack["has_dc"] is True and attack["is_aoe"] is False:
-                            target = self.set_target(attacker_name)
-                            self.dc_attack(attacker_name, target, attack)
-                            self.check_for_death()
-                        elif attack["is_aoe"] is True:
-                            self.aoe_attack(attacker_name, attack)
-                            self.check_for_death()
-                        if self.combatants_stats[attacker_name]["bardic_inspiration"][0] and self.combatants_stats[attacker_name]["combat_stats"]["bardic_inspiration_charges"] > 0:
-                            if self.combatants_stats[attacker_name]["is_monster"]:
-                                target_choice = self.choose_inspiration_target(attacker_name, self.monsters_names)
-                            else:
-                                target_choice = self.choose_inspiration_target(attacker_name, self.players_names)
-                            self.give_bardic_inspiration(attacker_name, target_choice)
-                        if self.combatants_stats[attacker_name]["is_monster"] is False:
-                            players_damage[attacker_name] += self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"]
-                        if len(self.players_names) == 0 or len(self.monsters_names) == 0:
-                            break
+                            # TODO déterminer si les spells nécessitent de voir!
+                            #if attack["action_type"] == "spell" and "Blinded" not in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
+                            if attack["action_type"] == "spell":
+                                self.cast_spell(attacker_name)
+                                self.check_for_death()
+                            elif attack["has_attack_mod"] is True:
+                                target = self.set_target(attacker_name)
+                                self.attack(attacker_name, target, attack)
+                                self.check_for_death()
+                            elif attack["has_dc"] is True and attack["is_aoe"] is False:
+                                target = self.set_target(attacker_name)
+                                self.dc_attack(attacker_name, target, attack)
+                                self.check_for_death()
+                            elif attack["is_aoe"] is True:
+                                self.aoe_attack(attacker_name, attack)
+                                self.check_for_death()
+                            if self.combatants_stats[attacker_name]["bardic_inspiration"][0] and self.combatants_stats[attacker_name]["combat_stats"]["bardic_inspiration_charges"] > 0:
+                                if self.combatants_stats[attacker_name]["is_monster"]:
+                                    target_choice = self.choose_inspiration_target(attacker_name, self.monsters_names)
+                                else:
+                                    target_choice = self.choose_inspiration_target(attacker_name, self.players_names)
+                                self.give_bardic_inspiration(attacker_name, target_choice)
+                            if self.combatants_stats[attacker_name]["is_monster"] is False:
+                                players_damage[attacker_name] += self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"]
+                            if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+                                break
                     self.condition_check(attacker_name)
                     self.heal(attacker_name, self.combatants_stats[attacker_name]["combat_stats"]["regeneration"])
                     for monster_name in self.legendary_monsters:
