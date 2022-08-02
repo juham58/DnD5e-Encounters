@@ -25,6 +25,8 @@ Right now, it takes into account:
 * Area of Effect
 * Damage spells
 * Simple decision system to choose spells to use
+* Bardic Inspiration
+* Divine Smite
 
 As of now, it doesn't take into account:
 * Any strategy
