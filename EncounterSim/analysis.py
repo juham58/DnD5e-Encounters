@@ -33,7 +33,7 @@ def combat_analysis(iterations, monsters_list, list_of_players):
     print("----\nSuccess rate:", succes_rate, "%", "\nAverage players deaths:", avg_player_deaths, "\nAverage number of rounds: ", avg_rounds, "\nAverage damage dealt by player:", players_damage, "\n----")
 
 #combat_analysis(200, ["Vampire"], ["Ewyn", "Gowon", "Reaghan", "Vilgefortz"])
-combat_analysis(2000, ["Ancient White Dragon"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+combat_analysis(100, ["Mythic White Dragon"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()

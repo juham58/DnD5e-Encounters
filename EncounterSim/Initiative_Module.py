@@ -455,8 +455,18 @@ class Initiative_Module():
 
     def death(self, name):
         if self.combatants_stats[name]["is_monster"] is True:
-            self.monsters_names.remove(name)
-            self.ini_order.remove(name)
+            if self.combatants_stats[name]["is_mythic"] and self.combatants_stats[name]["combat_stats"]["mythic_state"]:
+                self.monsters_names.remove(name)
+                self.ini_order.remove(name)
+            elif self.combatants_stats[name]["is_mythic"] and self.combatants_stats[name]["combat_stats"]["mythic_state"] is False:
+                self.combatants_hp[name] = self.combatants_stats[name]["mythic_hp"]
+                logging.info("{} enters its mythic stage and gains {} HP!".format(name, self.combatants_stats[name]["mythic_hp"]))
+                if self.verbose:
+                    print("{} enters its mythic stage and gains {} HP!".format(name, self.combatants_stats[name]["mythic_hp"]))
+                print("{} enters its mythic stage and gains {} HP!".format(name, self.combatants_stats[name]["mythic_hp"]))
+            else:
+                self.monsters_names.remove(name)
+                self.ini_order.remove(name)
 
         else:
             self.combatants_hp[name] = 0
@@ -470,7 +480,10 @@ class Initiative_Module():
                 if self.combatants_hp[name] <= 0 and self.combatants_stats[name]["combat_stats"]["is_downed"] is False:
                     self.death(name)
                     if self.combatants_stats[name]["is_monster"]:
-                        dead_list.append(name)
+                        if self.combatants_stats[name]["is_mythic"] and self.combatants_stats[name]["combat_stats"]["mythic_state"] is False:
+                            self.combatants_stats[name]["combat_stats"]["mythic_state"] = True
+                        else:
+                            dead_list.append(name)
                     elif self.combatants_stats[name]["combat_stats"]["death_saves"][0] >= 3:
                         dead_list.append(name)
                 elif self.combatants_stats[name]["combat_stats"]["death_saves"][0] >= 3:

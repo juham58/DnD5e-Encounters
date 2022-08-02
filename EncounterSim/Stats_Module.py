@@ -20,6 +20,8 @@ class MainStats():
         self.sneak_attack_dices = 0
         self.brutal_critical = 0
         self.bardic_inspiration = [False, "1d6"]
+        self.is_mythic = False
+        self.mythic_hp = 0
         self.combat_stats = {"is_downed": False,
                             "is_stable": False,
                             "conditions": [],
@@ -32,6 +34,7 @@ class MainStats():
                             "disadvantage_if_attacked": False,
                             "sneak_attack_charge": 1,
                             "damage_dealt": 0,
+                            "mythic_state": False,
                             "casted_smite_spell": False,
                             "has_bardic_inspiration": [False, "1d6"],
                             "bardic_inspiration_charges": 0,
@@ -60,6 +63,7 @@ class MainStats():
         self.actions = []
         self.action_arsenal = {}
         self.legend_actions = []
+        self.mythic_actions = []
         self.legend_actions_charges = 0
         self.legend_resistances = 0
         self.regeneration = 0
@@ -67,7 +71,7 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, is_mythic=False, mythic_hp=0):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -88,6 +92,8 @@ class MainStats():
         self.brutal_critical = brutal_critical
         self.divine_smite = divine_smite
         self.bardic_inspiration = bardic_inspiration
+        self.is_mythic = is_mythic
+        self.mythic_hp = mythic_hp
         self.combat_stats["advantage_if_attacked"] = advantage_if_attacked
         self.combat_stats["disadvantage_if_attacked"] = disadvantage_if_attacked
 
@@ -192,6 +198,27 @@ class MainStats():
         act_dict["has_advantage"] = has_advantage
         self.legend_actions.append(act_dict)
 
+    def set_mythic_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
+        act_dict = {}
+        act_dict["action_type"] = action_type
+        act_dict["name"] = name
+        act_dict["charge_cost"] = charge_cost
+        act_dict["has_attack_mod"] = has_attack_mod
+        act_dict["has_dc"] = has_dc
+        act_dict["dc_type"] = dc_type
+        act_dict["dice_rolls"] = dice_rolls
+        act_dict["condition"] = condition
+        act_dict["is_aoe"] = is_aoe
+        act_dict["aoe_size"] = aoe_size
+        act_dict["aoe_shape"] = aoe_shape
+        act_dict["damage_type"] = damage_type
+        act_dict["if_save"] = if_save
+        act_dict["auto_success"] = auto_success
+        act_dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
+        act_dict["dc_effect_on_hit"] = dc_effect_on_hit
+        act_dict["has_advantage"] = has_advantage
+        self.legend_actions.append(act_dict)
+
     def set_spellbook(self, list_of_available_spells):
         self.spellbook = list_of_available_spells
     
@@ -214,6 +241,8 @@ class MainStats():
                 "brutal_critical": self.brutal_critical,
                 "divine_smite": self.divine_smite,
                 "bardic_inspiration": self.bardic_inspiration,
+                "is_mythic": self.is_mythic,
+                "mythic_hp": self.mythic_hp,
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
                 "saves": self.saves,
@@ -221,6 +250,7 @@ class MainStats():
                 "actions": self.actions,
                 "action_arsenal": self.action_arsenal,
                 "legend_actions": self.legend_actions,
+                "mythic_actions": self.mythic_actions,
                 "legend_actions_charges": self.legend_actions_charges,
                 "legend_resistances": self.legend_resistances}}
         if act_dict[self.name]["bardic_inspiration"][0]:
