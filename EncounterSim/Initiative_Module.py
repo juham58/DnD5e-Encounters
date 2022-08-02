@@ -859,11 +859,23 @@ class Initiative_Module():
         bonus_dice_roll = "+{}d8".format(number_of_dice)
         logging.info("{} used a level {} divine smite on {} ({}) and added {} to their roll".format(attacker_name, level, target_name, target_creature_type, bonus_dice_roll))
         return bonus_dice_roll
+    
+    def choose_inspiration_target(self, bard_name, target_list):
+        target_choice = random.choice(target_list)
+        if target_choice == bard_name:
+            if len(target_list) == 1:
+                return None
+            return self.choose_inspiration_target(self, bard_name, target_list)
+        else:
+            return target_choice
 
     def give_bardic_inspiration(self, bard_name, target_name):
-        self.combatants_stats[target_name]["combat_stats"]["has_bardic_inspiration"] = self.combatants_stats[bard_name]["bardic_inspiration"]
-        self.combatants_stats[bard_name]["combat_stats"]["bardic_inspiration_charges"] -= 1
-        logging.info("{} gave a {} bardic inspiration to {}".format(bard_name, self.combatants_stats[bard_name]["bardic_inspiration"][1], target_name))
+        if target_name == None:
+            pass
+        else:
+            self.combatants_stats[target_name]["combat_stats"]["has_bardic_inspiration"] = self.combatants_stats[bard_name]["bardic_inspiration"]
+            self.combatants_stats[bard_name]["combat_stats"]["bardic_inspiration_charges"] -= 1
+            logging.info("{} gave a {} bardic inspiration to {}".format(bard_name, self.combatants_stats[bard_name]["bardic_inspiration"][1], target_name))
 
     def use_bardic_inspiration(self, user_name):
         self.combatants_stats[user_name]["combat_stats"]["has_bardic_inspiration"][0] = False
@@ -919,9 +931,9 @@ class Initiative_Module():
                             self.check_for_death()
                         if self.combatants_stats[attacker_name]["bardic_inspiration"][0] and self.combatants_stats[attacker_name]["combat_stats"]["bardic_inspiration_charges"] > 0:
                             if self.combatants_stats[attacker_name]["is_monster"]:
-                                target_choice = random.choice(self.monsters_names)
+                                target_choice = self.choose_inspiration_target(attacker_name, self.monsters_names)
                             else:
-                                target_choice = random.choice(self.players_names)
+                                target_choice = self.choose_inspiration_target(attacker_name, self.players_names)
                             self.give_bardic_inspiration(attacker_name, target_choice)
                         if self.combatants_stats[attacker_name]["is_monster"] is False:
                             players_damage[attacker_name] += self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"]
