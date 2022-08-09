@@ -5,35 +5,38 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
-def combat_analysis(iterations, monsters_list, list_of_players):
+def combat_analysis(iterations, monsters_list, list_of_players, verbose=False):
     start_time = time.process_time()
     results = []
     player_deaths_list = []
     rounds = []
     players_damage = {}
+    total_damage = 0
     for player in list_of_players:
         players_damage[player] = 0
     for _ in tqdm(range(iterations)):
         ini = Initiative_Module()
         ini.import_monsters(monsters_list)
         ini.import_players(list_of_players)
-        combat_end = ini.combat(verbose=False)
+        combat_end = ini.combat(verbose=verbose)
         results.append(combat_end[0])
-        player_deaths_list.append(combat_end[1])
+        if combat_end[0] == 1:
+            player_deaths_list.append(combat_end[1])
         rounds.append(combat_end[2])
         for player in list_of_players:
+            total_damage += combat_end[3][player]
             players_damage[player] += combat_end[3][player]
     for player in list_of_players:
-        players_damage[player] = players_damage[player]/iterations
-    succes_rate = results.count(1)/len(results)*100
-    avg_player_deaths = sum(player_deaths_list)/len(player_deaths_list)
-    avg_rounds = sum(rounds)/len(rounds)
+        players_damage[player] = ["{}%".format(round(players_damage[player]*100/total_damage, ndigits=1)), round(players_damage[player]/iterations)]
+    succes_rate = round(results.count(1)/len(results)*100, ndigits=1)
+    avg_player_deaths = round(sum(player_deaths_list)/len(player_deaths_list), ndigits=1)
+    avg_rounds = round(sum(rounds)/len(rounds), ndigits=1)
     end_time = time.process_time() - start_time
     print("Total time:", end_time, "s")
     print("----\nSuccess rate:", succes_rate, "%", "\nAverage players deaths:", avg_player_deaths, "\nAverage number of rounds: ", avg_rounds, "\nAverage damage dealt by player:", players_damage, "\n----")
 
 #combat_analysis(200, ["Vampire"], ["Ewyn", "Gowon", "Reaghan", "Vilgefortz"])
-combat_analysis(100, ["Mythic White Dragon"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+combat_analysis(1000, ["Young White Dragon", "Ancient White Dragon"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()

@@ -980,6 +980,9 @@ class Initiative_Module():
                         self.death_saves(attacker_name)
                 else:
                     if self.combatants_stats[attacker_name]["action_arsenal"] != {}:
+                        self.check_for_death()
+                        if len(self.players_names) == 0:
+                            continue
                         attack_choice = self.choose_attack(attacker_name)
                         if attack_choice["is_multiattack"]:
                             self.execute_multiattack(attacker_name, attack_choice)
