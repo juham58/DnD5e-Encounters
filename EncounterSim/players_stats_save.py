@@ -20,7 +20,7 @@ save.set_action(action_type="melee", name="Meteor Core Halberd", dice_rolls=[(1,
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Augustin", ac=24, hp=78, dc=19, ini_mod=2, attack_mod=9, number_of_attacks=2, is_monster=False)
+save.set_main_stats("Augustin", ac=26, hp=84, dc=19, ini_mod=2, attack_mod=9, number_of_attacks=2, is_monster=False)
 save.set_abilities(0, 2, 1, 5, 0, 1)
 save.set_saves(1, 3, 7, 11, 1, 2)
 save.set_action(action_type="melee", name="Lightning Launcher w Sharpshooter", dice_rolls="1d6+17", damage_type="lightning")
@@ -28,7 +28,7 @@ save.set_action(action_type="melee", name="Lightning Launcher w Sharpshooter", d
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Rand al'Thor", ac=16, hp=80, dc=18, ini_mod=3, attack_mod=12, number_of_attacks=2, is_monster=False)
+save.set_main_stats("Rand al'Thor", ac=16, hp=99, dc=18, ini_mod=3, attack_mod=12, number_of_attacks=2, is_monster=False)
 save.set_abilities(-1, 3, 2, -1, 1, 5)
 save.set_saves(-1, 3, 2, -1, 6, 10)
 save.set_action(action_type="melee", name="Wrath of the Seasons", dice_rolls="2d6+2d8+12", damage_type="magical")
@@ -44,7 +44,7 @@ save.set_action(action_type="melee", name="Wrath of the Seasons", dice_rolls="2d
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Victoriana", ac=16, hp=79, dc=18, ini_mod=8, attack_mod=11, number_of_attacks=1, is_monster=False) # avec mage armor
+save.set_main_stats("Victoriana", ac=16, hp=82, dc=18, ini_mod=8, attack_mod=11, number_of_attacks=1, is_monster=False) # avec mage armor
 save.set_abilities(-1, 3, 1, 5, 1, 0)
 save.set_saves(-1, 3, 1, 10, 6, 0)
 save.set_action(name="Spellcasting", action_type="spell")
@@ -54,7 +54,7 @@ save.set_spellbook(["Disintegrate", "Fireball", "Chromatic Orb", ("Toll the Dead
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Dorran", ac=15, hp=93, dc=18, ini_mod=2, attack_mod=10, number_of_attacks=1, is_monster=False)
+save.set_main_stats("Dorran", ac=15, hp=96, dc=18, ini_mod=2, attack_mod=10, number_of_attacks=1, is_monster=False)
 save.set_abilities(-1, 2, 2, 3, 5, -1)
 save.set_saves(-1, 2, 2, 8, 10, -1)
 save.set_action(name="Spellcasting", action_type="spell")
@@ -63,7 +63,7 @@ save.set_spellbook(["Ice Storm", "Blight", "Thunderwave", ("Thorn Whip", "3d6")]
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Gaspard Maupassant", ac=19, hp=92, ini_mod=8, attack_mod=9, number_of_attacks=2, is_monster=False, sneak_attack_dices=7, resistances=["cold"])
+save.set_main_stats("Gaspard Maupassant", ac=19, hp=94, ini_mod=8, attack_mod=9, number_of_attacks=2, is_monster=False, sneak_attack_dices=7, resistances=["cold"])
 save.set_abilities(-1, 5, 1, 0, 0, 3)
 save.set_saves(0, 11, 2, 6, 1, 4)
 save.set_action(action_type="melee", name="Frost Brand Rapier", dice_rolls="1d8+1d6+5", damage_type="magical")

@@ -466,6 +466,16 @@ save.set_action(action_type="melee", name="Tail Stinger", dice_rolls="3d6+9", ha
 save.save_main_stats()
 
 save = MainStats()
+save.set_main_stats("Pestilence", ac=18, hp=350, dc=18, ini_mod=3, attack_mod=13, number_of_attacks=3, legend_actions_charges=3)
+save.set_abilities(5, 3, 4, 2, 5, 4)
+save.set_saves(10, 3, 9, 2, 10, 9)
+save.set_action(action_type="melee", name="Bow of Sickness", dice_rolls="5d10+5")
+save.set_action(action_type="melee", name="Bow of Sickness", dice_rolls="5d10+5")
+save.set_action(action_type="melee", name="Bow of Sickness", dice_rolls="5d10+5")
+save.set_legend_action(action_type="melee", charge_cost=1, name="Bow of Sickness", dice_rolls="5d10+5")
+save.save_main_stats()
+
+save = MainStats()
 save.set_main_stats("Ancient Blue Dragon", ac=22, hp=481, dc=23, ini_mod=0, attack_mod=16, number_of_attacks=3, legend_actions_charges=3, legend_resistances=3)
 save.set_abilities(9, 0, 8, 4, 3, 5)
 save.set_saves(9, 7, 15, 4, 10, 5)
