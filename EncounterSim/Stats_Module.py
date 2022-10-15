@@ -177,7 +177,7 @@ class MainStats():
         act_dict["multiattack_list"] = multiattack_list
         self.action_arsenal[name] = act_dict
 
-    def set_legend_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
+    def set_legend_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
@@ -196,6 +196,7 @@ class MainStats():
         act_dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
         act_dict["dc_effect_on_hit"] = dc_effect_on_hit
         act_dict["has_advantage"] = has_advantage
+        act_dict["is_heal"] = is_heal
         self.legend_actions.append(act_dict)
 
     def set_mythic_action(self, action_type="melee", name="", charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
