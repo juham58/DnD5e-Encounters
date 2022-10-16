@@ -1,9 +1,8 @@
-
-
 using PyCall
 using ProgressBars
 using Statistics
 using Random
+using BenchmarkTools
 
 d20 = pyimport("d20")
 pickle = pyimport("pickle")
@@ -17,7 +16,7 @@ global ini_order = []
 global legendary_monsters = []
 global legend_actions_order = Dict()
 global player_deaths = 0
-global verbose = true
+global verbose = false
 global pythagore = false
 global conditions_list = ["Blinded", "Charmed", "Deafened", "Frightened", "Grappled", "Incapacitated", "Invisible", "Paralyzed", "Petrified", "Poisoned", "Prone", "Restrained", "Stunned", "Unconscious"]
 global spells_database = Dict()
@@ -31,8 +30,12 @@ function load_pickle(filename)
 end
 
 function import_stats(name)
-    stats = load_pickle(pwd()*"\\data\\stats_$name")
-    #println(stats["Skeleton"])
+    if isa(name, String)
+        stats = load_pickle(pwd()*"\\data\\stats_$name")
+    else
+        stats = name
+        name = collect(keys(stats))[1]
+    end
     combatants_stats[name] = stats[name]
     combatants_hp[name] = stats[name]["max_hp"]
     push!(combatants_names, name)
@@ -72,7 +75,7 @@ function import_players(list_of_players)
 end
 
 function import_monsters(list_of_monsters)
-    if length(list_of_monsters) > 1
+    if length(list_of_monsters) > 0
         for name in list_of_monsters
             import_stats(name)
         end
@@ -87,12 +90,10 @@ function roll_d20(; adv=false, dis=false)
     if (adv && dis) || (!adv && !dis)
         #return d20.roll("1d20").total
         roll = rand(1:20)
-        println("r: ", roll)
         return roll
     elseif (adv && !dis)
         r1 = rand(1:20)
         r2 = rand(1:20)
-        println("r1: ", r1, " r2: ", r2)
         if r1 >= r2
             return r1
         else
@@ -102,7 +103,6 @@ function roll_d20(; adv=false, dis=false)
     elseif (!adv && dis)
         r1 = rand(1:20)
         r2 = rand(1:20)
-        println("r1: ", r1, " r2: ", r2)
         if r1 <= r2
             return r1
         else
@@ -163,7 +163,6 @@ function roll_ini()
         temp_dict[ini_roll] = name
     end
     global ini_order = sort(collect(temp_dict), rev=true)
-    println(ini_order)
 end
 
 function choose_inspiration_target(bard_name, target_list)
@@ -871,20 +870,35 @@ function death_saves(player_name; mod=0, adv=false)
     straight_roll = roll_d20(adv=adv)
     roll = straight_roll + mod
     if straight_roll == 20
+        if verbose
+            println("$player_name crits on death save and gets back up at 1 HP!")
+        end
         heal(player_name, 1)
     elseif roll >= 10
+        if verbose
+            println("$player_name rolls $roll on death save and succeeds!")
+        end
         combatants_stats[player_name]["combat_stats"]["death_saves"][2] += 1
         if combatants_stats[player_name]["combat_stats"]["death_saves"][2] >= 3
+            if verbose
+                println("$player_name is stable!")
+            end
             combatants_stats[player_name]["combat_stats"]["death_saves"][1] = 0
             combatants_stats[player_name]["combat_stats"]["death_saves"][2] = 0
             combatants_stats[player_name]["combat_stats"]["is_stable"] = true
         end
     elseif straight_roll == 1
+        if verbose
+            println("$player_name fumbles on death save.")
+        end
         combatants_stats[player_name]["combat_stats"]["death_saves"][1] += 2
         if combatants_stats[player_name]["combat_stats"]["death_saves"][1] >= 3
             check_for_death()
         end
     elseif  roll < 10 && straight_roll != 1
+        if verbose
+            println(println("$player_name rolls $roll on death save and fails!"))
+        end
         combatants_stats[player_name]["combat_stats"]["death_saves"][1] += 1
         if combatants_stats[player_name]["combat_stats"]["death_saves"][1] >= 3
             check_for_death()
@@ -896,6 +910,11 @@ function set_legend_actions_order()
     if length(players_names) > 0
         for monster_name in legendary_monsters
             initiative_order_copy = deepcopy(ini_order)
+            for ini_pos in ini_order
+                if ini_pos.second == monster_name
+                    filter!(e -> e != ini_pos, initiative_order_copy)
+                end
+            end
             legendary_actions_pos = []
             for possible_charge_use in 1:1:combatants_stats[monster_name]["legend_actions_charges"]
                 if length(initiative_order_copy) <= 0
@@ -921,8 +940,10 @@ function execute_legend_action(monster_name)
     end
     if attack_value["charge_cost"] <= combatants_stats[monster_name]["combat_stats"]["legend_actions_charges"]
         combatants_stats[monster_name]["combat_stats"]["legend_actions_charges"] -= attack_value["charge_cost"]
+        if verbose
+            println(monster_name, " uses legendary action ", attack_value["name"])
+        end
         #logging.info("{}'s legendary action: {}".format(monster_name, attack_value["name"]))
-        check_for_death()
         if length(players_names) == 0 || length(monsters_names) == 0
             return nothing
         end
@@ -1140,7 +1161,7 @@ function cast_spell(caster_name)
     end
 end
 
-function combat(monsters_list, players_list; monster_name="", number_of_monsters=0, verb=false)
+function combat(monsters_list, players_list; monster_name="", number_of_monsters=0, verb=false, spells=Dict())
     global combatants_stats = Dict()
     global combatants_hp = Dict()
     global combatants_names = []
@@ -1150,10 +1171,10 @@ function combat(monsters_list, players_list; monster_name="", number_of_monsters
     global legendary_monsters = []
     global legend_actions_order = Dict()
     global player_deaths = 0
-    global verbose = true
+    global verbose = false
     global pythagore = false
     global conditions_list = ["Blinded", "Charmed", "Deafened", "Frightened", "Grappled", "Incapacitated", "Invisible", "Paralyzed", "Petrified", "Poisoned", "Prone", "Restrained", "Stunned", "Unconscious"]
-    global spells_database = Dict()
+    global spells_database = spells
     if verb
         global verbose = true
     end
@@ -1165,7 +1186,7 @@ function combat(monsters_list, players_list; monster_name="", number_of_monsters
         import_group(monster_name, number_of_monsters)
     end
     roll_ini()
-    import_spells()
+    #import_spells()
     for player in players_names
         players_damage[player] = 0
     end
@@ -1190,7 +1211,6 @@ function combat(monsters_list, players_list; monster_name="", number_of_monsters
                 end
             else
                 if !isempty(combatants_stats[attacker_name]["action_arsenal"])
-                    check_for_death()
                     if length(players_names) == 0
                         continue
                     end
@@ -1210,7 +1230,6 @@ function combat(monsters_list, players_list; monster_name="", number_of_monsters
                     end
                 else
                     for attack_value in combatants_stats[attacker_name]["actions"]
-                        check_for_death()
                         if length(players_names) == 0 || length(monsters_names) == 0
                             break
                         end
@@ -1239,9 +1258,11 @@ function combat(monsters_list, players_list; monster_name="", number_of_monsters
                         give_bardic_inspiration(attacker_name, target_choice)
                     end
                 end
-                if !combatants_stats[attacker_name]["is_monster"]
-                    players_damage[attacker_name] += combatants_stats[attacker_name]["combat_stats"]["damage_dealt"]
-                end
+            end
+            #println(attacker_name, " ", combatants_stats[attacker_name]["is_monster"])
+            if !combatants_stats[attacker_name]["is_monster"]
+                #println(attacker_name, " damage dealt this turn: ", combatants_stats[attacker_name]["combat_stats"]["damage_dealt"])
+                players_damage[attacker_name] += combatants_stats[attacker_name]["combat_stats"]["damage_dealt"]
             end
             condition_check(attacker_name)
             heal(attacker_name, combatants_stats[attacker_name]["combat_stats"]["regeneration"])
