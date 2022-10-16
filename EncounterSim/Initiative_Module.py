@@ -363,6 +363,7 @@ class Initiative_Module():
             else:
                 choice = random.choice(self.monsters_names)
                 for name in self.monsters_names:
+                    # choix du plus gros damage dealer
                     if self.combatants_stats[name]["combat_stats"]["damage_dealt"] > self.combatants_stats[choice]["combat_stats"]["damage_dealt"]:
                         choice = name
                 return choice
@@ -721,25 +722,33 @@ class Initiative_Module():
     
     def execute_legend_action(self, monster_name):
         attack = random.choice(self.combatants_stats[monster_name]["legend_actions"])
-        if attack["charge_cost"] > self.combatants_stats[monster_name]["legend_actions_charges"]:
-            while attack["charge_cost"] > self.combatants_stats[monster_name]["legend_actions_charges"]:
-                attack = random.choice(self.combatants_stats[monster_name]["legend_actions"])
-        logging.info("{}'s legendary action: {}".format(monster_name, attack["name"]))
-        self.check_for_death()
-        if len(self.players_names) == 0 or len(self.monsters_names) == 0:
-            return
-        if attack["has_attack_mod"] is True:
-            target = self.set_target(monster_name)
-            self.attack(monster_name, target, attack)
+        if attack["charge_cost"] > self.combatants_stats[monster_name]["combat_stats"]["legend_actions_charges"]:
+            for l_ac in self.combatants_stats[monster_name]["legend_actions"]:
+                if l_ac["charge_cost"] <= self.combatants_stats[monster_name]["combat_stats"]["legend_actions_charges"]:
+                    attack = l_ac
+        if attack["charge_cost"] <= self.combatants_stats[monster_name]["combat_stats"]["legend_actions_charges"]:
+            self.combatants_stats[monster_name]["combat_stats"]["legend_actions_charges"] -= attack["charge_cost"]
+            logging.info("{}'s legendary action: {}".format(monster_name, attack["name"]))
             self.check_for_death()
-        if attack["has_dc"] is True:
-            target = self.set_target(monster_name)
-            self.dc_attack(monster_name, target, attack)
-            self.check_for_death()
-        if attack["is_aoe"] is True:
-            pass
-        if len(self.players_names) == 0 or len(self.monsters_names) == 0:
-            return
+            if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+                return
+            if attack["has_attack_mod"] is True:
+                target = self.set_target(monster_name)
+                self.attack(monster_name, target, attack)
+                self.check_for_death()
+            if attack["has_dc"] is True:
+                target = self.set_target(monster_name)
+                self.dc_attack(monster_name, target, attack)
+                self.check_for_death()
+            if attack["is_aoe"] is True:
+                pass
+            if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+                return
+
+    def reset_legendary_actions_charges(self):
+        for monster_name in self.legendary_monsters:
+            self.combatants_stats[monster_name]["combat_stats"]["legend_actions_charges"] = self.combatants_stats[monster_name]["legend_actions_charges"]
+
 
     def execute_multiattack(self, attacker_name, attack):
         multiattack_list = attack["multiattack_list"]
@@ -970,9 +979,12 @@ class Initiative_Module():
                 print("\n --- Round {} ---\n".format(rounds))
                 logging.info("\n --- Round {} ---\n".format(rounds))
             self.set_legend_actions_order()
+            self.reset_legendary_actions_charges()
             for attacker_name in self.ini_order:
                 if self.verbose:
                     print("{}'s turn.".format(attacker_name))
+                if self.combatants_stats[attacker_name]["is_monster"] is False:
+                        self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] = 0
                 self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] = 1
                 if "Incapacitated" in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
                     logging.info("{} incapacitated".format(attacker_name))
@@ -1027,8 +1039,6 @@ class Initiative_Module():
                         if attacker_name in self.legend_actions_order[monster_name]:
                             self.execute_legend_action(monster_name)
             rounds += 1
-            for monster_name in self.legendary_monsters:
-                self.combatants_stats[monster_name]["legendary_actions_charges"] = 3
         if self.verbose is True:
             print("Combat ended")
         if len(self.players_names) == 0:

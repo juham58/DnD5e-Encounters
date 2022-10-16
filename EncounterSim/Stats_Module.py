@@ -22,6 +22,8 @@ class MainStats():
         self.bardic_inspiration = [False, "1d6"]
         self.is_mythic = False
         self.mythic_hp = 0
+        self.legend_actions_charges = 0
+        self.legend_resistances = 0
         self.combat_stats = {"is_downed": False,
                             "is_stable": False,
                             "conditions": [],
@@ -35,6 +37,7 @@ class MainStats():
                             "sneak_attack_charge": 1,
                             "damage_dealt": 0,
                             "mythic_state": False,
+                            "legend_actions_charges": self.legend_actions_charges,
                             "casted_smite_spell": False,
                             "has_bardic_inspiration": [False, "1d6"],
                             "bardic_inspiration_charges": 0,
@@ -64,8 +67,6 @@ class MainStats():
         self.action_arsenal = {}
         self.legend_actions = []
         self.mythic_actions = []
-        self.legend_actions_charges = 0
-        self.legend_resistances = 0
         self.regeneration = 0
 
     def add_avg_dmg(self, x, y, z):

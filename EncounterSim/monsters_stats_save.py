@@ -543,3 +543,12 @@ save.set_action_in_arsenal(action_type="melee", name="Longsword", dice_rolls="2d
 save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multiattack_list=["Flail", "Flail", "Flail"])
 #save.set_action_in_arsenal(action_type="melee", name="Horrid Touch", has_attack_mod=False, has_dc=True, dc_type="con", dice_rolls="8d10", damage_type="necrotic", has_recharge=True, recharge=5, condition="poisoned")
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Leitmotif", ac=20, hp=223, ini_mod=5, attack_mod=14, number_of_attacks=2, sneak_attack_dices=10, disadvantage_if_attacked=True, legend_resistances=3, legend_actions_charges=3)
+save.set_abilities(-1, 5, 5, 1, 0, 5)
+save.set_saves(-1, 11, 5, 7, 6, 5)
+save.set_action(action_type="melee", name="Silken Spite", dice_rolls="1d8+8", damage_type="magical")
+save.set_action(action_type="ranged", name="Hand Crossbow", dice_rolls="1d6+8", damage_type="magical")
+save.set_legend_action(action_type="ranged", charge_cost=1, name="Hand Crossbow", dice_rolls="1d6+4d6+8", damage_type="magical")
+save.save_main_stats()
