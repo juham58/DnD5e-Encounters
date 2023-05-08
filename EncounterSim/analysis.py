@@ -36,7 +36,7 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False):
     print("----\nSuccess rate:", succes_rate, "%", "\nAverage players deaths:", avg_player_deaths, "±", round(st.stdev(player_deaths_list), ndigits=1), "\nAverage number of rounds: ", avg_rounds, "±", round(st.stdev(rounds), ndigits=1), "\nAverage damage dealt by player:", players_damage, "\n----")
 
 #combat_analysis(200, ["Vampire"], ["Ewyn", "Gowon", "Reaghan", "Vilgefortz"])
-#combat_analysis(1000, ["Caldriel"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+combat_analysis(1000, ["Lich", "Pool of Souls"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=False)
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
@@ -130,7 +130,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     plt.show()
 
 #monsters_test(5, "Skeleton", 200, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
-monsters_test(300, "Battleforce Angel", 10, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Caldriel"])
+#monsters_test(300, "Battleforce Angel", 10, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], list_of_monsters_to_import=["Caldriel"])
 #monsters_test(5, "Skeleton", 25, ["Victoriana"], verbose=True)
 #monsters_test(100, "Skeleton", 25, ["Ewyn", "Gowon", "Iaachus", "Reaghan", "Vilgefortz", "Sartin"])
 

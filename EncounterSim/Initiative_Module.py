@@ -337,7 +337,7 @@ class Initiative_Module():
                 maximum_number_of_squares = self.gauss_circle_problem(aoe_size//5)
             else:
                 maximum_number_of_squares = ((2*aoe_size+1)//5)**2
-        if aoe_shape == "square":
+        if aoe_shape == "square" or aoe_shape == "cube":
             maximum_number_of_squares = (aoe_size//5)**2
         if aoe_shape == "cone":
             if pythagore:
@@ -497,6 +497,8 @@ class Initiative_Module():
                 if self.verbose is True:
                     print(name, " dies.")
                 del self.combatants_hp[name]
+                if name in self.legendary_monsters:
+                    self.legendary_monsters.remove(name)
 
     def death_saves(self, player_name, mod=0, adv=False):
         self.combatants_hp[player_name] = 0
