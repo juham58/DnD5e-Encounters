@@ -414,7 +414,7 @@ save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multia
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Caldriel", ac=21, hp=420, dc=26, ini_mod=7, attack_mod=16, number_of_attacks=3, regeneration=20, legend_actions_charges=0, legend_resistances=3)
+save.set_main_stats("Caldriel", ac=21, hp=400, dc=26, ini_mod=7, attack_mod=16, number_of_attacks=3, legend_actions_charges=0, legend_resistances=3, regeneration=20, is_mythic=True, mythic_hp=400, magic_resistance=True, resistances=["cold", "radiant"], immunities=["necrotic", "poison"])
 save.set_abilities(8, 7, 9, 8, 8, 10)
 save.set_saves(8, 7, 9, 16, 16, 18)
 save.set_action(action_type="melee", name="Flail", dice_rolls="2d8+8d8+8", damage_type="force")
@@ -423,7 +423,7 @@ save.set_action(action_type="melee", name="Longsword", dice_rolls="2d8+8d8+8", d
 #save.set_legend_action(action_type="melee", charge_cost=3, name="Flail", dice_rolls="2d8+8d8+8", damage_type="force")
 save.set_action_in_arsenal(action_type="melee", name="Flail", dice_rolls="2d8+8d8+8", damage_type="force")
 save.set_action_in_arsenal(action_type="melee", name="Longsword", dice_rolls="2d8+8d8+8", damage_type="radiant")
-save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multiattack_list=["Flail", "Flail", "Flail"])
+save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multiattack_list=["Flail", "Longsword", "Flail"])
 #save.set_action_in_arsenal(action_type="melee", name="Horrid Touch", has_attack_mod=False, has_dc=True, dc_type="con", dice_rolls="8d10", damage_type="necrotic", has_recharge=True, recharge=5, condition="poisoned")
 save.save_main_stats()
 
@@ -437,7 +437,7 @@ save.set_legend_action(action_type="ranged", charge_cost=1, name="Hand Crossbow"
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Lich", ac=20, hp=150, dc=20, ini_mod=3, attack_mod=12, number_of_attacks=1, regeneration=0, legend_actions_charges=3, legend_resistances=3, resistances=["cold", "lightning", "necrotic"])
+save.set_main_stats("Thanatos", ac=20, hp=150, dc=20, ini_mod=3, attack_mod=12, number_of_attacks=1, regeneration=0, legend_actions_charges=3, legend_resistances=3, resistances=["cold", "lightning", "necrotic"])
 save.set_abilities(0, 3, 3, 5, 2, 3)
 save.set_saves(0, 3, 10, 12, 9, 3)
 save.set_action(action_type="spell", name="Spellcasting")
