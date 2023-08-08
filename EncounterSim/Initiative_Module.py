@@ -360,20 +360,29 @@ class Initiative_Module():
         return random.randint(maximum_number_of_squares//3, maximum_number_of_squares)
 
     def set_target(self, attacker_name):
-        try:
-            if self.combatants_stats[attacker_name]["is_monster"]:
+        if self.combatants_stats[attacker_name]["is_monster"]:
+            if self.combatants_stats[attacker_name]["combat_stats"]["focus_type"] == "random":
                 choice = random.choice(self.players_names)
                 return choice
-
-            else:
-                choice = random.choice(self.monsters_names)
-                for name in self.monsters_names:
-                    # choix du plus gros damage dealer
-                    if self.combatants_stats[name]["combat_stats"]["damage_dealt"] > self.combatants_stats[choice]["combat_stats"]["damage_dealt"]:
-                        choice = name
+            elif self.combatants_stats[attacker_name]["combat_stats"]["focus_type"] == "focused":
+                if self.combatants_stats[attacker_name]["combat_stats"]["focused_target"] == "":
+                    choice = random.choice(self.players_names)
+                    self.combatants_stats[attacker_name]["combat_stats"]["focused_target"] = choice
+                    if self.verbose:
+                        print("{} picked new target: {} who has {} HP".format(attacker_name, choice, self.combatants_hp[choice]))
+                else:
+                    choice = self.combatants_stats[attacker_name]["combat_stats"]["focused_target"]
+                    if self.verbose:
+                        print("{} kept the same target: {} who has {} HP".format(attacker_name, choice, self.combatants_hp[choice]))
                 return choice
-        except IndexError:
-            return None
+
+        else:
+            choice = random.choice(self.monsters_names)
+            for name in self.monsters_names:
+                # choix du plus gros damage dealer
+                if self.combatants_stats[name]["combat_stats"]["damage_dealt"] > self.combatants_stats[choice]["combat_stats"]["damage_dealt"]:
+                    choice = name
+            return choice
 
     def set_multiple_targets(self, attacker_name, number_of_targets):
         try:
@@ -462,7 +471,7 @@ class Initiative_Module():
 
 
     def death(self, name):
-        if self.combatants_stats[name]["is_monster"] is True:
+        if self.combatants_stats[name]["is_monster"]:
             if self.combatants_stats[name]["is_mythic"] and self.combatants_stats[name]["combat_stats"]["mythic_state"]:
                 self.monsters_names.remove(name)
                 self.ini_order.remove(name)
@@ -479,6 +488,12 @@ class Initiative_Module():
             self.combatants_hp[name] = 0
             self.set_condition(name, "Unconscious", 20, "con")
             self.combatants_stats[name]["combat_stats"]["is_downed"] = True
+            for monster in self.monsters_names:
+                if self.combatants_stats[monster]["combat_stats"]["focused_target"] == name:
+                    self.combatants_stats[monster]["combat_stats"]["focused_target"] = ""
+            if self.verbose:
+                print("{} is downed.".format(name))
+
 
     def check_for_death(self):
         if any(v <= 0 for v in self.combatants_hp.values()):
@@ -498,6 +513,9 @@ class Initiative_Module():
                         self.players_names.remove(name)
                         self.ini_order.remove(name)
                         self.player_deaths += 1
+                        for monster in self.monsters_names:
+                            if self.combatants_stats[monster]["combat_stats"]["focused_target"] == name:
+                                self.combatants_stats[monster]["combat_stats"]["focused_target"] = ""
             for name in dead_list:
                 logging.info("{} dies.".format(name))
                 if self.verbose is True:
@@ -761,7 +779,10 @@ class Initiative_Module():
     def execute_multiattack(self, attacker_name, attack):
         multiattack_list = attack["multiattack_list"]
         for attack in multiattack_list:
-            self.general_attack(attacker_name, attack)
+            self.general_attack(attacker_name, self.combatants_stats[attacker_name]["action_arsenal"][attack])
+            if len(self.players_names) == 0:
+                self.check_for_death()
+                break
 
     def choose_attack(self, attacker_name):
         recharge_seen = True

@@ -27,6 +27,8 @@ class MainStats():
         self.legend_resistances = 0
         self.combat_stats = {"is_downed": False,
                             "is_stable": False,
+                            "focus_type": "random",
+                            "focused_target": "",
                             "conditions": [],
                             "conditions_info": [],
                             "death_saves": [0, 0],
@@ -73,7 +75,7 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0, focus_type="random"):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -99,6 +101,7 @@ class MainStats():
         self.mythic_hp = mythic_hp
         self.combat_stats["advantage_if_attacked"] = advantage_if_attacked
         self.combat_stats["disadvantage_if_attacked"] = disadvantage_if_attacked
+        self.combat_stats["focus_type"] = focus_type
 
     def set_abilities(self, str_bonus, dex_bonus, con_bonus, int_bonus, wis_bonus, cha_bonus):
         self.abilities = {"str": str_bonus,
@@ -149,7 +152,7 @@ class MainStats():
         act_dict["heal_type"] = heal_type
         self.actions.append(act_dict)
 
-    def set_action_in_arsenal(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", has_recharge=True, recharge=6, recharge_ready=True, is_multiattack=False, multiattack_list=[]):
+    def set_action_in_arsenal(self, action_type="melee", name="", has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", has_recharge=False, recharge=6, recharge_ready=True, is_multiattack=False, multiattack_list=[]):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
