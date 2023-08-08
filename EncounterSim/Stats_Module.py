@@ -20,6 +20,7 @@ class MainStats():
         self.sneak_attack_dices = 0
         self.brutal_critical = 0
         self.bardic_inspiration = [False, "1d6"]
+        self.magic_resistance = False
         self.is_mythic = False
         self.mythic_hp = 0
         self.legend_actions_charges = 0
@@ -72,7 +73,7 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, is_mythic=False, mythic_hp=0):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -93,6 +94,7 @@ class MainStats():
         self.brutal_critical = brutal_critical
         self.divine_smite = divine_smite
         self.bardic_inspiration = bardic_inspiration
+        self.magic_resistance = magic_resistance
         self.is_mythic = is_mythic
         self.mythic_hp = mythic_hp
         self.combat_stats["advantage_if_attacked"] = advantage_if_attacked
@@ -243,6 +245,7 @@ class MainStats():
                 "brutal_critical": self.brutal_critical,
                 "divine_smite": self.divine_smite,
                 "bardic_inspiration": self.bardic_inspiration,
+                "magic_resistance": self.magic_resistance,
                 "is_mythic": self.is_mythic,
                 "mythic_hp": self.mythic_hp,
                 "combat_stats": self.combat_stats,
