@@ -124,11 +124,13 @@ class Initiative_Module():
             else:
                 self.players_names.append(name)
 
-    def dc_attack(self, attacker_name, target_name, attack):
+    def dc_attack(self, attacker_name, target_name, attack, adv=False, dis=False):
+        if self.combatants_stats[target_name]["magic_resistance"]:
+            adv = True
         dice_rolls = attack["dice_rolls"]
         dc_type = attack["dc_type"]
         dc = self.combatants_stats[attacker_name]["dc"]
-        dc_result = self.dc_check(target_name, dc, dc_type)
+        dc_result = self.dc_check(target_name, dc, dc_type, adv=adv, dis=dis)
         if attack["condition"] != "":
             if dc_result is False:
                 self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
@@ -206,11 +208,14 @@ class Initiative_Module():
         normal_damage = 0
         crit_damage = 0
         if self.combatants_stats[attacker_name]["sneak_attack_dices"] != 0 and self.combatants_stats[attacker_name]["combat_stats"]["sneak_attack_charge"] == 1:
+            sneak_attack_dice_type = 6
+            if attacker_name == "Gaspard Maupassant":
+                sneak_attack_dice_type = 10
             if straight_roll == 20:
-                sneak_attack_damage = self.roll_dice((2*self.combatants_stats[attacker_name]["sneak_attack_dices"],6,0))
+                sneak_attack_damage = self.roll_dice((2*self.combatants_stats[attacker_name]["sneak_attack_dices"],sneak_attack_dice_type,0))
                 crit_damage += sneak_attack_damage
             else:
-                sneak_attack_damage = self.roll_dice((self.combatants_stats[attacker_name]["sneak_attack_dices"],6,0))
+                sneak_attack_damage = self.roll_dice((self.combatants_stats[attacker_name]["sneak_attack_dices"],sneak_attack_dice_type,0))
                 normal_damage += sneak_attack_damage
             if self.verbose:
                 print("Sneak attack damage", sneak_attack_damage)
@@ -303,7 +308,7 @@ class Initiative_Module():
                     print(attacker_name, "CRITS on paralyzed or unconscious", target_name, "with", attack_roll, "and does:", crit_damage, " damage!")
         if attack_roll >= self.combatants_stats[target_name]["ac"] and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
             self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
-        if straight_roll == 20 and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+        elif straight_roll == 20 and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
             self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 2
         else:
             if self.verbose is True:
@@ -418,7 +423,9 @@ class Initiative_Module():
                 damage = int(damage/2)
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
                 damage = 0
-            dc_result = self.dc_check(target_name, dc, dc_type)
+            if self.combatants_stats[target_name]["magic_resistance"]:
+                adv = True
+            dc_result = self.dc_check(target_name, dc, dc_type, adv=adv)
             if attack["condition"] != "":
                 if dc_result is False:
                     self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
@@ -464,7 +471,6 @@ class Initiative_Module():
                 logging.info("{} enters its mythic stage and gains {} HP!".format(name, self.combatants_stats[name]["mythic_hp"]))
                 if self.verbose:
                     print("{} enters its mythic stage and gains {} HP!".format(name, self.combatants_stats[name]["mythic_hp"]))
-                print("{} enters its mythic stage and gains {} HP!".format(name, self.combatants_stats[name]["mythic_hp"]))
             else:
                 self.monsters_names.remove(name)
                 self.ini_order.remove(name)
@@ -941,6 +947,28 @@ class Initiative_Module():
             number_of_dice = 6
         bonus_dice_roll = "+{}d8".format(number_of_dice)
         logging.info("{} used a level {} divine smite on {} ({}) and added {} to their roll".format(attacker_name, level, target_name, target_creature_type, bonus_dice_roll))
+        return bonus_dice_roll
+    
+    def eldritch_smite(self, attacker_name, target_name):
+        bonus_dice_roll = ""
+        number_of_dice = 2
+        level = 0
+        for spell_slot_level in self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"].keys():
+            if self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][spell_slot_level] > 0:
+                level = self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][spell_slot_level]
+        if level == 0:
+            return bonus_dice_roll
+        self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][level] -= 1
+        if self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][level] < 0:
+                self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][level] = 0 # just to be sure
+        number_of_dice += level-1
+        target_creature_type = self.combatants_stats[target_name]["creature_type"]
+        if target_creature_type == "undead" or target_creature_type == "fiend":
+            number_of_dice += 1
+        if number_of_dice > 6:
+            number_of_dice = 6
+        bonus_dice_roll = "+{}d8".format(number_of_dice)
+        logging.info("{} used a level {} eldritch smite on {} ({}) and added {} to their roll".format(attacker_name, level, target_name, target_creature_type, bonus_dice_roll))
         return bonus_dice_roll
     
     def choose_inspiration_target(self, bard_name, target_list):
