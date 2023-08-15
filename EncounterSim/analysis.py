@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
-def combat_analysis(iterations, monsters_list, list_of_players, verbose=False):
+def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, monster_group=(None, None)):
     start_time = time.process_time()
     results = []
     player_deaths_list = []
@@ -16,6 +16,8 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False):
         players_damage[player] = 0
     for _ in tqdm(range(iterations)):
         ini = Initiative_Module()
+        if monster_group != (None, None):
+            ini.import_group(monster_group[0], monster_group[1])
         ini.import_monsters(monsters_list)
         ini.import_players(list_of_players)
         combat_end = ini.combat(verbose=verbose)
@@ -37,7 +39,7 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False):
 
 #combat_analysis(200, ["Vampire"], ["Ewyn", "Gowon", "Reaghan", "Vilgefortz"])
 #combat_analysis(1000, ["Thanatos", "Pool of Souls"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=False)
-combat_analysis(1000, ["Caldriel"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=False)
+combat_analysis(1000, ["Caldriel"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=False, monster_group=("Battleforce Angel", 4))
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()

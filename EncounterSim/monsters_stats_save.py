@@ -414,7 +414,7 @@ save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multia
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Caldriel", ac=21, hp=400, dc=26, ini_mod=7, attack_mod=16, number_of_attacks=3, legend_actions_charges=0, legend_resistances=3, regeneration=0, is_mythic=True, mythic_hp=200, magic_resistance=True, resistances=["cold", "radiant"], immunities=["necrotic", "poison"], focus_type="focused")
+save.set_main_stats("Caldriel", ac=21, hp=400, dc=26, ini_mod=7, attack_mod=16, number_of_attacks=3, legend_actions_charges=0, legend_resistances=3, regeneration=0, is_mythic=True, mythic_hp=300, magic_resistance=True, resistances=["cold", "radiant"], immunities=["necrotic", "poison"], focus_type="focused")
 save.set_abilities(8, 7, 9, 8, 8, 10)
 save.set_saves(8, 7, 9, 16, 16, 18)
 save.set_action(action_type="melee", name="Flail", dice_rolls="2d8+8d8+8", damage_type="force")

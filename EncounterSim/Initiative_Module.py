@@ -227,6 +227,12 @@ class Initiative_Module():
                 if type(attack["dice_rolls"]) != str:
                     dice_roll = self.dice_tuple_to_string(dice_roll)
                 dice_roll = dice_roll+self.divine_smite(attacker_name, target_name)
+        elif self.combatants_stats[attacker_name]["eldritch_smite"]:
+            eldritch_smite_choice = self.eldritch_smite_decision(attacker_name, target_name, straight_roll)
+            if eldritch_smite_choice != "":
+                if type(attack["dice_rolls"]) != str:
+                    dice_roll = self.dice_tuple_to_string(dice_roll)
+                dice_roll = dice_roll+self.eldritch_smite(attacker_name, target_name)
         if type(attack["dice_rolls"]) == str:
             normal_damage += self.roll_dice(dice_roll)
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
@@ -273,7 +279,7 @@ class Initiative_Module():
                 if self.verbose is True:
                     print(attacker_name, "CRITS with", attack_roll, "and does:", crit_damage, " damage!")
 
-        if attack_roll >= self.combatants_stats[target_name]["ac"] and straight_roll != 20:
+        elif attack_roll >= self.combatants_stats[target_name]["ac"] and straight_roll != 20:
             if "Paralyzed" not in conditions and "Unconscious" not in conditions:
                 self.combatants_hp[target_name] -= normal_damage
                 self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += normal_damage
@@ -290,7 +296,7 @@ class Initiative_Module():
                 if self.verbose is True:
                     print(attacker_name, "hits with", attack_roll, "and does:", normal_damage, " damage!")
 
-        if attack_roll >= self.combatants_stats[target_name]["ac"]:
+        elif attack_roll >= self.combatants_stats[target_name]["ac"]:
             if "Paralyzed" in conditions or "Unconscious" in conditions:
                 self.combatants_hp[target_name] -= crit_damage
                 self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += crit_damage
@@ -306,13 +312,13 @@ class Initiative_Module():
                             self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                 if self.verbose is True:
                     print(attacker_name, "CRITS on paralyzed or unconscious", target_name, "with", attack_roll, "and does:", crit_damage, " damage!")
+        else:
+            if self.verbose is True:
+                print(attacker_name, "misses.")
         if attack_roll >= self.combatants_stats[target_name]["ac"] and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
             self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
         elif straight_roll == 20 and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
             self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 2
-        else:
-            if self.verbose is True:
-                print(attacker_name, "misses.")
 
     def heal(self, combatant_name, heal_amount):
         self.combatants_hp[combatant_name] += heal_amount
@@ -434,6 +440,8 @@ class Initiative_Module():
                 damage = 0
             if self.combatants_stats[target_name]["magic_resistance"]:
                 adv = True
+            else:
+                adv = False
             dc_result = self.dc_check(target_name, dc, dc_type, adv=adv)
             if attack["condition"] != "":
                 if dc_result is False:
@@ -947,6 +955,15 @@ class Initiative_Module():
             return self.divine_smite(attacker_name, target_name)
         else:
             return ""
+        
+    def eldritch_smite_decision(self, attacker_name, target_name, straight_roll):
+        if straight_roll == 20:
+            # je crit, je smite
+            return self.eldritch_smite(attacker_name, target_name)
+        if self.combatants_stats[attacker_name]["eldritch_smite"] and self.roll_d20()>=10:
+            return self.eldritch_smite(attacker_name, target_name)
+        else:
+            return ""
 
     def divine_smite(self, attacker_name, target_name):
         bonus_dice_roll = ""
@@ -976,7 +993,7 @@ class Initiative_Module():
         level = 0
         for spell_slot_level in self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"].keys():
             if self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][spell_slot_level] > 0:
-                level = self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][spell_slot_level]
+                level = spell_slot_level
         if level == 0:
             return bonus_dice_roll
         self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][level] -= 1
@@ -984,12 +1001,12 @@ class Initiative_Module():
                 self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"][level] = 0 # just to be sure
         number_of_dice += level-1
         target_creature_type = self.combatants_stats[target_name]["creature_type"]
-        if target_creature_type == "undead" or target_creature_type == "fiend":
-            number_of_dice += 1
         if number_of_dice > 6:
             number_of_dice = 6
         bonus_dice_roll = "+{}d8".format(number_of_dice)
         logging.info("{} used a level {} eldritch smite on {} ({}) and added {} to their roll".format(attacker_name, level, target_name, target_creature_type, bonus_dice_roll))
+        #print("{} used a level {} eldritch smite on {} ({}) and added {} to their roll".format(attacker_name, level, target_name, target_creature_type, bonus_dice_roll))
+        #print(self.combatants_stats[attacker_name]["combat_stats"]["spell_slots"])
         return bonus_dice_roll
     
     def choose_inspiration_target(self, bard_name, target_list):
