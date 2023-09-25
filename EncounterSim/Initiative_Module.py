@@ -1014,7 +1014,7 @@ class Initiative_Module():
         if target_choice == bard_name:
             if len(target_list) == 1:
                 return None
-            return self.choose_inspiration_target(self, bard_name, target_list)
+            return self.choose_inspiration_target(bard_name, target_list)
         else:
             return target_choice
 
