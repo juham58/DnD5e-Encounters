@@ -463,3 +463,18 @@ save.set_action(action_type="ranged", name="Souls of the Dead", has_attack_mod=F
 #save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multiattack_list=["Flail", "Flail", "Flail"])
 #save.set_action_in_arsenal(action_type="melee", name="Horrid Touch", has_attack_mod=False, has_dc=True, dc_type="con", dice_rolls="8d10", damage_type="necrotic", has_recharge=True, recharge=5, condition="poisoned")
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Bandit", ac=12, hp=11, attack_mod=3)
+save.set_abilities(0, 1, 1, 0, 0, 0)
+save.set_saves(0, 1, 1, 0, 0, 0)
+save.set_action(action_type="melee", name="Scimitar", dice_rolls="1d6+1")
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Bandit Captain", ac=15, hp=65, attack_mod=5, number_of_attacks=2)
+save.set_abilities(2, 3, 2, 2, 0, 2)
+save.set_saves(4, 5, 2, 2, 2, 2)
+save.set_action(action_type="melee", name="Scimitar", dice_rolls="1d6+3")
+save.set_action(action_type="melee", name="Scimitar", dice_rolls="1d6+3")
+save.save_main_stats()
