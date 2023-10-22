@@ -189,6 +189,7 @@ class Spells_Database():
 sd = Spells_Database()
 sd.parse_spells_json()
 sd.add_spell("Toll the Dead", 0, dice_rolls="1d12", range=60, has_attack_mod=False, has_dc=True, is_aoe=False, dc_type="wis", condition="", damage_type="necrotic", if_save="no_damage")
+sd.add_spell("Toll the Dead", 0, dice_rolls="1d12", range=60, has_attack_mod=False, has_dc=True, is_aoe=False, dc_type="wis", condition="", damage_type="necrotic", if_save="no_damage")
 sd.add_spell("Mind Sliver", 0, dice_rolls="1d6", range=60, has_attack_mod=False, has_dc=True, is_aoe=False, dc_type="int", condition="", damage_type="psychic", if_save="no_damage")
 sd.add_spell("Disintegrate", 6, dice_rolls="10d6+40", range=60, has_attack_mod=False, has_dc=True, is_aoe=False, dc_type="dex", condition="", damage_type="force", if_save="no_damage", is_upcastable=True, upcast_effect="3d6")
 sd.add_spell("Chromatic Orb", 1, dice_rolls="3d8", range=90, has_attack_mod=True, has_dc=False, is_aoe=False, damage_type="acid", is_upcastable=True, upcast_effect="1d8")
@@ -205,5 +206,8 @@ sd.edit_spell("Sacred Flame", ["has_dc", "dc_type"], [True, "dex"])
 #sd.print_spell("Bless")
 #sd.print_spell("Magic Missile")
 #sd.print_spell("Mind Sliver")
-sd.print_spell("Chaos Bolt")
+sd.print_spell("Fire Bolt")
 sd.save_spells()
+
+
+# TODO implémenter Magic Missile et Scorching Ray

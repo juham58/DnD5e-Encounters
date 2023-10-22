@@ -40,7 +40,7 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, m
 #combat_analysis(200, ["Vampire"], ["Ewyn", "Gowon", "Reaghan", "Vilgefortz"])
 #combat_analysis(1000, ["Thanatos", "Pool of Souls"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=False)
 #combat_analysis(1000, ["Caldriel"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=False, monster_group=("Battleforce Angel", 4))
-combat_analysis(1000, ["Dragours vert"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian"])
+combat_analysis(500, ["Necrichor"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian"], verbose=False)
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
@@ -151,6 +151,9 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 #monsters_test(50, "Jiangshi", 10, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 #monsters_test(300, "Spined Devil", 10, ["Gowon", "Iaachus", "Reaghan", "Vilgefortz"], list_of_monsters_to_import=["Imp"])
 #monsters_test(50, "Gnoll Pack Lord", 50, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
+
+#monsters_test(50, "Bandit", 25, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian"], list_of_monsters_to_import=["Bandit Captain"])
+
 
 #ini = Initiative_Module()
 #ini.import_group("Core Spawn Crawler", 4)

@@ -262,61 +262,51 @@ class Initiative_Module():
         #if target_name is None:
             #if self.verbose is True:
                 #print("There is no one to attack.")
+        if self.verbose:
+            print("straight_roll:", straight_roll, " attack_roll:", attack_roll, " target's AC:", self.combatants_stats[target_name]["ac"])
         if straight_roll == 20:
-            if "Paralyzed" not in conditions and "Unconscious" not in conditions:
-                self.combatants_hp[target_name] -= crit_damage
-                self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += crit_damage
-                if attack["condition"] != "":
-                    if attack["auto_success"] is True:
-                        dc = self.combatants_stats[attacker_name]["dc"]
+            self.combatants_hp[target_name] -= crit_damage
+            self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += crit_damage
+            if attack["condition"] != "":
+                if attack["auto_success"] is True:
+                    dc = self.combatants_stats[attacker_name]["dc"]
+                    self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
+                else:
+                    dc = self.combatants_stats[attacker_name]["dc"]
+                    if self.dc_check(target_name, dc, attack["dc_type"]) is False:
+                        if attack["has_dc_effect_on_hit"] is True:
+                            crit_damage += self.roll_dice(attack["dc_effect_on_hit"])
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
-                    else:
-                        dc = self.combatants_stats[attacker_name]["dc"]
-                        if self.dc_check(target_name, dc, attack["dc_type"]) is False:
-                            if attack["has_dc_effect_on_hit"] is True:
-                                crit_damage += self.roll_dice(attack["dc_effect_on_hit"])
-                            self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
-                if self.verbose is True:
-                    print(attacker_name, "CRITS with", attack_roll, "and does:", crit_damage, " damage!")
+            if self.verbose is True:
+                print(attacker_name, "CRITS with", attack_roll, "and does:", crit_damage, " damage!")
 
         elif attack_roll >= self.combatants_stats[target_name]["ac"] and straight_roll != 20:
             if "Paralyzed" not in conditions and "Unconscious" not in conditions:
-                self.combatants_hp[target_name] -= normal_damage
-                self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += normal_damage
-                if attack["condition"] != "":
-                    if attack["auto_success"] is True:
-                        dc = self.combatants_stats[attacker_name]["dc"]
+                damage = normal_damage
+            else:
+                damage = crit_damage
+            self.combatants_hp[target_name] -= damage
+            self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
+            if attack["condition"] != "":
+                if attack["auto_success"] is True:
+                    dc = self.combatants_stats[attacker_name]["dc"]
+                    self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
+                else:
+                    dc = self.combatants_stats[attacker_name]["dc"]
+                    if self.dc_check(target_name, dc, attack["dc_type"]) is False:
+                        if attack["has_dc_effect_on_hit"] is True:
+                            normal_damage += self.roll_dice(attack["dc_effect_on_hit"])
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
-                    else:
-                        dc = self.combatants_stats[attacker_name]["dc"]
-                        if self.dc_check(target_name, dc, attack["dc_type"]) is False:
-                            if attack["has_dc_effect_on_hit"] is True:
-                                normal_damage += self.roll_dice(attack["dc_effect_on_hit"])
-                            self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
-                if self.verbose is True:
-                    print(attacker_name, "hits with", attack_roll, "and does:", normal_damage, " damage!")
-
-        elif attack_roll >= self.combatants_stats[target_name]["ac"]:
-            if "Paralyzed" in conditions or "Unconscious" in conditions:
-                self.combatants_hp[target_name] -= crit_damage
-                self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += crit_damage
-                if attack["condition"] != "":
-                    if attack["auto_success"] is True:
-                        dc = self.combatants_stats[attacker_name]["dc"]
-                        self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
-                    else:
-                        dc = self.combatants_stats[attacker_name]["dc"]
-                        if self.dc_check(target_name, dc, attack["dc_type"]) is False:
-                            if attack["has_dc_effect_on_hit"] is True:
-                                crit_damage += self.roll_dice(attack["dc_effect_on_hit"])
-                            self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
-                if self.verbose is True:
-                    print(attacker_name, "CRITS on paralyzed or unconscious", target_name, "with", attack_roll, "and does:", crit_damage, " damage!")
+            if self.verbose is True:
+                print(attacker_name, "hits with", attack_roll, "and does:", normal_damage, " damage!")
         else:
             if self.verbose is True:
                 print(attacker_name, "misses.")
         if attack_roll >= self.combatants_stats[target_name]["ac"] and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
-            self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
+            if "Paralyzed" not in conditions and "Unconscious" not in conditions:
+                self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
+            else:
+                self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 2
         elif straight_roll == 20 and self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
             self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 2
 
