@@ -206,7 +206,8 @@ sd.edit_spell("Sacred Flame", ["has_dc", "dc_type"], [True, "dex"])
 #sd.print_spell("Bless")
 #sd.print_spell("Magic Missile")
 #sd.print_spell("Mind Sliver")
-sd.print_spell("Fire Bolt")
+sd.print_spell("Magic Missile")
+sd.print_spell("Scorching Ray")
 sd.save_spells()
 
 

@@ -262,8 +262,6 @@ class Initiative_Module():
         #if target_name is None:
             #if self.verbose is True:
                 #print("There is no one to attack.")
-        if self.verbose:
-            print("straight_roll:", straight_roll, " attack_roll:", attack_roll, " target's AC:", self.combatants_stats[target_name]["ac"])
         if straight_roll == 20:
             self.combatants_hp[target_name] -= crit_damage
             self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += crit_damage
@@ -929,7 +927,11 @@ class Initiative_Module():
                 self.combatants_stats[caster_name]["combat_stats"]["spell_slots"][spell_level] = 0 # just to be sure
         if self.verbose:
             print("{} casts {} at level {}!".format(caster_name, spell_name, spell_level))
-        if spell["has_attack_mod"]:
+        if spell_name == "Scorching Ray":
+            self.scorching_ray(caster_name, self.set_target(caster_name), spell_level)
+        elif spell_name == "Magic Missile":
+            self.magic_missile(caster_name, self.set_target(caster_name), spell_level)
+        elif spell["has_attack_mod"]:
             self.attack(caster_name, self.set_target(caster_name), spell)
         elif spell["has_dc"] is True and spell["is_aoe"] is False:
             self.dc_attack(caster_name, self.set_target(caster_name), spell)
@@ -1021,7 +1023,43 @@ class Initiative_Module():
         bonus = self.roll_dice(self.combatants_stats[user_name]["combat_stats"]["has_bardic_inspiration"][1])
         logging.info("{} used a {} bardic inspiration and added {} to their roll".format(user_name, self.combatants_stats[user_name]["combat_stats"]["has_bardic_inspiration"][1], bonus))
         return bonus
-        
+    
+    def scorching_ray(self, caster_name, target_name, spell_level):
+        act_dict = {}
+        act_dict["action_type"] = "spell"
+        act_dict["name"] = "Scorching Ray Beam"
+        act_dict["has_attack_mod"] = True
+        act_dict["has_dc"] = False
+        act_dict["dc_type"] = ""
+        act_dict["dice_rolls"] = "2d6"
+        act_dict["condition"] = ""
+        act_dict["is_aoe"] = False
+        act_dict["aoe_size"] = ""
+        act_dict["aoe_shape"] = ""
+        act_dict["damage_type"] = "fire"
+        act_dict["if_save"] = "half"
+        act_dict["auto_success"] = False
+        act_dict["has_dc_effect_on_hit"] = False
+        act_dict["dc_effect_on_hit"] = []
+        act_dict["has_advantage"] = False
+        act_dict["is_heal"] = False
+        act_dict["heal_type"] = "damge_dealt"
+        for n_beam in range(spell_level+1):
+            act_dict["name"] = "Scorching Ray Beam {}".format(n_beam+1)
+            self.attack(caster_name, target_name, act_dict)
+        self.check_for_death()
+
+    def magic_missile(self, caster_name, target_name, spell_level):
+        for n_missile in range(spell_level+2):
+            missile_damage = self.roll_dice("1d4+1")
+            self.combatants_hp[target_name] -= missile_damage
+            if self.verbose is True:
+                print(caster_name, "hits with Magic Missile",n_missile, "and does:", missile_damage, "force damage!")
+            if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+                self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
+        self.check_for_death()
+
+
         
     def combat(self, verbose=True):
         rounds = 1
@@ -1059,7 +1097,13 @@ class Initiative_Module():
                         else:
                             self.general_attack(attacker_name, attack_choice)
                     else:
-                        for attack in self.combatants_stats[attacker_name]["actions"]:
+                        if self.combatants_stats[attacker_name]["combat_stats"]["ki_points"] > 0:
+                            n_attacks = self.combatants_stats[attacker_name]["number_of_attacks"]+1
+                            self.combatants_stats[attacker_name]["combat_stats"]["ki_points"] -= 1
+                        else:
+                            n_attacks = self.combatants_stats[attacker_name]["number_of_attacks"]
+                        for attack_n in range(n_attacks):
+                            attack = self.combatants_stats[attacker_name]["actions"][attack_n]
                             logging.info("{}, with {}".format(attacker_name, attack["name"]))
                             self.check_for_death()
                             if len(self.players_names) == 0 or len(self.monsters_names) == 0:
