@@ -498,3 +498,11 @@ save.set_action(action_type="ranged", name="Necrotic Bolt", dice_rolls="3d8+3")
 save.set_action(action_type="ranged", name="Necrotic Bolt", dice_rolls="3d8+3")
 save.set_action(action_type="ranged", name="Necrotic Bolt", dice_rolls="3d8+3")
 save.save_main_stats()
+
+
+save = MainStats()
+save.set_main_stats("Zombtrouille", ac=8, hp=1, attack_mod=3, number_of_attacks=1)
+save.set_abilities(1, -2, 3, -4, -2, -3)
+save.set_saves(1, -2, 3, -4, 0, -3)
+save.set_action(action_type="melee", name="Slam", dice_rolls="1d6+1")
+save.save_main_stats()
