@@ -3,6 +3,7 @@ from pathlib import Path
 
 class MainStats():
     def __init__(self):
+        self.custom_stats = []
         self.avg_attack_dmg = 0
         self.name = ""
         self.ac = 10
@@ -41,6 +42,7 @@ class MainStats():
                             "disadvantage_if_attacked": False,
                             "sneak_attack_charge": 1,
                             "damage_dealt": 0,
+                            "damage_received_in_turn": 0,
                             "mythic_state": False,
                             "legend_actions_charges": self.legend_actions_charges,
                             "casted_smite_spell": False,
@@ -232,6 +234,12 @@ class MainStats():
 
     def set_spellbook(self, list_of_available_spells):
         self.spellbook = list_of_available_spells
+
+    def add_custom_combat_stat(self, key, value):
+        self.combat_stats[key] = value
+
+    def add_custom_stat(self, key, value):
+        self.custom_stats.append((key, value))
     
     def save_main_stats(self):
         act_dict = {self.name: {
@@ -266,6 +274,10 @@ class MainStats():
                 "mythic_actions": self.mythic_actions,
                 "legend_actions_charges": self.legend_actions_charges,
                 "legend_resistances": self.legend_resistances}}
+        if len(self.custom_stats) != 0:
+            for custom_stat in self.custom_stats:
+                act_dict[self.name][custom_stat[0]] = custom_stat[1]
+
         if act_dict[self.name]["bardic_inspiration"][0]:
             act_dict[self.name]["combat_stats"]["bardic_inspiration_charges"] = act_dict[self.name]["abilities"]["cha"]
         self.actions = []

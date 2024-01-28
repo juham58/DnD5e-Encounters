@@ -143,6 +143,7 @@ class Initiative_Module():
         if dc_result is False:
             self.combatants_hp[target_name] -= damage
             self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
+            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += damage
             if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
                 self.heal(attacker_name, damage)
             if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
@@ -153,6 +154,7 @@ class Initiative_Module():
         if dc_result is True and attack["if_save"] == "no_effect":
             self.combatants_hp[target_name] -= damage
             self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
+            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += damage
             if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
                 self.heal(attacker_name, damage)
             if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
@@ -163,6 +165,7 @@ class Initiative_Module():
         if dc_result is True and attack["if_save"] == "half":
             self.combatants_hp[target_name] -= round(damage/2)
             self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += round(damage/2)
+            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += round(damage/2)
             if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
                 self.heal(attacker_name, round(damage/2))
             if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
@@ -265,6 +268,7 @@ class Initiative_Module():
         if straight_roll == 20:
             self.combatants_hp[target_name] -= crit_damage
             self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += crit_damage
+            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += crit_damage
             if attack["condition"] != "":
                 if attack["auto_success"] is True:
                     dc = self.combatants_stats[attacker_name]["dc"]
@@ -285,6 +289,7 @@ class Initiative_Module():
                 damage = crit_damage
             self.combatants_hp[target_name] -= damage
             self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
+            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += damage
             if attack["condition"] != "":
                 if attack["auto_success"] is True:
                     dc = self.combatants_stats[attacker_name]["dc"]
@@ -437,6 +442,7 @@ class Initiative_Module():
             if dc_result is False:
                 self.combatants_hp[target_name] -= damage
                 self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
+                self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += damage
                 if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
                     self.heal(attacker_name, damage)
                 if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
@@ -446,6 +452,7 @@ class Initiative_Module():
             if dc_result is True and attack["if_save"] == "no_effect":
                 self.combatants_hp[target_name] -= damage
                 self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
+                self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += damage
                 if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
                     self.heal(attacker_name, damage)
                 if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
@@ -455,6 +462,7 @@ class Initiative_Module():
             if dc_result is True and attack["if_save"] == "half":
                 self.combatants_hp[target_name] -= round(damage/2)
                 self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += round(damage/2)
+                self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += round(damage/2)
                 if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
                     self.heal(attacker_name, round(damage/2))
                 if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
@@ -1077,6 +1085,13 @@ class Initiative_Module():
             self.set_legend_actions_order()
             self.reset_legendary_actions_charges()
             for attacker_name in self.ini_order:
+                if "number_of_heads" in self.combatants_stats[attacker_name]["combat_stats"]:
+                    #print(self.combatants_stats[attacker_name]["combat_stats"]["number_of_heads"])
+                    hp_threshold_for_head_removal = self.combatants_stats[attacker_name]["hp_threshold_for_head_removal"]
+                    number_of_heads_removed = self.combatants_stats[attacker_name]["combat_stats"]["damage_received_in_turn"]//hp_threshold_for_head_removal
+                    self.combatants_stats[attacker_name]["combat_stats"]["number_of_heads"] += number_of_heads_removed
+                    self.combatants_stats[attacker_name]["number_of_attacks"] += number_of_heads_removed
+                self.combatants_stats[attacker_name]["combat_stats"]["damage_received_in_turn"] = 0
                 if self.verbose:
                     print("{}'s turn.".format(attacker_name))
                 if self.combatants_stats[attacker_name]["is_monster"] is False:
