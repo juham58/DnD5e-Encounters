@@ -266,9 +266,6 @@ class Initiative_Module():
             #if self.verbose is True:
                 #print("There is no one to attack.")
         if straight_roll == 20:
-            self.combatants_hp[target_name] -= crit_damage
-            self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += crit_damage
-            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += crit_damage
             if attack["condition"] != "":
                 if attack["auto_success"] is True:
                     dc = self.combatants_stats[attacker_name]["dc"]
@@ -277,19 +274,17 @@ class Initiative_Module():
                     dc = self.combatants_stats[attacker_name]["dc"]
                     if self.dc_check(target_name, dc, attack["dc_type"]) is False:
                         if attack["has_dc_effect_on_hit"] is True:
-                            crit_damage += self.roll_dice(attack["dc_effect_on_hit"])
+                            crit_damage += self.roll_dice(attack["dc_effect_on_hit"])*2
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
+                    elif attack["has_dc_effect_on_hit"] is True and attack["if_save"] == "half":
+                        crit_damage += self.roll_dice(attack["dc_effect_on_hit"])
+            self.combatants_hp[target_name] -= crit_damage
+            self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += crit_damage
+            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += crit_damage
             if self.verbose is True:
                 print(attacker_name, "CRITS with", attack_roll, "and does:", crit_damage, " damage!")
 
         elif attack_roll >= self.combatants_stats[target_name]["ac"] and straight_roll != 20:
-            if "Paralyzed" not in conditions and "Unconscious" not in conditions:
-                damage = normal_damage
-            else:
-                damage = crit_damage
-            self.combatants_hp[target_name] -= damage
-            self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
-            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += damage
             if attack["condition"] != "":
                 if attack["auto_success"] is True:
                     dc = self.combatants_stats[attacker_name]["dc"]
@@ -300,6 +295,15 @@ class Initiative_Module():
                         if attack["has_dc_effect_on_hit"] is True:
                             normal_damage += self.roll_dice(attack["dc_effect_on_hit"])
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
+                    elif attack["has_dc_effect_on_hit"] is True and attack["if_save"] == "half":
+                        normal_damage += self.roll_dice(attack["dc_effect_on_hit"])/2
+            if "Paralyzed" not in conditions and "Unconscious" not in conditions:
+                damage = normal_damage
+            else:
+                damage = crit_damage
+            self.combatants_hp[target_name] -= damage
+            self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
+            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += damage
             if self.verbose is True:
                 print(attacker_name, "hits with", attack_roll, "and does:", normal_damage, " damage!")
         else:
