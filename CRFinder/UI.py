@@ -5,9 +5,8 @@ from PlayersTools import PlayersTools
 
 def find_cr_atk_bonus(ac=10, hp=10, atk_bonus=3, tier=1, resistances=False, immunities=False):
     finder = CR_Finder()
-    finder.avg_dice(2, 6, 11)
-    finder.avg_dice(2, 6, 11)
-    finder.avg_dice(2, 6, 11)
+    finder.avg_dice(1, 6, 2)
+    finder.avg_dice(1, 6, 2)
     finder.avg_dice_collector()
     finder.set_tier(tier)
     finder.set_resistances(resistances)
@@ -61,4 +60,4 @@ def find_cr_save_dc(ac=10, hp=10, save_dc=10, tier=1, resistances=False, immunit
 #test.add_monster(find_cr_atk_bonus(ac=16, hp=150, atk_bonus=5))
 #test.get_difficulty()
 
-find_cr_atk_bonus(ac=20, hp=148, atk_bonus=13)
+find_cr_atk_bonus(ac=16, hp=33, atk_bonus=4)

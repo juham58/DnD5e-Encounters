@@ -700,7 +700,7 @@ class Initiative_Module():
             self.combatants_stats[combatant_name]["combat_stats"]["advantage_if_attacked"] = True
 
     def set_condition(self, combatant_name, condition_name, dc, stat):
-        if condition_name not in self.combatants_stats[combatant_name]["combat_stats"]["conditions"]:
+        if condition_name not in self.combatants_stats[combatant_name]["combat_stats"]["conditions"] and condition_name not in self.combatants_stats[combatant_name]["immunities"]:
             logging.info("Condition set: {}, Combatant name: {}".format(condition_name, combatant_name))
             self.combatants_stats[combatant_name]["combat_stats"]["conditions"].append(condition_name)
             self.combatants_stats[combatant_name]["combat_stats"]["conditions_info"].append((condition_name, dc, stat))
