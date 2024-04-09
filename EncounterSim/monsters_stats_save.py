@@ -543,10 +543,9 @@ save.add_custom_stat("hp_threshold_for_head_removal", 40)
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Assassin", ac=15, hp=78, attack_mod=6, number_of_attacks=2, ini_mod=4, sneak_attack_dices=4, dc=15)
+save.set_main_stats("Assassin", ac=15, hp=160, attack_mod=10, number_of_attacks=1, ini_mod=4, sneak_attack_dices=4, dc=13)
 save.set_abilities(1, 3, 2, 1, 0, 0)
 save.set_saves(1, 6, 2, 4, 0, 0)
-save.set_action(action_type="melee", name="Shortsword", dice_rolls="1d6+3", dc_type="con", has_dc_effect_on_hit=True, dc_effect_on_hit="7d6", condition="Poison Damage")
 save.set_action(action_type="melee", name="Shortsword", dice_rolls="1d6+3", dc_type="con", has_dc_effect_on_hit=True, dc_effect_on_hit="7d6", condition="Poison Damage")
 save.save_main_stats()
 
@@ -571,7 +570,7 @@ save.set_legend_action(action_type="melee", charge_cost=1, name="Jab", dice_roll
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Orignal-Droséra", ac=12, hp=200, dc=16, attack_mod=9, number_of_attacks=4, legend_actions_charges=3)
+save.set_main_stats("Drosélan", ac=12, hp=200, dc=16, attack_mod=9, number_of_attacks=4, legend_actions_charges=3)
 save.set_abilities(5, 0, 3, 0, 1, -2)
 save.set_saves(5, 0, 3, 0, 1, -2)
 save.set_action(action_type="aoe", name="Antlers", dice_rolls="4d8+4d6+5", dc_type="dex", has_dc_effect_on_hit=True, has_dc=True, has_attack_mod=False, dc_effect_on_hit=["Restrained"], is_aoe=True, aoe_shape="square", aoe_size=20)
