@@ -579,3 +579,27 @@ save.set_action(action_type="melee", name="Hooves", dice_rolls="4d4+5", has_adva
 save.set_action(action_type="melee", name="Hooves", dice_rolls="4d4+5", has_advantage=True)
 save.set_legend_action(action_type="melee", name="Antlers", dice_rolls="4d8+5", has_dc_effect_on_hit=True, dc_effect_on_hit=["Restrained"])
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Grenat", ac=17, dc=17, hp=100, attack_mod=10, number_of_attacks=3, ini_mod=2)
+save.set_abilities(5, 2, 2, 4, 1, 1)
+save.set_saves(9, 2, 6, 4, 1, 1)
+save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+1d10+8", damage_type="magical")
+save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+8", damage_type="magical")
+save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+8", damage_type="magical")
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Vermillon", ac=18, hp=78, attack_mod=11, number_of_attacks=1, ini_mod=5, sneak_attack_dices=8)
+save.set_abilities(-1, 5, 0, 5, 5, 4) # MISDIRECTION
+save.set_saves(-1, 10, 0, 10, 10, 4) # EVASION
+save.set_action(action_type="melee", name="Rapier, +1", dice_rolls="1d8+6", damage_type="magical")
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Cinabre", ac=17, hp=112, ini_mod=5, attack_mod=11, number_of_attacks=2)
+save.set_abilities(-2, 5, 3, 1, 3, 1)
+save.set_saves(2, 9, 3, 1, 3, 1)
+save.set_action(action_type="ranged", name="Musket", dice_rolls="1d12+1d8+1d6+5", damage_type="nonmagical", has_advantage=True) # avec Colossus Slayer+Favored Foe+Help Action de Vermillon
+save.set_action(action_type="ranged", name="Musket", dice_rolls="1d12+5", damage_type="nonmagical")
+save.save_main_stats()
