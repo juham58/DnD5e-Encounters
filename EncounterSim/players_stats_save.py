@@ -154,7 +154,7 @@ save.save_main_stats()
 
 
 save = MainStats()
-save.set_main_stats("Kara", ac=17, hp=54, dc=13, ini_mod=4, attack_mod=7, number_of_attacks=3, is_monster=False, max_ki_points=5)
+save.set_main_stats("Kara", ac=17, hp=54, dc=13, ini_mod=4, attack_mod=7, number_of_attacks=3, is_monster=False, max_ki_points=5, evasion=True)
 save.set_abilities(0, 4, 2, 0, 3, 0)
 save.set_saves(3, 7, 2, 0, 3, 0)
 save.set_action(action_type="melee", name="Quarterstaff", dice_rolls="1d8+4", damage_type="nonmagical")
@@ -164,12 +164,12 @@ save.set_action(action_type="melee", name="Flurry of Blows", dice_rolls="1d6+4",
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Denis", ac=14, hp=59, dc=14, ini_mod=1, attack_mod=7, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused")
+save.set_main_stats("Denis", ac=14, hp=42, dc=14, ini_mod=1, attack_mod=7, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused") # 59 max hp
 save.set_abilities(1, 1, 2, 0, -1, 4)
 save.set_saves(1, 1, 2, 0, 2, 7)
 save.set_action(action_type="melee", name="Spear", dice_rolls="1d6+9", damage_type="nonmagical") # + hexblade's curse (accurate si focused)
 save.set_action(action_type="melee", name="Spear", dice_rolls="1d6+9", damage_type="nonmagical") # + hexblade's curse (accurate si focused)
-save.set_spell_slots(4, 0, 0, 0, 0, 0, 0, 0, 0)
+save.set_spell_slots(5, 2, 0, 0, 0, 0, 0, 0, 0)
 save.save_main_stats()
 
 save = MainStats()

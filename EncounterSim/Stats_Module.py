@@ -28,6 +28,7 @@ class MainStats():
         self.mythic_hp = 0
         self.legend_actions_charges = 0
         self.legend_resistances = 0
+        self.evasion = False
         self.combat_stats = {"is_downed": False,
                             "is_stable": False,
                             "focus_type": "random",
@@ -79,7 +80,7 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, eldritch_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0, max_ki_points=0, focus_type="random"):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, eldritch_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0, max_ki_points=0, focus_type="random", evasion=False):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -104,6 +105,7 @@ class MainStats():
         self.magic_resistance = magic_resistance
         self.is_mythic = is_mythic
         self.mythic_hp = mythic_hp
+        self.evasion = evasion
         self.combat_stats["advantage_if_attacked"] = advantage_if_attacked
         self.combat_stats["disadvantage_if_attacked"] = disadvantage_if_attacked
         self.combat_stats["focus_type"] = focus_type
@@ -264,6 +266,7 @@ class MainStats():
                 "magic_resistance": self.magic_resistance,
                 "is_mythic": self.is_mythic,
                 "mythic_hp": self.mythic_hp,
+                "evasion": self.evasion,
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
                 "saves": self.saves,

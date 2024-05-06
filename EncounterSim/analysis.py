@@ -43,7 +43,8 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, m
 #combat_analysis(500, ["Cerbère-Hydre"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian"], verbose=False)
 #combat_analysis(500, ["Master Assassin"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian", "Cornelia"], verbose=False)
 #combat_analysis(500, ["Master Brawler"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian", "Cornelia"], verbose=False)
-combat_analysis(500, ["Drosélan"], ["Gwenyth", "Kal", "Kara", "Denis", "Cornelia"], verbose=False)
+#combat_analysis(5000, ["Grenat", "Cinabre", "Vermillon"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
+combat_analysis(1000, ["Zoldane Vitruve"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()

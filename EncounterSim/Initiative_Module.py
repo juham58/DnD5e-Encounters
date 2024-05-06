@@ -3,6 +3,7 @@ import re
 import pickle
 import copy
 import statistics
+import math
 from pathlib import Path
 import logging
 import d20
@@ -142,6 +143,8 @@ class Initiative_Module():
                 damage += self.roll_dice(dice_roll)
         if dc_result is False:
             self.combatants_hp[target_name] -= damage
+            if dc_type == "dex" and self.combatants_stats[attacker_name]["evasion"]:
+                damage = math.floor(damage/2)
             self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += damage
             self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += damage
             if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
@@ -163,15 +166,17 @@ class Initiative_Module():
                 print(target_name, "takes:", damage, " damage!")
 
         if dc_result is True and attack["if_save"] == "half":
-            self.combatants_hp[target_name] -= round(damage/2)
-            self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += round(damage/2)
-            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += round(damage/2)
+            if dc_type == "dex" and self.combatants_stats[attacker_name]["evasion"]:
+                damage = 0
+            self.combatants_hp[target_name] -= math.floor(damage/2)
+            self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += math.floor(damage/2)
+            self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += math.floor(damage/2)
             if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
-                self.heal(attacker_name, round(damage/2))
+                self.heal(attacker_name, math.floor(damage/2))
             if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
                 self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
             if self.verbose is True:
-                print(target_name, "succeeds DC of", dc, "and takes:", round(damage/2), " damage! (half damage)")
+                print(target_name, "succeeds DC of", dc, "and takes:", math.floor(damage/2), " damage! (half damage)")
         if dc_result is True and attack["if_save"] == "no_damage":
             if self.verbose is True:
                 print(target_name, "succeeds to meet DC of", dc, "and takes no damage!")
@@ -464,15 +469,15 @@ class Initiative_Module():
                 if self.verbose is True:
                     print(target_name, "takes:", damage, " damage!")
             if dc_result is True and attack["if_save"] == "half":
-                self.combatants_hp[target_name] -= round(damage/2)
-                self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += round(damage/2)
-                self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += round(damage/2)
+                self.combatants_hp[target_name] -= math.floor(damage/2)
+                self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += math.floor(damage/2)
+                self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += math.floor(damage/2)
                 if attack["is_heal"] is True and attack["heal_type"] == "damage_dealt":
-                    self.heal(attacker_name, round(damage/2))
+                    self.heal(attacker_name, math.floor(damage/2))
                 if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
                     self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
                 if self.verbose is True:
-                    print(target_name, "succeeds DC of", dc, "and takes:", round(damage/2), " damage! (half damage)")
+                    print(target_name, "succeeds DC of", dc, "and takes:", math.floor(damage/2), " damage! (half damage)")
             if dc_result is True and attack["if_save"] == "no_damage":
                 if self.verbose is True:
                     print(target_name, "succeeds to meet DC of", dc, "and takes no damage!")
