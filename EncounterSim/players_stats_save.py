@@ -144,12 +144,12 @@ save.set_action(action_type="ranged", name="Longbow", dice_rolls="1d8+1d6+3", da
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Kal", ac=16, hp=74, dc=10, ini_mod=2, ini_adv=True, attack_mod=7, number_of_attacks=3, is_monster=False, resistances=["nonmagical", "magical", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "radiant", "thunder"]) # totem of the bear+rage
+save.set_main_stats("Kal", ac=16, hp=74, dc=10, ini_mod=2, ini_adv=True, attack_mod=8, number_of_attacks=3, is_monster=False, resistances=["nonmagical", "magical", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "radiant", "thunder"]) # totem of the bear+rage
 save.set_abilities(4, 2, 3, 0, 1, -1)
 save.set_saves(7, 2, 6, 0, 1, -1)
-save.set_action(action_type="melee", name="Longsword", dice_rolls="1d8+6", damage_type="nonmagical") # avec rage
-save.set_action(action_type="melee", name="Longsword", dice_rolls="1d8+6", damage_type="nonmagical") # avec rage
-save.set_action(action_type="melee", name="Longsword", dice_rolls="1d8+2", damage_type="nonmagical") # two-weapon fighting avec rage
+save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+7", damage_type="nonmagical") # avec rage
+save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+7", damage_type="nonmagical") # avec rage
+save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+3", damage_type="nonmagical") # two-weapon fighting avec rage
 save.save_main_stats()
 
 
@@ -164,11 +164,11 @@ save.set_action(action_type="melee", name="Flurry of Blows", dice_rolls="1d6+4",
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Denis", ac=14, hp=42, dc=14, ini_mod=1, attack_mod=7, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused") # 59 max hp
+save.set_main_stats("Denis", ac=14, hp=42, dc=14, ini_mod=1, attack_mod=8, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused") # 59 max hp
 save.set_abilities(1, 1, 2, 0, -1, 4)
 save.set_saves(1, 1, 2, 0, 2, 7)
-save.set_action(action_type="melee", name="Spear", dice_rolls="1d6+9", damage_type="nonmagical") # + hexblade's curse (accurate si focused)
-save.set_action(action_type="melee", name="Spear", dice_rolls="1d6+9", damage_type="nonmagical") # + hexblade's curse (accurate si focused)
+save.set_action(action_type="melee", name="Spear, +1", dice_rolls="1d6+10", damage_type="magical") # + hexblade's curse (accurate si focused)
+save.set_action(action_type="melee", name="Spear, +1", dice_rolls="1d6+10", damage_type="magical") # + hexblade's curse (accurate si focused)
 save.set_spell_slots(5, 2, 0, 0, 0, 0, 0, 0, 0)
 save.save_main_stats()
 

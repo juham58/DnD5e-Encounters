@@ -606,7 +606,7 @@ save.set_action(action_type="ranged", name="Musket", dice_rolls="1d12+5", damage
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Zoldane Vitruve", ac=19, hp=150, dc=20, ini_mod=8, attack_mod=11, number_of_attacks=4, regeneration=20, legend_resistances=3, legend_actions_charges=3, resistances=["nonmagical", "necrotic", "fire", "poison", "lightning"], focus_type="focused")
+save.set_main_stats("Zoldane Vitruve", ac=19, hp=175, dc=20, ini_mod=8, attack_mod=11, number_of_attacks=4, regeneration=20, legend_resistances=3, legend_actions_charges=3, resistances=["nonmagical", "necrotic", "fire", "poison", "lightning"], focus_type="focused")
 save.set_abilities(4, 8, 5, 5, 2, 5)
 save.set_saves(4, 13, 5, 5, 7, 10)
 save.set_action(action_type="melee", name="Claws", dice_rolls="1d10+8")
