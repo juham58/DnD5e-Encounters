@@ -80,7 +80,7 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=0, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, eldritch_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0, max_ki_points=0, focus_type="random", evasion=False):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=None, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, eldritch_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0, max_ki_points=0, focus_type="random", evasion=False):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -118,6 +118,8 @@ class MainStats():
                           "int": int_bonus,
                           "wis": wis_bonus,
                           "cha": cha_bonus}
+        if self.ini_mod == None:
+            self.ini_mod = dex_bonus
 
     def set_saves(self, str_bonus, dex_bonus, con_bonus, int_bonus, wis_bonus, cha_bonus):
         self.saves = {"str": str_bonus,
