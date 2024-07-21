@@ -1,4 +1,4 @@
-import pickle
+import dill as pickle
 import json
 import re
 from pathlib import Path

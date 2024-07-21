@@ -164,7 +164,7 @@ save.set_action(action_type="melee", name="Flurry of Blows", dice_rolls="1d6+4",
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Denis", ac=14, hp=42, dc=14, ini_mod=1, attack_mod=8, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused") # 59 max hp
+save.set_main_stats("Denis", ac=14, hp=42, dc=14, ini_mod=1, attack_mod=8, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused", crits_on=19) # 59 max hp
 save.set_abilities(1, 1, 2, 0, -1, 4)
 save.set_saves(1, 1, 2, 0, 2, 7)
 save.set_action(action_type="melee", name="Spear, +1", dice_rolls="1d6+10", damage_type="magical") # + hexblade's curse (accurate si focused)

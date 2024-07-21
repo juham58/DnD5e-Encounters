@@ -1,5 +1,6 @@
 from Stats_Module import MainStats
 import random
+import d20
 
 save = MainStats()
 save.set_main_stats("Goblin", ac=15, hp=7, attack_mod=4)
@@ -558,14 +559,37 @@ save.set_action(action_type="melee", name="Shortsword", dice_rolls="1d6+5", dc_t
 save.set_action(action_type="melee", name="Shortsword", dice_rolls="1d6+5", dc_type="con", has_dc_effect_on_hit=True, dc_effect_on_hit="12d6", condition="Poison Damage")
 save.save_main_stats()
 
+def master_brawler_punches_combo(ini_module_self, attacker, target):
+    target_ac = target["ac"]
+    attack_mod = attacker["attack_mod"]
+    throwaway_stats = MainStats()
+    jab_attack = throwaway_stats.set_action(action_type="melee", name="Jab", dice_rolls="2d4+5", return_dict=True)
+    uppercut_attack = throwaway_stats.set_action(action_type="melee", name="Uppercut", dice_rolls="2d10+5", return_dict=True)
+    hook_attack = throwaway_stats.set_action(action_type="melee", name="Killer Hook", dice_rolls="3d12+5", return_dict=True)
+    jab_1_roll = d20.roll("1d20")
+    jab_2_roll = d20.roll("1d20")
+    uppercut_roll = d20.roll("1d20")
+    if jab_1_roll.total+attack_mod >= target_ac and jab_2_roll.total+attack_mod >= target_ac and uppercut_roll.total+attack_mod >= target_ac:
+        hook_roll = d20.roll("2d20kh1+{}".format(attacker["attack_mod"]))
+    else:
+        hook_roll = d20.roll("1d20+{}".format(attacker["attack_mod"]))
+    if jab_1_roll.total+attack_mod >= target_ac and jab_2_roll.total+attack_mod >= target_ac and uppercut_roll.total+attack_mod >= target_ac and hook_roll.total+attack_mod >= target_ac:
+        ini_module_self.set_condition(target["name"], "Stunned", attacker["dc"], "con")
+    ini_module_self.attack(attacker["name"], target["name"], jab_attack, given_roll=(jab_1_roll.total, jab_1_roll.total+attack_mod))
+    ini_module_self.attack(attacker["name"], target["name"], jab_attack, given_roll=(jab_2_roll.total, jab_2_roll.total+attack_mod))
+    ini_module_self.attack(attacker["name"], target["name"], uppercut_attack, given_roll=(uppercut_roll.total, uppercut_roll.total+attack_mod))
+    ini_module_self.attack(attacker["name"], target["name"], hook_attack, given_roll=(hook_roll.total, hook_roll.total+attack_mod))
+    
+
 save = MainStats()
-save.set_main_stats("Master Brawler", ac=15, hp=400, attack_mod=9, number_of_attacks=4, legend_actions_charges=3, immunities=["Stunned"], focus_type="focused")
+save.set_main_stats("Master Brawler", ac=15, dc=15, hp=400, attack_mod=9, number_of_attacks=1, legend_actions_charges=3, immunities=["Stunned"], focus_type="focused")
 save.set_abilities(5, 3, 2, -1, 2, 1)
 save.set_saves(9, 3, 6, -1, 2, 1)
-save.set_action(action_type="melee", name="Jab", dice_rolls="2d4+5")
-save.set_action(action_type="melee", name="Jab", dice_rolls="2d4+5")
-save.set_action(action_type="melee", name="Uppercut", dice_rolls="2d10+5")
-save.set_action(action_type="melee", name="Killer Hook", dice_rolls="3d12+5")
+#save.set_action(action_type="melee", name="Jab", dice_rolls="2d4+5")
+#save.set_action(action_type="melee", name="Jab", dice_rolls="2d4+5")
+#save.set_action(action_type="melee", name="Uppercut", dice_rolls="2d10+5")
+#save.set_action(action_type="melee", name="Killer Hook", dice_rolls="3d12+5")
+save.add_custom_action(master_brawler_punches_combo, name="Master Brawler Combo")
 save.set_legend_action(action_type="melee", charge_cost=1, name="Jab", dice_rolls="2d4+5")
 save.save_main_stats()
 

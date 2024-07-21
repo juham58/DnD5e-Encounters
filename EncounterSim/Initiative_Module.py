@@ -1,6 +1,6 @@
 import random
 import re
-import pickle
+import dill as pickle
 import copy
 import statistics
 import math
@@ -8,6 +8,8 @@ from pathlib import Path
 import logging
 import d20
 from d20 import dice
+
+from Stats_Module import MainStats
 
 logging.basicConfig(filename='Debug.log', level=logging.INFO)
 
@@ -197,7 +199,7 @@ class Initiative_Module():
             self.aoe_attack(attacker_name, attack)
             self.check_for_death()
 
-    def attack(self, attacker_name, target_name, attack, adv=False, dis=False):
+    def attack(self, attacker_name, target_name, attack, adv=False, dis=False, given_roll=(None, None)):
         if attack["has_advantage"] is True:
             adv = True
         if self.combatants_stats[attacker_name]["combat_stats"]["advantage_on_attack"] is True or self.combatants_stats[target_name]["combat_stats"]["advantage_if_attacked"] is True:
@@ -209,8 +211,12 @@ class Initiative_Module():
             adv=True
         if "Prone" in conditions and attack["action_type"] == "ranged":
             dis=True
-        straight_roll = self.roll_d20(adv=adv, dis=dis)
-        attack_roll = straight_roll+self.combatants_stats[attacker_name]["attack_mod"]
+        if given_roll == (None, None):
+            straight_roll = self.roll_d20(adv=adv, dis=dis)
+            attack_roll = straight_roll+self.combatants_stats[attacker_name]["attack_mod"]
+        else:
+            straight_roll = given_roll[0]
+            attack_roll = given_roll[1]
         if self.combatants_stats[attacker_name]["combat_stats"]["has_bardic_inspiration"][0]:
             attack_roll += self.use_bardic_inspiration(attacker_name)
         normal_damage = 0
@@ -270,7 +276,7 @@ class Initiative_Module():
         #if target_name is None:
             #if self.verbose is True:
                 #print("There is no one to attack.")
-        if straight_roll == 20:
+        if straight_roll >= self.combatants_stats[attacker_name]["crits_on"]:
             if attack["condition"] != "":
                 if attack["auto_success"] is True:
                     dc = self.combatants_stats[attacker_name]["dc"]
@@ -957,7 +963,7 @@ class Initiative_Module():
 
     
     def divine_smite_decision(self, attacker_name, target_name, straight_roll):
-        if straight_roll == 20:
+        if straight_roll >= self.combatants_stats[attacker_name]["crits_on"]:
             # je crit, je smite
             return self.divine_smite(attacker_name, target_name)
         if self.combatants_stats[attacker_name]["divine_smite"] and self.roll_d20()>=10:
@@ -966,7 +972,7 @@ class Initiative_Module():
             return ""
         
     def eldritch_smite_decision(self, attacker_name, target_name, straight_roll):
-        if straight_roll == 20:
+        if straight_roll >= self.combatants_stats[attacker_name]["crits_on"]:
             # je crit, je smite
             return self.eldritch_smite(attacker_name, target_name)
         if self.combatants_stats[attacker_name]["eldritch_smite"] and self.roll_d20()>=10:
@@ -1135,7 +1141,10 @@ class Initiative_Module():
 
                             # TODO déterminer si les spells nécessitent de voir!
                             #if attack["action_type"] == "spell" and "Blinded" not in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
-                            if attack["action_type"] == "spell":
+                            if attack["is_custom_action"]:
+                                target = self.set_target(attacker_name)
+                                attack["action_python_function"](self, self.combatants_stats[attacker_name], self.combatants_stats[target])
+                            elif attack["action_type"] == "spell":
                                 self.cast_spell(attacker_name)
                                 self.check_for_death()
                             elif attack["has_attack_mod"] is True:
