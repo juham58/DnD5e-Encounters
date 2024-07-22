@@ -560,19 +560,25 @@ save.set_action(action_type="melee", name="Shortsword", dice_rolls="1d6+5", dc_t
 save.save_main_stats()
 
 def master_brawler_punches_combo(ini_module_self, attacker, target):
+    if "Stunned" in target["combat_stats"]["conditions"]:
+        target_is_stunned = True
+        dice_string = "2d20kh1"
+    else:
+        target_is_stunned = False
+        dice_string = "1d20"
     target_ac = target["ac"]
     attack_mod = attacker["attack_mod"]
     throwaway_stats = MainStats()
     jab_attack = throwaway_stats.set_action(action_type="melee", name="Jab", dice_rolls="2d4+5", return_dict=True)
     uppercut_attack = throwaway_stats.set_action(action_type="melee", name="Uppercut", dice_rolls="2d10+5", return_dict=True)
     hook_attack = throwaway_stats.set_action(action_type="melee", name="Killer Hook", dice_rolls="3d12+5", return_dict=True)
-    jab_1_roll = d20.roll("1d20")
-    jab_2_roll = d20.roll("1d20")
-    uppercut_roll = d20.roll("1d20")
+    jab_1_roll = d20.roll("{}".format(dice_string))
+    jab_2_roll = d20.roll("{}".format(dice_string))
+    uppercut_roll = d20.roll("{}".format(dice_string))
     if jab_1_roll.total+attack_mod >= target_ac and jab_2_roll.total+attack_mod >= target_ac and uppercut_roll.total+attack_mod >= target_ac:
         hook_roll = d20.roll("2d20kh1+{}".format(attacker["attack_mod"]))
     else:
-        hook_roll = d20.roll("1d20+{}".format(attacker["attack_mod"]))
+        hook_roll = d20.roll("2d20kh1+{}".format(dice_string, attacker["attack_mod"]))
     if jab_1_roll.total+attack_mod >= target_ac and jab_2_roll.total+attack_mod >= target_ac and uppercut_roll.total+attack_mod >= target_ac and hook_roll.total+attack_mod >= target_ac:
         ini_module_self.set_condition(target["name"], "Stunned", attacker["dc"], "con")
     ini_module_self.attack(attacker["name"], target["name"], jab_attack, given_roll=(jab_1_roll.total, jab_1_roll.total+attack_mod))
@@ -582,7 +588,7 @@ def master_brawler_punches_combo(ini_module_self, attacker, target):
     
 
 save = MainStats()
-save.set_main_stats("Master Brawler", ac=15, dc=15, hp=400, attack_mod=9, number_of_attacks=1, legend_actions_charges=3, immunities=["Stunned"], focus_type="focused")
+save.set_main_stats("Master Brawler", ac=15, dc=15, hp=350, attack_mod=9, number_of_attacks=1, legend_actions_charges=3, immunities=["Stunned"], focus_type="focused")
 save.set_abilities(5, 3, 2, -1, 2, 1)
 save.set_saves(9, 3, 6, -1, 2, 1)
 #save.set_action(action_type="melee", name="Jab", dice_rolls="2d4+5")
