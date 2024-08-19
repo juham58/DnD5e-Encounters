@@ -44,7 +44,7 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, m
 #combat_analysis(1000, ["Caldriel"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=False, monster_group=("Battleforce Angel", 4))
 #combat_analysis(500, ["Cerbère-Hydre"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian"], verbose=False)
 #combat_analysis(500, ["Master Assassin"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian", "Cornelia"], verbose=False)
-combat_analysis(500, ["Master Brawler"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], verbose=False)
+#combat_analysis(500, ["Master Brawler"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], verbose=False)
 #combat_analysis(5000, ["Grenat", "Cinabre", "Vermillon"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
 #combat_analysis(5000, ["Zoldane Vitruve"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
 
@@ -146,6 +146,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 
 
 #monsters_test(50, "Zombtrouille", 100, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian"])
+monsters_test(100, "Night Scavver", 10, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
 #monsters_test(50, "Chimera", 10, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
 
 #monsters_test(50, "Skeleton", 150, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])

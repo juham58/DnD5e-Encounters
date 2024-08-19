@@ -677,3 +677,10 @@ save.set_action_in_arsenal(action_type="melee", name="Claws", dice_rolls="2d6+4"
 save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multiattack_list=["Bite", "Horns", "Claws"])
 save.set_action_in_arsenal(action_type="aoe", name="Fire Breath", has_attack_mod=False, has_dc=True, dc_type="dex", dice_rolls="7d8", aoe_size=15, aoe_shape="cone", damage_type="fire", has_recharge=True, recharge=5)
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Night Scavver", ac=14, hp=114, attack_mod=8, number_of_attacks=1)
+save.set_abilities(5, 2, 3, -5, 0, -5)
+save.set_saves(5, 2, 3, -5, 0, -5)
+save.set_action(action_type="melee", name="Bite", dice_rolls="4d10+5")
+save.save_main_stats()
