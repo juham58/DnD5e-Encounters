@@ -136,27 +136,27 @@ save.save_main_stats()
 ###########
 
 save = MainStats()
-save.set_main_stats("Gwenyth", ac=13, hp=56, dc=14, ini_mod=7, attack_mod=9, number_of_attacks=2, is_monster=False)
+save.set_main_stats("Gwenyth", ac=16, hp=59, dc=14, ini_mod=7, attack_mod=10, number_of_attacks=2, is_monster=False)
 save.set_abilities(-1, 4, 1, 1, 3, 0)
 save.set_saves(-1, 7, 1, 4, 3, 0)
-save.set_action(action_type="ranged", name="Longbow", dice_rolls="1d8+2d6+1d4+3", damage_type="nonmagical") # avec Hunter's Mark+Sneak Attack+Favored Foe
-save.set_action(action_type="ranged", name="Longbow", dice_rolls="1d8+1d6+3", damage_type="nonmagical") # avec Hunter's Mark
+save.set_action(action_type="ranged", name="Longbow", dice_rolls="1d8+2d6+1d4+7", damage_type="magical") # avec Hunter's Mark+Sneak Attack+Favored Foe
+save.set_action(action_type="ranged", name="Longbow", dice_rolls="1d8+1d6+7", damage_type="magical") # avec Hunter's Mark
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Kal", ac=16, hp=74, dc=10, ini_mod=2, ini_adv=True, attack_mod=8, number_of_attacks=3, is_monster=False, resistances=["nonmagical", "magical", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "radiant", "thunder"]) # totem of the bear+rage
+save.set_main_stats("Kal", ac=16, hp=95, dc=10, ini_mod=2, ini_adv=True, attack_mod=8, number_of_attacks=3, is_monster=False, resistances=["nonmagical", "magical", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "radiant", "thunder"]) # totem of the bear+rage
 save.set_abilities(4, 2, 3, 0, 1, -1)
 save.set_saves(7, 2, 6, 0, 1, -1)
 save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+7", damage_type="magical") # avec rage
 save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+7", damage_type="magical") # avec rage
-save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+3", damage_type="magical") # two-weapon fighting avec rage
+save.set_action(action_type="melee", name="Longsword, +1", dice_rolls="1d8+7", damage_type="magical") # two-weapon fighting avec rage
 save.save_main_stats()
 
 
 save = MainStats()
-save.set_main_stats("Kara", ac=17, hp=54, dc=13, ini_mod=4, attack_mod=7, number_of_attacks=3, is_monster=False, max_ki_points=5, evasion=True)
-save.set_abilities(0, 4, 2, 0, 3, 0)
-save.set_saves(3, 7, 2, 0, 3, 0)
+save.set_main_stats("Kara", ac=17, hp=64, dc=13, ini_mod=4, attack_mod=7, number_of_attacks=3, is_monster=False, max_ki_points=5, evasion=True)
+save.set_abilities(0, 4, 2, 1, 3, 0)
+save.set_saves(3, 7, 2, 1, 3, 0)
 save.set_action(action_type="melee", name="Quarterstaff", dice_rolls="1d8+4", damage_type="nonmagical")
 save.set_action(action_type="melee", name="Quarterstaff", dice_rolls="1d8+4", damage_type="nonmagical")
 save.set_action(action_type="melee", name="Flurry of Blows", dice_rolls="1d6+4", damage_type="nonmagical")
@@ -165,20 +165,20 @@ save.save_main_stats()
 
 save = MainStats()
 #save.set_main_stats("Denis", ac=14, hp=42, dc=14, ini_mod=1, attack_mod=8, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused", crits_on=19) # 59 max hp
-save.set_main_stats("Denis", ac=15, hp=42, dc=14, ini_mod=1, attack_mod=8, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused", crits_on=19) # 59 max hp
+save.set_main_stats("Denis", ac=16, hp=79, dc=14, ini_mod=1, attack_mod=9, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused", crits_on=19) # 59 max hp
 save.set_abilities(1, 1, 2, 0, -1, 4)
-save.set_saves(1, 1, 2, 0, 2, 7)
-save.set_action(action_type="melee", name="Spear, +1", dice_rolls="1d6+10", damage_type="magical") # + hexblade's curse (accurate si focused)
-save.set_action(action_type="melee", name="Spear, +1", dice_rolls="1d6+10", damage_type="magical") # + hexblade's curse (accurate si focused)
-save.set_spell_slots(5, 2, 0, 0, 0, 0, 0, 0, 0)
+save.set_saves(6, 6, 7, 5, 7, 12)
+save.set_action(action_type="melee", name="Halberd, +1", dice_rolls="1d10+9", damage_type="magical") # + hexblade's curse (accurate si focused)
+save.set_action(action_type="melee", name="Halberd, +1", dice_rolls="1d10+9", damage_type="magical") # + hexblade's curse (accurate si focused)
+save.set_spell_slots(6, 2, 0, 0, 0, 0, 0, 0, 0)
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Ghaz", ac=18, hp=53, dc=15, ini_mod=-1, attack_mod=7, number_of_attacks=1, is_monster=False, bardic_inspiration=[True, "1d6"])
+save.set_main_stats("Ghaz", ac=21, hp=57, dc=15, ini_mod=-1, attack_mod=7, number_of_attacks=1, is_monster=False)
 save.set_abilities(3, -1, 1, -1, 4, 2)
 save.set_saves(3, 2, 1, -1, 4, 5)
 save.set_action(name="Spellcasting", action_type="spell")
-save.set_spell_slots(4, 3, 2, 0, 0, 0, 0, 0, 0)
+save.set_spell_slots(4, 3, 3, 2, 0, 0, 0, 0, 0)
 save.set_spellbook(["Guiding Bolt", ("Sacred Flame", "1d8")])
 save.save_main_stats()
 

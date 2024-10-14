@@ -1084,7 +1084,7 @@ class Initiative_Module():
 
 
         
-    def combat(self, verbose=True):
+    def combat(self, verbose=True, monsters_stats_list=[]):
         rounds = 1
         players_damage = {}
         self.roll_ini()

@@ -1,11 +1,19 @@
 from Initiative_Module import Initiative_Module
 from Stats_Module import MainStats
+import dill as pickle
+from pathlib import Path
 import d20
 import time
 import statistics as st
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
+
+def pre_import_stats(list_of_names):
+    list_of_stats = []
+    for name in list_of_names:
+        list_of_stats.append(pickle.load(open(Path.cwd()/"data"/"stats_{}".format(name), "rb")))
+    return list_of_stats
 
 def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, monster_group=(None, None)):
     start_time = time.process_time()
@@ -47,6 +55,7 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, m
 #combat_analysis(500, ["Master Brawler"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], verbose=False)
 #combat_analysis(5000, ["Grenat", "Cinabre", "Vermillon"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
 #combat_analysis(5000, ["Zoldane Vitruve"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
+combat_analysis(1000, ["Bruxa"], ["Gwenyth", "Kal", "Kara", "Denis"], verbose=False)
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
@@ -146,7 +155,8 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 
 
 #monsters_test(50, "Zombtrouille", 100, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian"])
-monsters_test(100, "Night Scavver", 10, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
+#monsters_test(100, "Night Scavver", 10, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
+#monsters_test(100, "Husk Zombie", 15, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], list_of_monsters_to_import=["Revenant"])
 #monsters_test(50, "Chimera", 10, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
 
 #monsters_test(50, "Skeleton", 150, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
