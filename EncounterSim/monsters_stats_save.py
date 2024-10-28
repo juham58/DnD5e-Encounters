@@ -710,3 +710,13 @@ save.set_action(action_type="melee", name="Claws", dice_rolls="1d10+6", has_adva
 save.set_action(action_type="melee", name="Bite", dice_rolls="5d6+6", has_advantage=True, is_heal=True, heal_type="damage_dealt")
 save.set_legend_action(action_type="melee", charge_cost=1, name="Claws", dice_rolls="1d10+6", has_advantage=True)
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Bes", ac=15, hp=220, dc=18, ini_mod=5, attack_mod=11, number_of_attacks=3, legend_actions_charges=3, resistances=["nonmagical"])
+save.set_abilities(4, 6, 4, 4, 1, 5)
+save.set_saves(4, 10, 4, 4, 6, 9)
+save.set_action(action_type="melee", name="Claws", dice_rolls="4d6+7")
+save.set_action(action_type="melee", name="Claws", dice_rolls="4d6+7")
+save.set_action(action_type="melee", name="Claws", dice_rolls="4d6+7")
+save.set_legend_action(action_type="melee", charge_cost=1, name="Claws", dice_rolls="4d6+7")
+save.save_main_stats()

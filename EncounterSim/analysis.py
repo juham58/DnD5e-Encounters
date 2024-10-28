@@ -2,6 +2,7 @@ from Initiative_Module import Initiative_Module
 from Stats_Module import MainStats
 import dill as pickle
 from pathlib import Path
+from collections import Counter
 import d20
 import time
 import statistics as st
@@ -39,13 +40,30 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, m
             total_damage += combat_end[3][player]
             players_damage[player] += combat_end[3][player]
     for player in list_of_players:
-        players_damage[player] = ["{}%".format(round(players_damage[player]*100/total_damage, ndigits=1)), round(players_damage[player]/iterations)]
+        players_damage[player] = 100*players_damage[player]/total_damage
     succes_rate = round(results.count(1)/len(results)*100, ndigits=1)
     avg_player_deaths = round(sum(player_deaths_list)/len(player_deaths_list), ndigits=1)
     avg_rounds = round(sum(rounds)/len(rounds), ndigits=1)
     end_time = time.process_time() - start_time
+    plt.figure()
+    plt.hist(player_deaths_list, bins=len(list(Counter(player_deaths_list).keys())), density=True)
+    plt.ylabel("Probability")
+    plt.xlabel("Nombre de morts de joueurs")
+
+    plt.figure()
+    plt.hist(rounds, bins=len(list(Counter(rounds).keys())), density=True)
+    plt.ylabel("Probability")
+    plt.xlabel("Nombre de rounds de combat")
+
+    plt.figure()
+    plt.pie(players_damage.values(), labels=players_damage.keys(), autopct='%1.1f%%')
+    #plt.bar(players_damage.keys(), players_damage.values())
+    plt.title("Pourcentage du dommage fait en combat par joueur")
+    for player in list_of_players:
+        players_damage[player] = ["{}%".format(round(players_damage[player], ndigits=1)), round(players_damage[player]*total_damage/iterations/100)]
     print("Total time:", end_time, "s")
     print("----\nSuccess rate:", succes_rate, "%", "\nAverage players deaths:", avg_player_deaths, "±", round(st.stdev(player_deaths_list), ndigits=1), "\nAverage number of rounds: ", avg_rounds, "±", round(st.stdev(rounds), ndigits=1), "\nAverage damage dealt by player:", players_damage, "\n----")
+    plt.show()
 
 #combat_analysis(200, ["Vampire"], ["Ewyn", "Gowon", "Reaghan", "Vilgefortz"])
 #combat_analysis(1000, ["Thanatos", "Pool of Souls"], ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"], verbose=False)
@@ -55,7 +73,7 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, m
 #combat_analysis(500, ["Master Brawler"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], verbose=False)
 #combat_analysis(5000, ["Grenat", "Cinabre", "Vermillon"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
 #combat_analysis(5000, ["Zoldane Vitruve"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
-combat_analysis(1000, ["Bruxa"], ["Gwenyth", "Kal", "Kara", "Denis"], verbose=False)
+combat_analysis(2500, ["Bes"], ["Gwenyth", "Kal", "Kara", "Denis"], verbose=False)
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
