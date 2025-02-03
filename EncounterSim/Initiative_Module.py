@@ -1,5 +1,6 @@
 import random
 import re
+import itertools
 import dill as pickle
 import copy
 import statistics
@@ -18,6 +19,7 @@ class Initiative_Module():
         self.combatants_stats = {}
         self.combatants_hp = {}
         self.combatants_names = []
+        self.combatants_position = [[], [], [], [], []]
         self.players_names = []
         self.monsters_names = []
         self.ini_order = {}
@@ -34,6 +36,7 @@ class Initiative_Module():
         self.combatants_stats[name] = stats[name]
         self.combatants_hp[name] = stats[name]["max_hp"]
         self.combatants_names.append(name)
+        self.combatants_position[stats[name]["combat_stats"]["position"]].append(name)
         if self.combatants_stats[name]["legend_actions"] != []:
             self.legendary_monsters.append(name)
 
@@ -45,6 +48,7 @@ class Initiative_Module():
             self.combatants_stats[new_name] = new_dict
             self.combatants_hp[new_name] = new_dict["max_hp"]
             self.combatants_names.append(new_name)
+            self.combatants_position[self.combatants_stats[new_name]["combat_stats"]["position"]].append(new_name)
             if self.combatants_stats[new_name]["legend_actions"] != []:
                 self.legendary_monsters.append(new_name)
 
@@ -381,7 +385,8 @@ class Initiative_Module():
             maximum_number_of_squares = number_of_targets
         return random.randint(maximum_number_of_squares//3, maximum_number_of_squares)
 
-    def set_target(self, attacker_name):
+    def set_target(self, attacker_name, range=0):
+
         if self.combatants_stats[attacker_name]["is_monster"]:
             if self.combatants_stats[attacker_name]["combat_stats"]["focus_type"] == "random":
                 choice = random.choice(self.players_names)
@@ -1092,7 +1097,113 @@ class Initiative_Module():
                 self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
         self.check_for_death()
 
+    def shift_frontline(self, shifter_name):
+        position_list = copy.deepcopy(self.combatants_position)
+        for i, position in enumerate(position_list):
+            for combatant_name in position:
+                if combatant_name == shifter_name:
+                    continue
+                if self.combatant_stats[combatant_name]["is_monster"] and not self.combatant_stats[shifter_name]["is_monster"]:
+                    position_list[i-1].append(combatant_name)
+                    position_list[i].remove(combatant_name)
+                    self.combatant_stats[combatant_name]["combat_stats"]["position"] = i-1
+                elif not self.combatant_stats[combatant_name]["is_monster"] and self.combatant_stats[shifter_name]["is_monster"]:
+                    position_list[i-1].append(combatant_name)
+                    position_list[i].remove(combatant_name)
+                    self.combatant_stats[combatant_name]["combat_stats"]["position"] = i-1
+                elif self.combatant_stats[combatant_name]["is_monster"] and self.combatant_stats[shifter_name]["is_monster"]:
+                    if i < 4:
+                        position_list[i+1].append(combatant_name)
+                        position_list[i].remove(combatant_name)
+                        self.combatant_stats[combatant_name]["combat_stats"]["position"] = i+1
+                elif not self.combatant_stats[combatant_name]["is_monster"] and not self.combatant_stats[shifter_name]["is_monster"]:
+                    if i < 4:
+                        position_list[i+1].append(combatant_name)
+                        position_list[i].remove(combatant_name)
+                        self.combatant_stats[combatant_name]["combat_stats"]["position"] = i+1
+        self.combatants_position = position_list
 
+    def check_position_status(self, position=0):
+        n_monster_present = 0
+        n_player_present = 0
+        for combatant in self.combatants_position[position]:
+            if self.combatants_stats[combatant]["is_monster"]:
+                n_monster_present += 1
+            else:
+                n_player_present += 1
+        return n_monster_present, n_player_present
+
+    def move(self, combatant_name):
+        move_behavior = self.combatants_stats[combatant_name]["move_behavior"]
+        used_action = False
+        if move_behavior == "Frontliner":
+            tuple_of_combatants_in_frontline = self.check_position_status(position=0)
+            if self.combatants_stats[combatant_name]["is_monster"]:
+                side_of_frontline_to_check = 1
+            else:
+                side_of_frontline_to_check = 0
+            if self.combatants_stats[combatant_name]["combat_stats"]["position"] == 0 and tuple_of_combatants_in_frontline[side_of_frontline_to_check] != 0:
+                pass
+            elif self.combatants_stats[combatant_name]["combat_stats"]["position"] != 0 and tuple_of_combatants_in_frontline[side_of_frontline_to_check] != 0:
+                if self.combatants_stats[combatant_name]["combat_stats"]["position"] < 3:
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
+                    self.combatants_position[0].append(combatant_name)
+                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 3:
+                    if not self.combatants_stats[combatant_name]["has_bonus_action_dash"] and self.combatants_stats[combatant_name]["speed"] < 40:
+                        used_action = True
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
+                    self.combatants_position[0].append(combatant_name)
+                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                elif self.combatants_stats[combatant_name]["speed"] >= 60 or self.combatants_stats[combatant_name]["has_bonus_action_dash"]:
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
+                    self.combatants_position[0].append(combatant_name)
+                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                else:
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
+                    self.combatants_position[0].append(combatant_name)
+                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                    used_action = True
+            else:
+                if tuple_of_combatants_in_frontline[side_of_frontline_to_check] == 0:
+                    tuple_of_combatants_in_close_range = self.check_position_status(position=1)
+                    tuple_of_combatants_in_medium_range = self.check_position_status(position=2)
+                    if tuple_of_combatants_in_close_range[side_of_frontline_to_check] > 0:
+                        self.shift_frontline(combatant_name)
+                    elif tuple_of_combatants_in_medium_range[side_of_frontline_to_check] > 0:
+                        self.shift_frontline(combatant_name)
+                        self.shift_frontline(combatant_name)
+                    elif self.check_position_status(position=3)[side_of_frontline_to_check] > 0:
+                        self.shift_frontline(combatant_name)
+                        self.shift_frontline(combatant_name)
+                        self.shift_frontline(combatant_name)
+                        if not self.combatants_stats[combatant_name]["has_bonus_action_dash"] and self.combatants_stats[combatant_name]["speed"] < 60:
+                            used_action = True
+        elif move_behavior == "HitAndRun":
+            # TODO implement Hit and run tactics
+            if self.speed <= 30:
+                self.combat_stats["position"] = 1
+            elif self.speed <= 60:
+                self.combat_stats["position"] = 2
+            else:
+                self.combat_stats["position"] = 3
+        elif move_behavior == "Ranged":
+            if self.combatants_stats[combatant_name]["combat_stats"]["position"] < 3:
+                if self.combatants_stats[combatant_name]["combat_stats"]["position"] < 2:
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 2
+                    self.combatants_position[2].append(combatant_name)
+                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                else:
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 3
+                    self.combatants_position[3].append(combatant_name)
+                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+        elif move_behavior == "Support":
+            if self.combatants_stats[combatant_name]["combat_stats"]["position"] != 2:
+                if self.combatants_stats[combatant_name]["combat_stats"]["position"] < 2:
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 2
+                    self.combatants_position[2].append(combatant_name)
+                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+        return used_action
         
     def combat(self, verbose=True, monsters_stats_list=[]):
         rounds = 1

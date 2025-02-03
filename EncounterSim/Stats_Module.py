@@ -8,6 +8,7 @@ class MainStats():
         self.name = ""
         self.ac = 10
         self.dc = 10
+        self.speed = 30
         self.max_hp = 25
         self.ini_mod = 0
         self.ini_adv = False
@@ -31,8 +32,11 @@ class MainStats():
         self.legend_actions_charges = 0
         self.legend_resistances = 0
         self.evasion = False
+        self.move_behavior = "Frontliner"
+        self.has_bonus_action_dash = False
         self.combat_stats = {"is_downed": False,
                             "is_stable": False,
+                            "position": 0,
                             "focus_type": "random",
                             "focused_target": "",
                             "conditions": [],
@@ -82,7 +86,7 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, ini_mod=None, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], vulnerabilities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, eldritch_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0, max_ki_points=0, focus_type="random", evasion=False, crits_on=20):
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, speed=30, ini_mod=None, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], vulnerabilities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, eldritch_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0, max_ki_points=0, focus_type="random", evasion=False, crits_on=20, move_behavior="Frontliner", has_bonus_action_dash=False):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -110,6 +114,26 @@ class MainStats():
         self.is_mythic = is_mythic
         self.mythic_hp = mythic_hp
         self.evasion = evasion
+        self.move_behavior = move_behavior
+        self.speed = speed
+        self.has_bonus_action_dash = has_bonus_action_dash
+        if move_behavior == "Frontliner":
+            self.combat_stats["position"] = 0
+        elif move_behavior == "HitAndRun":
+            if self.speed <= 30:
+                self.combat_stats["position"] = 1
+            elif self.speed <= 60:
+                self.combat_stats["position"] = 2
+            else:
+                self.combat_stats["position"] = 3
+        elif move_behavior == "Ranged":
+            self.combat_stats["position"] = 3
+        elif move_behavior == "Support":
+            self.combat_stats["position"] = 2
+        else:
+            # if unknown, assume Frontliner
+            self.combat_stats["position"] = 0
+            move_behavior = "Frontliner"
         self.combat_stats["advantage_if_attacked"] = advantage_if_attacked
         self.combat_stats["disadvantage_if_attacked"] = disadvantage_if_attacked
         self.combat_stats["focus_type"] = focus_type
@@ -265,6 +289,7 @@ class MainStats():
                 "avg_attack_dmg": self.avg_attack_dmg, 
                 "ac": self.ac, 
                 "dc": self.dc, 
+                "speed": self.speed,
                 "max_hp": self.max_hp,
                 "ini_mod": self.ini_mod,
                 "ini_adv": self.ini_adv,
@@ -286,6 +311,8 @@ class MainStats():
                 "is_mythic": self.is_mythic,
                 "mythic_hp": self.mythic_hp,
                 "evasion": self.evasion,
+                "move_behavior": self.move_behavior,
+                "has_bonus_action_dash": self.has_bonus_action_dash,
                 "combat_stats": self.combat_stats,
                 "abilities": self.abilities,
                 "saves": self.saves,
