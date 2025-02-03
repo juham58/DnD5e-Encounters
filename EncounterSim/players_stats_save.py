@@ -136,7 +136,7 @@ save.save_main_stats()
 ###########
 
 save = MainStats()
-save.set_main_stats("Gwenyth", ac=16, hp=59, dc=14, ini_mod=7, attack_mod=10, number_of_attacks=2, is_monster=False)
+save.set_main_stats("Gwenyth", ac=16, hp=93, dc=14, ini_mod=7, attack_mod=10, number_of_attacks=2, is_monster=False)
 save.set_abilities(-1, 4, 1, 1, 3, 0)
 save.set_saves(-1, 7, 1, 4, 3, 0)
 save.set_action(action_type="ranged", name="Longbow", dice_rolls="1d8+2d6+1d4+7", damage_type="magical") # avec Hunter's Mark+Sneak Attack+Favored Foe
@@ -179,7 +179,7 @@ save.set_abilities(3, -1, 1, -1, 4, 2)
 save.set_saves(3, 2, 1, -1, 4, 5)
 save.set_action(name="Spellcasting", action_type="spell")
 save.set_spell_slots(4, 3, 3, 2, 0, 0, 0, 0, 0)
-save.set_spellbook(["Guiding Bolt", ("Sacred Flame", "1d8")])
+save.set_spellbook(["Guiding Bolt", ("Sacred Flame", "2d8")])
 save.save_main_stats()
 
 save = MainStats()

@@ -249,6 +249,8 @@ class Initiative_Module():
                 dice_roll = dice_roll+self.eldritch_smite(attacker_name, target_name)
         if type(attack["dice_rolls"]) == str:
             normal_damage += self.roll_dice(dice_roll)
+            if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
+                normal_damage = 2*normal_damage
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
                 normal_damage = int(normal_damage/2)
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
@@ -256,12 +258,16 @@ class Initiative_Module():
         else:
             for dice_roll in attack["dice_rolls"]:
                 normal_damage += self.roll_dice(dice_roll)
+                if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
+                    normal_damage = 2*normal_damage
                 if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
                     normal_damage = int(normal_damage/2)
                 if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
                     normal_damage = 0
         if type(attack["dice_rolls"]) == str:
             crit_damage += self.calculate_crit_damage(attacker_name, dice_roll)
+            if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
+                crit_damage = 2*crit_damage
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
                 crit_damage = int(crit_damage/2)
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
@@ -269,6 +275,8 @@ class Initiative_Module():
         else:
             dice_roll = (2*dice_roll[0], dice_roll[1], dice_roll[2])
             crit_damage += self.roll_dice(dice_roll)
+            if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
+                crit_damage = 2*crit_damage
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
                 crit_damage = int(crit_damage/2)
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
@@ -442,6 +450,8 @@ class Initiative_Module():
                 damage += self.roll_dice(dice_roll)
 
         for target_name in list_of_targets:
+            if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
+                damage = 2*damage
             if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
                 damage = int(damage/2)
             if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:

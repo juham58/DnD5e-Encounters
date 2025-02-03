@@ -737,3 +737,17 @@ save.set_action(action_type="melee", name="Bite", dice_rolls="1d10+5", has_advan
 save.set_action(action_type="melee", name="Claws", dice_rolls="2d6+5", has_advantage=True)
 save.set_action(action_type="melee", name="Claws", dice_rolls="2d6+5", has_advantage=True)
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Phase Spider", ac=13, hp=45, attack_mod=7, dc=15)
+save.set_abilities(2, 5, 1, -2, 0, -2)
+save.set_saves(2, 5, 1, -2, 0, -2)
+save.set_action(action_type="melee", name="Bite", dice_rolls="2d10+5", has_dc_effect_on_hit=True, dc_type="con", dc_effect_on_hit="8d8", damage_type="poison")
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Malicious Shadow", ac=15, hp=45, attack_mod=8, dc=15, vulnerabilities=["radiant"])
+save.set_abilities(-2, 2, 1, -2, 0, -1)
+save.set_saves(-2, 5, 1, -2, 0, -1)
+save.set_action(action_type="melee", name="Shadow Engulfment", dice_rolls="2d10+5", has_dc_effect_on_hit=True, dc_type="con", condition="Blinded", damage_type="poison")
+save.save_main_stats()
