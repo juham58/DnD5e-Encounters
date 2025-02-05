@@ -117,7 +117,7 @@ class Spells_Database():
                 else:
                     level = int(spell["level"])
                 if len(re.findall("\d+", spell["range"])) > 0:
-                    range = re.findall("\d+", spell["range"])[0]
+                    range = int(re.findall("\d+", spell["range"])[0])
                 if len(re.findall("spell attack", spell["description"])) > 0 and len(re.findall("make \w+\s(\w+)\ssaving throw", spell["description"])) > 0:
                     has_attack_mod = True
                     has_dc_effect_on_hit = True
@@ -178,7 +178,7 @@ class Spells_Database():
                 else:
                     concentration = False
                 dc_effect_on_hit = ""
-                self.add_spell(name, level, dice_rolls=dice_rolls, range=range, 
+                self.add_spell(name, level, dice_rolls=dice_rolls, range=int(range), 
                             has_attack_mod=has_attack_mod, has_dc=has_dc, 
                             is_aoe=is_aoe, dc_type=dc_type, condition=condition, 
                             aoe_size=aoe_size, aoe_shape=aoe_shape, damage_type=damage_type, 

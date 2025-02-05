@@ -44,7 +44,7 @@ class Initiative_Module():
         stats = pickle.load(open(Path.cwd()/"data"/"stats_{}".format(base_name), "rb"))
         for n in range(quantity):
             new_name = "{}_{}".format(base_name, n+1)
-            new_dict = stats[base_name]
+            new_dict = copy.deepcopy(stats[base_name])
             self.combatants_stats[new_name] = new_dict
             self.combatants_hp[new_name] = new_dict["max_hp"]
             self.combatants_names.append(new_name)
@@ -192,11 +192,15 @@ class Initiative_Module():
             self.cast_spell(attacker_name)
             self.check_for_death()
         elif attack["has_attack_mod"] is True:
-            target = self.set_target(attacker_name)
+            target = self.set_target(attacker_name, attack_range=attack["range"])
+            if target == None:
+                return
             self.attack(attacker_name, target, attack)
             self.check_for_death()
         elif attack["has_dc"] is True and attack["is_aoe"] is False:
-            target = self.set_target(attacker_name)
+            target = self.set_target(attacker_name, attack_range=attack["range"])
+            if target == None:
+                return
             self.dc_attack(attacker_name, target, attack)
             self.check_for_death()
         elif attack["is_aoe"] is True:
@@ -385,30 +389,81 @@ class Initiative_Module():
             maximum_number_of_squares = number_of_targets
         return random.randint(maximum_number_of_squares//3, maximum_number_of_squares)
 
-    def set_target(self, attacker_name, range=0):
-
-        if self.combatants_stats[attacker_name]["is_monster"]:
-            if self.combatants_stats[attacker_name]["combat_stats"]["focus_type"] == "random":
-                choice = random.choice(self.players_names)
-                return choice
-            elif self.combatants_stats[attacker_name]["combat_stats"]["focus_type"] == "focused":
-                if self.combatants_stats[attacker_name]["combat_stats"]["focused_target"] == "":
-                    choice = random.choice(self.players_names)
-                    self.combatants_stats[attacker_name]["combat_stats"]["focused_target"] = choice
-                    if self.verbose:
-                        print("{} picked new target: {} who has {} HP".format(attacker_name, choice, self.combatants_hp[choice]))
-                else:
-                    choice = self.combatants_stats[attacker_name]["combat_stats"]["focused_target"]
-                    if self.verbose:
-                        print("{} kept the same target: {} who has {} HP".format(attacker_name, choice, self.combatants_hp[choice]))
-                return choice
-
+    def calculate_valid_target_positions(self, attacker_name, attack_range):
+        valid_target_positions = []
+        attacker_position = self.combatants_stats[attacker_name]["combat_stats"]["position"]
+        if attack_range == 0:
+            valid_target_positions.append(0)
+        elif attack_range > 0 and attack_range <= 15:
+            if attacker_position <= 1:
+                valid_target_positions.append(0)
+        elif attack_range > 15 and attack_range <= 30:
+            if attacker_position <= 1:
+                valid_target_positions.append(0)
+                valid_target_positions.append(1)
+            elif attacker_position == 2:
+                valid_target_positions.append(0)
+        elif attack_range > 30 and attack_range <= 60:
+            if attacker_position <= 1:
+                valid_target_positions.append(0)
+                valid_target_positions.append(1)
+                valid_target_positions.append(2)
+            elif attacker_position <= 2:
+                valid_target_positions.append(0)
+                valid_target_positions.append(1)
+            elif attacker_position <= 3:
+                valid_target_positions.append(0)
+        elif attack_range > 60 and attack_range <= 120:
+            if attacker_position <= 1:
+                valid_target_positions.append(0)
+                valid_target_positions.append(1)
+                valid_target_positions.append(2)
+                valid_target_positions.append(3)
+            elif attacker_position <= 2:
+                valid_target_positions.append(0)
+                valid_target_positions.append(1)
+                valid_target_positions.append(2)
+            elif attacker_position <= 3:
+                valid_target_positions.append(0)
+                valid_target_positions.append(1)
         else:
-            choice = random.choice(self.monsters_names)
-            for name in self.monsters_names:
-                # choix du plus gros damage dealer
-                if self.combatants_stats[name]["combat_stats"]["damage_dealt"] > self.combatants_stats[choice]["combat_stats"]["damage_dealt"]:
-                    choice = name
+            valid_target_positions.append(0)
+            valid_target_positions.append(1)
+            valid_target_positions.append(2)
+            valid_target_positions.append(3)
+            valid_target_positions.append(4)
+        return valid_target_positions
+
+    def get_target_choices_from_range_and_position(self, attacker_name, attack_range):
+        choices_list = []
+        if attack_range == 0:
+            valid_target_positions = [0]
+        else:
+            valid_target_positions = self.calculate_valid_target_positions(attacker_name, attack_range)
+        for name in itertools.chain(*self.combatants_position[min(valid_target_positions):max(valid_target_positions)+1]):
+            if self.combatants_stats[attacker_name]["is_monster"] != self.combatants_stats[name]["is_monster"]:
+                choices_list.append(name)
+        return choices_list
+
+    def set_target(self, attacker_name, attack_range=0):
+        choices_list = self.get_target_choices_from_range_and_position(attacker_name, attack_range)
+        if len(choices_list) == 0:
+            if self.verbose:
+                print("{} has no valid target to choose from.".format(attacker_name))
+            return None
+        if self.combatants_stats[attacker_name]["combat_stats"]["focus_type"] == "random":
+            choice = random.choice(choices_list)
+            return choice
+        elif self.combatants_stats[attacker_name]["combat_stats"]["focus_type"] == "focused":
+            if self.combatants_stats[attacker_name]["combat_stats"]["focused_target"] == "" or self.combatants_stats[attacker_name]["combat_stats"]["focused_target"] not in choices_list:
+                choice = random.choice(choices_list)
+                self.combatants_stats[attacker_name]["combat_stats"]["focused_target"] = choice
+                if self.verbose:
+                    print("{} picked new target: {} who has {} HP".format(attacker_name, choice, self.combatants_hp[choice]))
+            else:
+                choice = self.combatants_stats[attacker_name]["combat_stats"]["focused_target"]
+                if self.verbose:
+                    print("{} kept the same target: {} who has {} HP".format(attacker_name, choice, self.combatants_hp[choice]))
             return choice
 
     def set_multiple_targets(self, attacker_name, number_of_targets):
@@ -517,7 +572,6 @@ class Initiative_Module():
             else:
                 self.monsters_names.remove(name)
                 self.ini_order.remove(name)
-
         else:
             self.combatants_hp[name] = 0
             self.set_condition(name, "Unconscious", 20, "con")
@@ -555,6 +609,10 @@ class Initiative_Module():
                 if self.verbose is True:
                     print(name, " dies.")
                 del self.combatants_hp[name]
+                if name in itertools.chain(*self.combatants_position):
+                    if name not in self.combatants_position[self.combatants_stats[name]["combat_stats"]["position"]]:
+                        print(name, "position:", self.combatants_stats[name]["combat_stats"]["position"], self.combatants_position)
+                    self.combatants_position[self.combatants_stats[name]["combat_stats"]["position"]].remove(name)
                 if name in self.legendary_monsters:
                     self.legendary_monsters.remove(name)
 
@@ -793,11 +851,15 @@ class Initiative_Module():
             if len(self.players_names) == 0 or len(self.monsters_names) == 0:
                 return
             if attack["has_attack_mod"] is True:
-                target = self.set_target(monster_name)
+                target = self.set_target(monster_name, attack_range=attack["range"])
+                if target == None:
+                    return
                 self.attack(monster_name, target, attack)
                 self.check_for_death()
             if attack["has_dc"] is True:
-                target = self.set_target(monster_name)
+                target = self.set_target(monster_name, attack_range=attack["range"])
+                if target == None:
+                    return
                 self.dc_attack(monster_name, target, attack)
                 self.check_for_death()
             if attack["is_aoe"] is True:
@@ -966,13 +1028,25 @@ class Initiative_Module():
         if self.verbose:
             print("{} casts {} at level {}!".format(caster_name, spell_name, spell_level))
         if spell_name == "Scorching Ray":
-            self.scorching_ray(caster_name, self.set_target(caster_name), spell_level)
+            target = self.set_target(caster_name, attack_range=120)
+            if target == None:
+                return
+            self.scorching_ray(caster_name, target, spell_level)
         elif spell_name == "Magic Missile":
-            self.magic_missile(caster_name, self.set_target(caster_name), spell_level)
+            target = self.set_target(caster_name, attack_range=120)
+            if target == None:
+                return
+            self.magic_missile(caster_name, target, spell_level)
         elif spell["has_attack_mod"]:
-            self.attack(caster_name, self.set_target(caster_name), spell)
+            target = self.set_target(caster_name, attack_range=spell["range"])
+            if target == None:
+                return
+            self.attack(caster_name, target, spell)
         elif spell["has_dc"] is True and spell["is_aoe"] is False:
-            self.dc_attack(caster_name, self.set_target(caster_name), spell)
+            target = self.set_target(caster_name, attack_range=spell["range"])
+            if target == None:
+                return
+            self.dc_attack(caster_name, target, spell)
         elif spell["is_aoe"]:
             self.aoe_attack(caster_name, spell, attack_name=spell_name)
 
@@ -1098,30 +1172,45 @@ class Initiative_Module():
         self.check_for_death()
 
     def shift_frontline(self, shifter_name):
-        position_list = copy.deepcopy(self.combatants_position)
+        #position_list = self.combatants_position
+        position_list = [[], [], [], [], []]
+        for i, position in enumerate(self.combatants_position):
+            for name in position:
+                if name == shifter_name:
+                    position_list[0].append(shifter_name)
+                    self.combatants_stats[name]["combat_stats"]["position"] = 0
+                elif self.combatants_stats[name]["is_monster"] and not self.combatants_stats[shifter_name]["is_monster"]:
+                    position_list[i-1].append(name)
+                    self.combatants_stats[name]["combat_stats"]["position"] = i-1
+                elif not self.combatants_stats[name]["is_monster"] and self.combatants_stats[shifter_name]["is_monster"]:
+                    position_list[i-1].append(name)
+                    self.combatants_stats[name]["combat_stats"]["position"] = i-1
+                elif self.combatants_stats[name]["is_monster"] and self.combatants_stats[shifter_name]["is_monster"]:
+                    if i < 4:
+                        position_list[i+1].append(name)
+                        self.combatants_stats[name]["combat_stats"]["position"] = i+1
+                elif not self.combatants_stats[name]["is_monster"] and not self.combatants_stats[shifter_name]["is_monster"]:
+                    if i < 4:
+                        position_list[i+1].append(name)
+                        self.combatants_stats[name]["combat_stats"]["position"] = i+1
+        #self.combatants_stats[shifter_name]["combat_stats"]["position"] = 0
+        #self.combatants_position = position_list
+        #for i, position in enumerate(self.combatants_position):
+        #    for name in position:
+        #        if name != shifter_name:
+        #            print(name, shifter_name, name==shifter_name, self.combatants_stats[name]["combat_stats"]["position"])
+        #            self.combatants_stats[name]["combat_stats"]["position"] = i
+        #            print(self.combatants_stats[name]["combat_stats"]["position"], "NEW POSITION")
+        #        else:
+        #            print(name, shifter_name, name==shifter_name, self.combatants_stats[name]["combat_stats"]["position"])
+        #            self.combatants_stats[name]["combat_stats"]["position"] = 0
+        #            print(self.combatants_stats[name]["combat_stats"]["position"], "NEW POSITION")
         for i, position in enumerate(position_list):
-            for combatant_name in position:
-                if combatant_name == shifter_name:
-                    continue
-                if self.combatant_stats[combatant_name]["is_monster"] and not self.combatant_stats[shifter_name]["is_monster"]:
-                    position_list[i-1].append(combatant_name)
-                    position_list[i].remove(combatant_name)
-                    self.combatant_stats[combatant_name]["combat_stats"]["position"] = i-1
-                elif not self.combatant_stats[combatant_name]["is_monster"] and self.combatant_stats[shifter_name]["is_monster"]:
-                    position_list[i-1].append(combatant_name)
-                    position_list[i].remove(combatant_name)
-                    self.combatant_stats[combatant_name]["combat_stats"]["position"] = i-1
-                elif self.combatant_stats[combatant_name]["is_monster"] and self.combatant_stats[shifter_name]["is_monster"]:
-                    if i < 4:
-                        position_list[i+1].append(combatant_name)
-                        position_list[i].remove(combatant_name)
-                        self.combatant_stats[combatant_name]["combat_stats"]["position"] = i+1
-                elif not self.combatant_stats[combatant_name]["is_monster"] and not self.combatant_stats[shifter_name]["is_monster"]:
-                    if i < 4:
-                        position_list[i+1].append(combatant_name)
-                        position_list[i].remove(combatant_name)
-                        self.combatant_stats[combatant_name]["combat_stats"]["position"] = i+1
-        self.combatants_position = position_list
+            for name in position:
+                if self.combatants_stats[name]["combat_stats"]["position"] != i:
+                    print("\nHUHHHHHHHHHHH\n")
+                    self.combatants_stats[name]["combat_stats"]["position"] = i
+        return position_list
 
     def check_position_status(self, position=0):
         n_monster_present = 0
@@ -1136,6 +1225,9 @@ class Initiative_Module():
     def move(self, combatant_name):
         move_behavior = self.combatants_stats[combatant_name]["move_behavior"]
         used_action = False
+        for i, position in enumerate(self.combatants_position):
+            for name in position:
+                self.combatants_stats[name]["combat_stats"]["position"] = i
         if move_behavior == "Frontliner":
             tuple_of_combatants_in_frontline = self.check_position_status(position=0)
             if self.combatants_stats[combatant_name]["is_monster"]:
@@ -1146,39 +1238,51 @@ class Initiative_Module():
                 pass
             elif self.combatants_stats[combatant_name]["combat_stats"]["position"] != 0 and tuple_of_combatants_in_frontline[side_of_frontline_to_check] != 0:
                 if self.combatants_stats[combatant_name]["combat_stats"]["position"] < 3:
-                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
                     self.combatants_position[0].append(combatant_name)
                     self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
                 elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 3:
                     if not self.combatants_stats[combatant_name]["has_bonus_action_dash"] and self.combatants_stats[combatant_name]["speed"] < 40:
                         used_action = True
-                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
                     self.combatants_position[0].append(combatant_name)
                     self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
                 elif self.combatants_stats[combatant_name]["speed"] >= 60 or self.combatants_stats[combatant_name]["has_bonus_action_dash"]:
-                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
                     self.combatants_position[0].append(combatant_name)
                     self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
                 else:
-                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
                     self.combatants_position[0].append(combatant_name)
                     self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 0
                     used_action = True
             else:
                 if tuple_of_combatants_in_frontline[side_of_frontline_to_check] == 0:
                     tuple_of_combatants_in_close_range = self.check_position_status(position=1)
                     tuple_of_combatants_in_medium_range = self.check_position_status(position=2)
                     if tuple_of_combatants_in_close_range[side_of_frontline_to_check] > 0:
-                        self.shift_frontline(combatant_name)
+                        self.combatants_position = self.shift_frontline(combatant_name)
                     elif tuple_of_combatants_in_medium_range[side_of_frontline_to_check] > 0:
-                        self.shift_frontline(combatant_name)
-                        self.shift_frontline(combatant_name)
+                        self.combatants_position = self.shift_frontline(combatant_name)
+                        self.combatants_position = self.shift_frontline(combatant_name)
                     elif self.check_position_status(position=3)[side_of_frontline_to_check] > 0:
-                        self.shift_frontline(combatant_name)
-                        self.shift_frontline(combatant_name)
-                        self.shift_frontline(combatant_name)
+                        self.combatants_position = self.shift_frontline(combatant_name)
+                        self.combatants_position = self.shift_frontline(combatant_name)
+                        self.combatants_position = self.shift_frontline(combatant_name)
                         if not self.combatants_stats[combatant_name]["has_bonus_action_dash"] and self.combatants_stats[combatant_name]["speed"] < 60:
                             used_action = True
+                elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 1:
+                    self.combatants_position = self.shift_frontline(combatant_name)
+                elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 2:
+                    self.combatants_position = self.shift_frontline(combatant_name)
+                    self.combatants_position = self.shift_frontline(combatant_name)
+                elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 3:
+                    self.combatants_position = self.shift_frontline(combatant_name)
+                    self.combatants_position = self.shift_frontline(combatant_name)
+                    self.combatants_position = self.shift_frontline(combatant_name)
+                    if not self.combatants_stats[combatant_name]["has_bonus_action_dash"] and self.combatants_stats[combatant_name]["speed"] < 60:
+                        used_action = True
+
         elif move_behavior == "HitAndRun":
             # TODO implement Hit and run tactics
             if self.speed <= 30:
@@ -1238,57 +1342,65 @@ class Initiative_Module():
                     if self.combatants_stats[attacker_name]["combat_stats"]["is_downed"]:
                         self.death_saves(attacker_name)
                 else:
-                    if self.combatants_stats[attacker_name]["action_arsenal"] != {}:
-                        self.check_for_death()
-                        if len(self.players_names) == 0:
-                            continue
-                        attack_choice = self.choose_attack(attacker_name)
-                        if attack_choice["is_multiattack"]:
-                            self.execute_multiattack(attacker_name, attack_choice)
-                        else:
-                            self.general_attack(attacker_name, attack_choice)
+                    if not any(x in["Restrained", "Petrified", "Paralyzed", "Grappled"] for x in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]):
+                        used_action_for_move = self.move(attacker_name)
                     else:
-                        if self.combatants_stats[attacker_name]["combat_stats"]["ki_points"] > 0:
-                            n_attacks = self.combatants_stats[attacker_name]["number_of_attacks"]+1
-                            self.combatants_stats[attacker_name]["combat_stats"]["ki_points"] -= 1
+                        used_action_for_move = False
+                    if not used_action_for_move:
+                        self.check_for_death()
+                        if self.combatants_stats[attacker_name]["action_arsenal"] != {}:
+                            if len(self.players_names) == 0:
+                                continue
+                            attack_choice = self.choose_attack(attacker_name)
+                            if attack_choice["is_multiattack"]:
+                                self.execute_multiattack(attacker_name, attack_choice)
+                            else:
+                                self.general_attack(attacker_name, attack_choice)
                         else:
-                            n_attacks = self.combatants_stats[attacker_name]["number_of_attacks"]
-                        for attack_n in range(n_attacks):
-                            attack = self.combatants_stats[attacker_name]["actions"][attack_n]
-                            logging.info("{}, with {}".format(attacker_name, attack["name"]))
-                            self.check_for_death()
-                            if len(self.players_names) == 0 or len(self.monsters_names) == 0:
-                                break
+                            if self.combatants_stats[attacker_name]["combat_stats"]["ki_points"] > 0:
+                                n_attacks = self.combatants_stats[attacker_name]["number_of_attacks"]+1
+                                self.combatants_stats[attacker_name]["combat_stats"]["ki_points"] -= 1
+                            else:
+                                n_attacks = self.combatants_stats[attacker_name]["number_of_attacks"]
+                            for attack_n in range(n_attacks):
+                                attack = self.combatants_stats[attacker_name]["actions"][attack_n]
+                                logging.info("{}, with {}".format(attacker_name, attack["name"]))
+                                self.check_for_death()
+                                if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+                                    break
 
-                            # TODO déterminer si les spells nécessitent de voir!
-                            #if attack["action_type"] == "spell" and "Blinded" not in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
-                            if attack["is_custom_action"]:
-                                target = self.set_target(attacker_name)
-                                attack["action_python_function"](self, self.combatants_stats[attacker_name], self.combatants_stats[target])
-                            elif attack["action_type"] == "spell":
-                                self.cast_spell(attacker_name)
-                                self.check_for_death()
-                            elif attack["has_attack_mod"] is True:
-                                target = self.set_target(attacker_name)
-                                self.attack(attacker_name, target, attack)
-                                self.check_for_death()
-                            elif attack["has_dc"] is True and attack["is_aoe"] is False:
-                                target = self.set_target(attacker_name)
-                                self.dc_attack(attacker_name, target, attack)
-                                self.check_for_death()
-                            elif attack["is_aoe"] is True:
-                                self.aoe_attack(attacker_name, attack)
-                                self.check_for_death()
-                            if self.combatants_stats[attacker_name]["bardic_inspiration"][0] and self.combatants_stats[attacker_name]["combat_stats"]["bardic_inspiration_charges"] > 0:
-                                if self.combatants_stats[attacker_name]["is_monster"]:
-                                    target_choice = self.choose_inspiration_target(attacker_name, self.monsters_names)
-                                else:
-                                    target_choice = self.choose_inspiration_target(attacker_name, self.players_names)
-                                self.give_bardic_inspiration(attacker_name, target_choice)
-                            if self.combatants_stats[attacker_name]["is_monster"] is False:
-                                players_damage[attacker_name] += self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"]
-                            if len(self.players_names) == 0 or len(self.monsters_names) == 0:
-                                break
+                                # TODO déterminer si les spells nécessitent de voir!
+                                #if attack["action_type"] == "spell" and "Blinded" not in self.combatants_stats[attacker_name]["combat_stats"]["conditions"]:
+                                if attack["is_custom_action"]:
+                                    target = self.set_target(attacker_name, attack_range=attack["range"])
+                                    if target != None:
+                                        attack["action_python_function"](self, self.combatants_stats[attacker_name], self.combatants_stats[target])
+                                elif attack["action_type"] == "spell":
+                                    self.cast_spell(attacker_name)
+                                    self.check_for_death()
+                                elif attack["has_attack_mod"] is True:
+                                    target = self.set_target(attacker_name, attack_range=attack["range"])
+                                    if target != None:
+                                        self.attack(attacker_name, target, attack)
+                                    self.check_for_death()
+                                elif attack["has_dc"] is True and attack["is_aoe"] is False:
+                                    target = self.set_target(attacker_name, attack_range=attack["range"])
+                                    if target != None:
+                                        self.dc_attack(attacker_name, target, attack)
+                                    self.check_for_death()
+                                elif attack["is_aoe"] is True:
+                                    self.aoe_attack(attacker_name, attack)
+                                    self.check_for_death()
+                                if self.combatants_stats[attacker_name]["bardic_inspiration"][0] and self.combatants_stats[attacker_name]["combat_stats"]["bardic_inspiration_charges"] > 0:
+                                    if self.combatants_stats[attacker_name]["is_monster"]:
+                                        target_choice = self.choose_inspiration_target(attacker_name, self.monsters_names)
+                                    else:
+                                        target_choice = self.choose_inspiration_target(attacker_name, self.players_names)
+                                    self.give_bardic_inspiration(attacker_name, target_choice)
+                                if self.combatants_stats[attacker_name]["is_monster"] is False:
+                                    players_damage[attacker_name] += self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"]
+                                if len(self.players_names) == 0 or len(self.monsters_names) == 0:
+                                    break
                     self.condition_check(attacker_name)
                     self.heal(attacker_name, self.combatants_stats[attacker_name]["combat_stats"]["regeneration"])
                     for monster_name in self.legendary_monsters:
