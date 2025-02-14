@@ -33,7 +33,7 @@ class Initiative_Module():
 
     def import_stats(self, name):
         stats = pickle.load(open(Path.cwd()/"data"/"stats_{}".format(name), "rb"))
-        self.combatants_stats[name] = stats[name]
+        self.combatants_stats[name] = copy.deepcopy(stats[name])
         self.combatants_hp[name] = stats[name]["max_hp"]
         self.combatants_names.append(name)
         self.combatants_position[stats[name]["combat_stats"]["position"]].append(name)
@@ -440,10 +440,13 @@ class Initiative_Module():
             valid_target_positions = [0]
         else:
             valid_target_positions = self.calculate_valid_target_positions(attacker_name, attack_range)
-        for name in itertools.chain(*self.combatants_position[min(valid_target_positions):max(valid_target_positions)+1]):
-            if self.combatants_stats[attacker_name]["is_monster"] != self.combatants_stats[name]["is_monster"]:
-                choices_list.append(name)
-        return choices_list
+        if len(valid_target_positions) == 0:
+            return choices_list
+        else:
+            for name in itertools.chain(*self.combatants_position[min(valid_target_positions):max(valid_target_positions)+1]):
+                if self.combatants_stats[attacker_name]["is_monster"] != self.combatants_stats[name]["is_monster"]:
+                    choices_list.append(name)
+            return choices_list
 
     def set_target(self, attacker_name, attack_range=0):
         choices_list = self.get_target_choices_from_range_and_position(attacker_name, attack_range)
@@ -1189,28 +1192,40 @@ class Initiative_Module():
                     if i < 4:
                         position_list[i+1].append(name)
                         self.combatants_stats[name]["combat_stats"]["position"] = i+1
+                    else:
+                        position_list[4].append(name)
+                        self.combatants_stats[name]["combat_stats"]["position"] = 4
                 elif not self.combatants_stats[name]["is_monster"] and not self.combatants_stats[shifter_name]["is_monster"]:
                     if i < 4:
                         position_list[i+1].append(name)
                         self.combatants_stats[name]["combat_stats"]["position"] = i+1
-        #self.combatants_stats[shifter_name]["combat_stats"]["position"] = 0
-        #self.combatants_position = position_list
-        #for i, position in enumerate(self.combatants_position):
-        #    for name in position:
-        #        if name != shifter_name:
-        #            print(name, shifter_name, name==shifter_name, self.combatants_stats[name]["combat_stats"]["position"])
-        #            self.combatants_stats[name]["combat_stats"]["position"] = i
-        #            print(self.combatants_stats[name]["combat_stats"]["position"], "NEW POSITION")
-        #        else:
-        #            print(name, shifter_name, name==shifter_name, self.combatants_stats[name]["combat_stats"]["position"])
-        #            self.combatants_stats[name]["combat_stats"]["position"] = 0
-        #            print(self.combatants_stats[name]["combat_stats"]["position"], "NEW POSITION")
-        for i, position in enumerate(position_list):
-            for name in position:
-                if self.combatants_stats[name]["combat_stats"]["position"] != i:
-                    print("\nHUHHHHHHHHHHH\n")
-                    self.combatants_stats[name]["combat_stats"]["position"] = i
-        return position_list
+                    else:
+                        position_list[4].append(name)
+                        self.combatants_stats[name]["combat_stats"]["position"] = 4
+        if self.verbose:
+            print("{} shifted frontline from {} to {}".format(shifter_name, self.combatants_position, position_list))
+        self.combatants_position = copy.deepcopy(position_list)
+        #return position_list
+
+    def verify_spellcaster_longest_range(self, spellcaster_name):
+        spell_with_longest_range_unavailable = False
+        largest_remaining_spell_slot_level = 0
+        for spell_slot_level in [9, 8, 7, 6, 5, 4, 3, 2, 1]:
+            if self.combatants_stats[spellcaster_name]["combat_stats"]["spell_slots"][spell_slot_level] > 0:
+                largest_remaining_spell_slot_level = spell_slot_level
+        for spell in self.combatants_stats[spellcaster_name]["spellbook"]:
+            if type(spell) == tuple:
+                spell = spell[0]
+            if self.spells_database[spell]["level"] > largest_remaining_spell_slot_level and self.spells_database[spell]["range"] == self.combatants_stats[spellcaster_name]["longest_attack_range"]:
+                spell_with_longest_range_unavailable = True
+        if spell_with_longest_range_unavailable:
+            new_longest_range = 0
+            for spell in self.combatants_stats[spellcaster_name]["spellbook"]:
+                if type(spell) == tuple:
+                    spell = spell[0]
+                if self.spells_database[spell]["level"] <= largest_remaining_spell_slot_level and self.spells_database[spell]["range"] > new_longest_range:
+                    new_longest_range = self.spells_database[spell]["range"]
+            self.combatants_stats[spellcaster_name]["longest_attack_range"] = new_longest_range
 
     def check_position_status(self, position=0):
         n_monster_present = 0
@@ -1225,9 +1240,8 @@ class Initiative_Module():
     def move(self, combatant_name):
         move_behavior = self.combatants_stats[combatant_name]["move_behavior"]
         used_action = False
-        for i, position in enumerate(self.combatants_position):
-            for name in position:
-                self.combatants_stats[name]["combat_stats"]["position"] = i
+        if move_behavior != "Frontliner" and len(self.combatants_stats[combatant_name]["spellbook"]) != 0:
+            self.verify_spellcaster_longest_range(combatant_name)
         if move_behavior == "Frontliner":
             tuple_of_combatants_in_frontline = self.check_position_status(position=0)
             if self.combatants_stats[combatant_name]["is_monster"]:
@@ -1261,28 +1275,27 @@ class Initiative_Module():
                     tuple_of_combatants_in_close_range = self.check_position_status(position=1)
                     tuple_of_combatants_in_medium_range = self.check_position_status(position=2)
                     if tuple_of_combatants_in_close_range[side_of_frontline_to_check] > 0:
-                        self.combatants_position = self.shift_frontline(combatant_name)
+                        self.shift_frontline(combatant_name)
                     elif tuple_of_combatants_in_medium_range[side_of_frontline_to_check] > 0:
-                        self.combatants_position = self.shift_frontline(combatant_name)
-                        self.combatants_position = self.shift_frontline(combatant_name)
+                        self.shift_frontline(combatant_name)
+                        self.shift_frontline(combatant_name)
                     elif self.check_position_status(position=3)[side_of_frontline_to_check] > 0:
-                        self.combatants_position = self.shift_frontline(combatant_name)
-                        self.combatants_position = self.shift_frontline(combatant_name)
-                        self.combatants_position = self.shift_frontline(combatant_name)
+                        self.shift_frontline(combatant_name)
+                        self.shift_frontline(combatant_name)
+                        self.shift_frontline(combatant_name)
                         if not self.combatants_stats[combatant_name]["has_bonus_action_dash"] and self.combatants_stats[combatant_name]["speed"] < 60:
                             used_action = True
                 elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 1:
-                    self.combatants_position = self.shift_frontline(combatant_name)
+                    self.shift_frontline(combatant_name)
                 elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 2:
-                    self.combatants_position = self.shift_frontline(combatant_name)
-                    self.combatants_position = self.shift_frontline(combatant_name)
+                    self.shift_frontline(combatant_name)
+                    self.shift_frontline(combatant_name)
                 elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 3:
-                    self.combatants_position = self.shift_frontline(combatant_name)
-                    self.combatants_position = self.shift_frontline(combatant_name)
-                    self.combatants_position = self.shift_frontline(combatant_name)
+                    self.shift_frontline(combatant_name)
+                    self.shift_frontline(combatant_name)
+                    self.shift_frontline(combatant_name)
                     if not self.combatants_stats[combatant_name]["has_bonus_action_dash"] and self.combatants_stats[combatant_name]["speed"] < 60:
                         used_action = True
-
         elif move_behavior == "HitAndRun":
             # TODO implement Hit and run tactics
             if self.speed <= 30:
@@ -1291,22 +1304,44 @@ class Initiative_Module():
                 self.combat_stats["position"] = 2
             else:
                 self.combat_stats["position"] = 3
-        elif move_behavior == "Ranged":
-            if self.combatants_stats[combatant_name]["combat_stats"]["position"] < 3:
-                if self.combatants_stats[combatant_name]["combat_stats"]["position"] < 2:
-                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 2
-                    self.combatants_position[2].append(combatant_name)
-                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+        elif move_behavior == "Ranged" or move_behavior == "Support":
+            if len(self.get_target_choices_from_range_and_position(combatant_name, self.combatants_stats[combatant_name]["combat_stats"]["longest_attack_range"])) == 0:
+                if self.combatants_stats[combatant_name]["combat_stats"]["longest_attack_range"] == 0:
+                    self.combatants_stats[combatant_name]["combat_stats"]["desired_position"] = 0
                 else:
+                    self.combatants_stats[combatant_name]["combat_stats"]["desired_position"] = 1
+            if self.combatants_stats[combatant_name]["combat_stats"]["position"] != self.combatants_stats[combatant_name]["combat_stats"]["desired_position"]:
+                if self.combatants_stats[combatant_name]["combat_stats"]["position"] < 2:
+                    if self.combatants_stats[combatant_name]["combat_stats"]["desired_position"] >= 2:
+                        self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                        self.combatants_stats[combatant_name]["combat_stats"]["position"] = 2
+                        self.combatants_position[2].append(combatant_name)
+                    else:
+                        self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                        self.combatants_stats[combatant_name]["combat_stats"]["position"] = self.combatants_stats[combatant_name]["combat_stats"]["desired_position"]
+                        self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["desired_position"]].append(combatant_name)
+                elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 2:
+                    if self.combatants_stats[combatant_name]["combat_stats"]["desired_position"] > 2:
+                        self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                        self.combatants_stats[combatant_name]["combat_stats"]["position"] = 3
+                        self.combatants_position[3].append(combatant_name)
+                    else:
+                        self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                        self.combatants_stats[combatant_name]["combat_stats"]["position"] = self.combatants_stats[combatant_name]["combat_stats"]["desired_position"]
+                        self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["desired_position"]].append(combatant_name)
+                elif self.combatants_stats[combatant_name]["combat_stats"]["position"] == 3:
+                    if self.combatants_stats[combatant_name]["combat_stats"]["desired_position"] == 4:
+                        self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                        self.combatants_stats[combatant_name]["combat_stats"]["position"] = 4
+                        self.combatants_position[4].append(combatant_name)
+                    else:
+                        self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                        self.combatants_stats[combatant_name]["combat_stats"]["position"] = 2
+                        self.combatants_position[2].append(combatant_name)
+                else:
+                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
                     self.combatants_stats[combatant_name]["combat_stats"]["position"] = 3
                     self.combatants_position[3].append(combatant_name)
-                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
-        elif move_behavior == "Support":
-            if self.combatants_stats[combatant_name]["combat_stats"]["position"] != 2:
-                if self.combatants_stats[combatant_name]["combat_stats"]["position"] < 2:
-                    self.combatants_stats[combatant_name]["combat_stats"]["position"] = 2
-                    self.combatants_position[2].append(combatant_name)
-                    self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
         return used_action
         
     def combat(self, verbose=True, monsters_stats_list=[]):

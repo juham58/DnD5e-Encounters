@@ -198,7 +198,7 @@ sd.add_spell("Cloud of Daggers", 2, dice_rolls="4d4", range=60, has_attack_mod=F
 sd.add_spell("Horrid Wilting", 8, dice_rolls="12d8", range=150, has_attack_mod=False, has_dc=True, is_aoe=True, aoe_size=30, aoe_shape="square", dc_type="con", if_save="half")
 sd.add_spell("Chaos Bolt", 1, dice_rolls="2d8+1d6", range=120, has_attack_mod=True)
 sd.edit_spell("Ice Storm", ["dice_rolls"], ["2d8+4d6"])
-sd.edit_spell("Meteor Swarm", ["dice_rolls", "range"], ["40d6", "5280"])
+sd.edit_spell("Meteor Swarm", ["dice_rolls", "range"], ["40d6", 5280])
 sd.edit_spell("Finger of Death", ["dice_rolls"], ["7d8+30"])
 sd.edit_spell("Sacred Flame", ["has_dc", "dc_type"], [True, "dex"])
 sd.edit_spell("Hypnotic Pattern", ["condition"], ["Incapacitated"])

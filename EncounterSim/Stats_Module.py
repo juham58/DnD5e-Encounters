@@ -37,6 +37,8 @@ class MainStats():
         self.combat_stats = {"is_downed": False,
                             "is_stable": False,
                             "position": 0,
+                            "desired_position": 0,
+                            "longest_attack_range": 0,
                             "focus_type": "random",
                             "focused_target": "",
                             "conditions": [],
@@ -119,17 +121,23 @@ class MainStats():
         self.has_bonus_action_dash = has_bonus_action_dash
         if move_behavior == "Frontliner":
             self.combat_stats["position"] = 0
+            self.combat_stats["desired_position"] = 0
         elif move_behavior == "HitAndRun":
             if self.speed <= 30:
                 self.combat_stats["position"] = 1
+                self.combat_stats["desired_position"] = 1
             elif self.speed <= 60:
                 self.combat_stats["position"] = 2
+                self.combat_stats["desired_position"] = 2
             else:
                 self.combat_stats["position"] = 3
+                self.combat_stats["desired_position"] = 3
         elif move_behavior == "Ranged":
             self.combat_stats["position"] = 3
+            self.combat_stats["desired_position"] = 3
         elif move_behavior == "Support":
             self.combat_stats["position"] = 2
+            self.combat_stats["desired_position"] = 2
         else:
             # if unknown, assume Frontliner
             self.combat_stats["position"] = 0
@@ -168,11 +176,11 @@ class MainStats():
                             8: lvl_8, 
                             9: lvl_9}
 
-    def set_action(self, action_type="melee", name="", action_range=0, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", return_dict=False):
+    def set_action(self, action_type="melee", name="", range=0, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", return_dict=False):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
-        act_dict["range"] = action_range
+        act_dict["range"] = range
         act_dict["has_attack_mod"] = has_attack_mod
         act_dict["has_dc"] = has_dc
         act_dict["dc_type"] = dc_type
@@ -194,18 +202,19 @@ class MainStats():
         if return_dict:
             return act_dict
 
-    def add_custom_action(self, action_python_function, name=""):
+    def add_custom_action(self, action_python_function, name="", range=0):
         act_dict = {}
         act_dict["name"] = name
+        act_dict["range"] = range
         act_dict["is_custom_action"] = True
         act_dict["action_python_function"] = action_python_function
         self.actions.append(act_dict)
 
-    def set_action_in_arsenal(self, action_type="melee", name="", action_range=0, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", has_recharge=False, recharge=6, recharge_ready=True, is_multiattack=False, multiattack_list=[]):
+    def set_action_in_arsenal(self, action_type="melee", name="", range=0, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", has_recharge=False, recharge=6, recharge_ready=True, is_multiattack=False, multiattack_list=[]):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
-        act_dict["range"] = action_range
+        act_dict["range"] = range
         act_dict["has_attack_mod"] = has_attack_mod
         act_dict["has_dc"] = has_dc
         act_dict["dc_type"] = dc_type
@@ -233,11 +242,11 @@ class MainStats():
         act_dict["multiattack_list"] = multiattack_list
         self.action_arsenal[name] = act_dict
 
-    def set_legend_action(self, action_type="melee", name="", action_range=0, charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False):
+    def set_legend_action(self, action_type="melee", name="", range=0, charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
-        act_dict["range"] = action_range
+        act_dict["range"] = range
         act_dict["charge_cost"] = charge_cost
         act_dict["has_attack_mod"] = has_attack_mod
         act_dict["has_dc"] = has_dc
@@ -256,11 +265,11 @@ class MainStats():
         act_dict["is_heal"] = is_heal
         self.legend_actions.append(act_dict)
 
-    def set_mythic_action(self, action_type="melee", name="", action_range=0, charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
+    def set_mythic_action(self, action_type="melee", name="", range=0, charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
-        act_dict["range"] = action_range
+        act_dict["range"] = range
         act_dict["charge_cost"] = charge_cost
         act_dict["has_attack_mod"] = has_attack_mod
         act_dict["has_dc"] = has_dc
@@ -334,4 +343,16 @@ class MainStats():
         if act_dict[self.name]["bardic_inspiration"][0]:
             act_dict[self.name]["combat_stats"]["bardic_inspiration_charges"] = act_dict[self.name]["abilities"]["cha"]
         self.actions = []
+        longest_action_range = 0
+        for action in act_dict[self.name]["actions"]:
+            if action["range"] > longest_action_range:
+                longest_action_range = action["range"]
+        if len(self.spellbook) != 0:
+            spells_database = pickle.load(open(Path.cwd()/"data"/"spells_database", "rb"))
+            for spell in self.spellbook:
+                if type(spell) == tuple:
+                    spell = spell[0]
+                if spells_database[spell]["range"] > longest_action_range:
+                    longest_action_range = spells_database[spell]["range"]
+        act_dict[self.name]["combat_stats"]["longest_action_range"] = longest_action_range
         pickle.dump(act_dict, open(Path.cwd()/"data"/"{}_{}".format("stats", self.name), "w+b"))

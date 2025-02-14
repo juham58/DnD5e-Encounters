@@ -139,8 +139,8 @@ save = MainStats()
 save.set_main_stats("Gwenyth", ac=16, hp=93, dc=14, ini_mod=7, attack_mod=10, number_of_attacks=2, is_monster=False, focus_type="focused", move_behavior="Ranged")
 save.set_abilities(-1, 4, 1, 1, 3, 0)
 save.set_saves(-1, 7, 1, 4, 3, 0)
-save.set_action(action_type="ranged", name="Longbow", action_range=150, dice_rolls="1d8+2d6+7", damage_type="magical") # avec Hunter's Mark+Sneak Attack+Favored Foe
-save.set_action(action_type="ranged", name="Longbow", action_range=150, dice_rolls="1d8+1d6+7", damage_type="magical") # avec Hunter's Mark
+save.set_action(action_type="ranged", name="Longbow", range=150, dice_rolls="1d8+2d6+7", damage_type="magical") # avec Hunter's Mark+Sneak Attack+Favored Foe
+save.set_action(action_type="ranged", name="Longbow", range=150, dice_rolls="1d8+1d6+7", damage_type="magical") # avec Hunter's Mark
 save.save_main_stats()
 
 save = MainStats()
