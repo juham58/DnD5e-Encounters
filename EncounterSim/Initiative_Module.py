@@ -221,7 +221,7 @@ class Initiative_Module():
             dis=True
         if given_roll == (None, None):
             straight_roll = self.roll_d20(adv=adv, dis=dis)
-            attack_roll = straight_roll+self.combatants_stats[attacker_name]["attack_mod"]
+            attack_roll = straight_roll+attack["attack_mod"]
         else:
             straight_roll = given_roll[0]
             attack_roll = given_roll[1]
@@ -878,10 +878,13 @@ class Initiative_Module():
     def execute_multiattack(self, attacker_name, attack):
         multiattack_list = attack["multiattack_list"]
         for attack in multiattack_list:
-            self.general_attack(attacker_name, self.combatants_stats[attacker_name]["action_arsenal"][attack])
-            if len(self.players_names) == 0:
-                self.check_for_death()
-                break
+            if attack == "Spellcasting":
+                self.cast_spell(attacker_name)
+            else:
+                self.general_attack(attacker_name, self.combatants_stats[attacker_name]["action_arsenal"][attack])
+                if len(self.players_names) == 0:
+                    self.check_for_death()
+                    break
 
     def choose_attack(self, attacker_name):
         recharge_seen = True
@@ -898,6 +901,7 @@ class Initiative_Module():
             for attack_name in arsenal.keys():
                 attack = arsenal[attack_name]
                 if attack["has_recharge"] and attack["recharge_ready"]:
+                    attack["recharge_ready"] = False
                     return attack
                 elif attack["has_recharge"] and attack["recharge_ready"] is False:
                     recharge_roll = self.roll_dice("1d6")
@@ -905,6 +909,8 @@ class Initiative_Module():
                         return attack
                     else:
                         recharge_seen = True
+                elif not attack["has_recharge"] and not recharge_seen:
+                    pass
                 elif attack["has_recharge"] is False and attack["is_multiattack"]:
                     return attack
                 elif attack["has_recharge"] is False and attack["is_multiattack"] is False:
@@ -980,15 +986,28 @@ class Initiative_Module():
         
         # Détermine si single target ou is_aoe
         if spell_type_decision == "is_aoe":
+            aoe_available = False
             for spell_known in spellbook:
                 if type(spell_known) == str:
                     if self.spells_database[spell_known]["is_aoe"] and self.spells_database[spell_known]["level"] <= spell_level_to_use:
+                        aoe_available = True
                         chosen_spell = spell_known
                         break
                 else:
                     if self.spells_database[spell_known[0]]["is_aoe"] and self.spells_database[spell_known[0]]["level"] <= spell_level_to_use:
+                        aoe_available = True
                         chosen_spell = spell_known
                         break
+            if not aoe_available:
+                for spell_known in spellbook:
+                    if type(spell_known) == str:
+                        if self.spells_database[spell_known]["is_aoe"] is False and self.spells_database[spell_known]["level"] <= spell_level_to_use:
+                            chosen_spell = spell_known
+                            break
+                    else:
+                        if self.spells_database[spell_known[0]]["is_aoe"] is False and self.spells_database[spell_known[0]]["level"] <= spell_level_to_use:
+                            chosen_spell = spell_known
+                            break
         else:
             for spell_known in spellbook:
                 if type(spell_known) == str:
@@ -1041,6 +1060,7 @@ class Initiative_Module():
                 return
             self.magic_missile(caster_name, target, spell_level)
         elif spell["has_attack_mod"]:
+            spell["attack_mod"] = self.combatants_stats[caster_name]["attack_mod"]
             target = self.set_target(caster_name, attack_range=spell["range"])
             if target == None:
                 return
@@ -1144,6 +1164,7 @@ class Initiative_Module():
         act_dict["action_type"] = "spell"
         act_dict["name"] = "Scorching Ray Beam"
         act_dict["has_attack_mod"] = True
+        act_dict["attack_mod"] = self.combatants_stats[caster_name]["attack_mod"]
         act_dict["has_dc"] = False
         act_dict["dc_type"] = ""
         act_dict["dice_rolls"] = "2d6"
@@ -1216,7 +1237,7 @@ class Initiative_Module():
         for spell in self.combatants_stats[spellcaster_name]["spellbook"]:
             if type(spell) == tuple:
                 spell = spell[0]
-            if self.spells_database[spell]["level"] > largest_remaining_spell_slot_level and self.spells_database[spell]["range"] == self.combatants_stats[spellcaster_name]["longest_attack_range"]:
+            if self.spells_database[spell]["level"] > largest_remaining_spell_slot_level and self.spells_database[spell]["range"] == self.combatants_stats[spellcaster_name]["combat_stats"]["longest_attack_range"]:
                 spell_with_longest_range_unavailable = True
         if spell_with_longest_range_unavailable:
             new_longest_range = 0
@@ -1225,7 +1246,7 @@ class Initiative_Module():
                     spell = spell[0]
                 if self.spells_database[spell]["level"] <= largest_remaining_spell_slot_level and self.spells_database[spell]["range"] > new_longest_range:
                     new_longest_range = self.spells_database[spell]["range"]
-            self.combatants_stats[spellcaster_name]["longest_attack_range"] = new_longest_range
+            self.combatants_stats[spellcaster_name]["combat_stats"]["longest_attack_range"] = new_longest_range
 
     def check_position_status(self, position=0):
         n_monster_present = 0
@@ -1298,12 +1319,18 @@ class Initiative_Module():
                         used_action = True
         elif move_behavior == "HitAndRun":
             # TODO implement Hit and run tactics
-            if self.speed <= 30:
-                self.combat_stats["position"] = 1
-            elif self.speed <= 60:
-                self.combat_stats["position"] = 2
+            if self.combatants_stats[combatant_name]["speed"] <= 30:
+                self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                self.combatants_stats[combatant_name]["combat_stats"]["position"] = 1
+                self.combatants_position[1].append(combatant_name)
+            elif self.combatants_stats[combatant_name]["speed"] <= 60:
+                self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                self.combatants_stats[combatant_name]["combat_stats"]["position"] = 2
+                self.combatants_position[2].append(combatant_name)
             else:
-                self.combat_stats["position"] = 3
+                self.combatants_position[self.combatants_stats[combatant_name]["combat_stats"]["position"]].remove(combatant_name)
+                self.combatants_stats[combatant_name]["combat_stats"]["position"] = 3
+                self.combatants_position[3].append(combatant_name)
         elif move_behavior == "Ranged" or move_behavior == "Support":
             if len(self.get_target_choices_from_range_and_position(combatant_name, self.combatants_stats[combatant_name]["combat_stats"]["longest_attack_range"])) == 0:
                 if self.combatants_stats[combatant_name]["combat_stats"]["longest_attack_range"] == 0:

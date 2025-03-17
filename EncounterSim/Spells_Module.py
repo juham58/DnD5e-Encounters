@@ -65,6 +65,7 @@ class Spells_Database():
         spell_dict = {}
         spell_dict["level"] = level
         spell_dict["range"] = range
+        spell_dict["attack_mod"] = -99
         spell_dict["has_attack_mod"] = has_attack_mod
         spell_dict["has_dc"] = has_dc
         spell_dict["dc_type"] = dc_type
@@ -187,7 +188,7 @@ class Spells_Database():
                             concentration=concentration)
 
 sd = Spells_Database()
-sd.parse_spells_json()
+#sd.parse_spells_json()
 sd.add_spell("Toll the Dead", 0, dice_rolls="1d12", range=60, has_attack_mod=False, has_dc=True, is_aoe=False, dc_type="wis", condition="", damage_type="necrotic", if_save="no_damage")
 sd.add_spell("Toll the Dead", 0, dice_rolls="1d12", range=60, has_attack_mod=False, has_dc=True, is_aoe=False, dc_type="wis", condition="", damage_type="necrotic", if_save="no_damage")
 sd.add_spell("Mind Sliver", 0, dice_rolls="1d6", range=60, has_attack_mod=False, has_dc=True, is_aoe=False, dc_type="int", condition="", damage_type="psychic", if_save="no_damage")
