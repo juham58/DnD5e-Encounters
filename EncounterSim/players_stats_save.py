@@ -154,7 +154,7 @@ save.set_action(action_type="melee", name="Longsword, +2", dice_rolls="1d8+8", d
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Kara", ac=18, hp=78, dc=13, ini_mod=4, attack_mod=8, number_of_attacks=3, is_monster=False, max_ki_points=9, evasion=True)
+save.set_main_stats("Kara", ac=18, hp=78, dc=13, ini_mod=4, attack_mod=8, number_of_attacks=3, is_monster=False, max_ki_points=9, evasion=True, resistances=["cold"])
 save.set_abilities(0, 4, 2, 1, 3, 0)
 save.set_saves(4, 8, 2, 1, 3, 0)
 save.set_action(action_type="melee", name="Quarterstaff", dice_rolls="1d8+6", damage_type="magical")
@@ -205,4 +205,12 @@ save.set_saves(3, 9, 1, -1, 2, 3)
 save.set_action(action_type="melee", name="Shortsword of Fiend Quenching", range=30, dice_rolls="3d6+7", damage_type="magical") # avec Hunter's Mark+Fiend Quenching
 save.set_action(action_type="melee", name="Shortsword of Fiend Quenching", range=30, dice_rolls="3d6+7", damage_type="magical") # avec Hunter's Mark+Fiend Quenching
 save.set_action(action_type="melee", name="Shortsword of Fiend Quenching", range=30, dice_rolls="3d6+7", damage_type="magical") # avec bonus action
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Morgane", ac=19, hp=100, dc=10, ini_mod=4, attack_mod=11, number_of_attacks=2, is_monster=False) # avec Bladesong
+save.set_abilities(0, 4, 1, 5, 1, -1)
+save.set_saves(0, 4, 1, 10, 6, -1)
+save.set_action(action_type="melee", name="Shortsword, +2", dice_rolls="1d6+11", damage_type="magical")
+save.set_action(action_type="melee", name="Shortsword, +2", dice_rolls="1d6+11", damage_type="magical")
 save.save_main_stats()
