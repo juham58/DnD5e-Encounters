@@ -145,12 +145,12 @@ save.set_action(action_type="melee", name="Shortsword of Fiend Quenching", range
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Kal", ac=16, hp=110, dc=10, ini_mod=2, ini_adv=True, attack_mod=10, number_of_attacks=3, is_monster=False, resistances=["nonmagical", "magical", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "radiant", "thunder"]) # totem of the bear+rage
-save.set_abilities(4, 2, 3, 0, 1, -1)
-save.set_saves(8, 2, 7, 0, 1, -1)
-save.set_action(action_type="melee", name="Longsword, +2", dice_rolls="1d8+8", damage_type="magical") # avec rage
-save.set_action(action_type="melee", name="Longsword, +2", dice_rolls="1d8+8", damage_type="magical") # avec rage
-save.set_action(action_type="melee", name="Longsword, +2", dice_rolls="1d8+8", damage_type="magical") # two-weapon fighting avec rage
+save.set_main_stats("Kal", ac=16, hp=110, dc=10, ini_mod=2, ini_adv=True, attack_mod=13, number_of_attacks=3, is_monster=False, resistances=["nonmagical", "magical", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "radiant", "thunder"]) # totem of the bear+rage
+save.set_abilities(7, 2, 3, 0, 1, -1)
+save.set_saves(11, 2, 7, 0, 1, -1)
+save.set_action(action_type="melee", name="Longsword, +2", dice_rolls="1d8+11", damage_type="magical") # avec rage
+save.set_action(action_type="melee", name="Longsword, +2", dice_rolls="1d8+11", damage_type="magical") # avec rage
+save.set_action(action_type="melee", name="Longsword, +2", dice_rolls="1d8+11", damage_type="magical") # two-weapon fighting avec rage
 save.save_main_stats()
 
 save = MainStats()
