@@ -88,34 +88,41 @@ class Initiative_Module():
             total_damage_modifier += dice[2]
         return dice_output
 
-    def roll_dice(self, dice_input):
+    def roll_dice(self, dice_input, is_crit=False, attacker_name=""):
         if dice_input == "":
             return 0
 
         if type(dice_input) == list:
             total = 0
             for dice in dice_input:
-                total += self.roll_dice(dice)
+                total += self.roll_dice(dice, is_crit=is_crit)
             return total
 
         if type(dice_input) == tuple:
-            string_input = "{}d{}+{}".format(dice_input[0], dice_input[1], dice_input[2])
+            if is_crit:
+                string_input = "{}d{}+{}".format(2*dice_input[0], dice_input[1], dice_input[2])
+            else:
+                string_input = "{}d{}+{}".format(dice_input[0], dice_input[1], dice_input[2])
             return d20.roll(string_input).total
 
         if type(dice_input) == str:
-            logging.info("Dice input (string): {}".format(dice_input))
-            return d20.roll(dice_input).total
+            if is_crit:
+                logging.info("Dice input (string): {} (dice amount doubled for crit)".format(dice_input))
+                return self.calculate_crit_damage(attacker_name, dice_input)
+            else:
+                logging.info("Dice input (string): {}".format(dice_input))
+                return d20.roll(dice_input).total
 
         else:
-            print("dice_input should be a tuple or a string")
+            print("dice_input should be a tuple, a string or a list of tuples and/or strings")
     
     def calculate_crit_damage(self, attacker_name, dice_input):
         valeurs = re.findall(r"\d?\d?\d?\d(?=d)", dice_input)
-        for n, membre in enumerate([(m.start(0), m.end(0)) for m in re.finditer(r"\d?\d?\d?\d(?=d)", dice_input)]):
-            valeur_crit = str(2*int(valeurs[n]))
-            if n == 0:
-                valeur_crit = str(int(valeur_crit) + self.combatants_stats[attacker_name]["brutal_critical"])
-            dice_input = dice_input[:membre[0]] + dice_input[membre[0]:membre[1]].replace(valeurs[n], valeur_crit) + dice_input[membre[1]:]
+        for n, element in enumerate([(m.start(0), m.end(0)) for m in re.finditer(r"\d?\d?\d?\d(?=d)", dice_input)]):
+            crit_value = str(2*int(valeurs[n]))
+            if n == 0 and attacker_name != "":
+                crit_value = str(int(crit_value) + self.combatants_stats[attacker_name]["brutal_critical"])
+            dice_input = dice_input[:element[0]] + dice_input[element[0]:element[1]].replace(valeurs[n], crit_value) + dice_input[element[1]:]
         return d20.roll(dice_input).total
 
     def roll_ini(self):
@@ -255,40 +262,17 @@ class Initiative_Module():
                 if type(attack["dice_rolls"]) != str:
                     dice_roll = self.dice_tuple_to_string(dice_roll)
                 dice_roll = dice_roll+self.eldritch_smite(attacker_name, target_name)
-        if type(attack["dice_rolls"]) == str:
-            normal_damage += self.roll_dice(dice_roll)
-            if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
-                normal_damage = 2*normal_damage
-            if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
-                normal_damage = int(normal_damage/2)
-            if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
-                normal_damage = 0
-        else:
-            for dice_roll in attack["dice_rolls"]:
-                normal_damage += self.roll_dice(dice_roll)
-                if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
-                    normal_damage = 2*normal_damage
-                if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
-                    normal_damage = int(normal_damage/2)
-                if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
-                    normal_damage = 0
-        if type(attack["dice_rolls"]) == str:
-            crit_damage += self.calculate_crit_damage(attacker_name, dice_roll)
-            if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
-                crit_damage = 2*crit_damage
-            if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
-                crit_damage = int(crit_damage/2)
-            if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
-                crit_damage = 0
-        else:
-            dice_roll = (2*dice_roll[0], dice_roll[1], dice_roll[2])
-            crit_damage += self.roll_dice(dice_roll)
-            if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
-                crit_damage = 2*crit_damage
-            if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
-                crit_damage = int(crit_damage/2)
-            if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
-                crit_damage = 0
+        normal_damage += self.roll_dice(dice_roll)
+        crit_damage += self.roll_dice(dice_roll, attacker_name=attacker_name, is_crit=True)
+        if attack["damage_type"] in self.combatants_stats[target_name]["vulnerabilities"]:
+            crit_damage = 2*crit_damage
+            normal_damage = 2*normal_damage
+        if attack["damage_type"] in self.combatants_stats[target_name]["resistances"]:
+            crit_damage = int(crit_damage/2)
+            normal_damage = int(normal_damage/2)
+        if attack["damage_type"] in self.combatants_stats[target_name]["immunities"]:
+            crit_damage = 0
+            normal_damage = 0
         #if target_name is None:
             #if self.verbose is True:
                 #print("There is no one to attack.")
@@ -301,10 +285,10 @@ class Initiative_Module():
                     dc = self.combatants_stats[attacker_name]["dc"]
                     if self.dc_check(target_name, dc, attack["dc_type"]) is False:
                         if attack["has_dc_effect_on_hit"] is True:
-                            crit_damage += self.roll_dice(attack["dc_effect_on_hit"])*2
+                            crit_damage += self.roll_dice(attack["dc_effect_on_hit"], is_crit=True)
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                     elif attack["has_dc_effect_on_hit"] is True and attack["if_save"] == "half":
-                        crit_damage += self.roll_dice(attack["dc_effect_on_hit"])
+                        crit_damage += self.roll_dice(attack["dc_effect_on_hit"], is_crit=True)/2
             self.combatants_hp[target_name] -= crit_damage
             self.combatants_stats[attacker_name]["combat_stats"]["damage_dealt"] += crit_damage
             self.combatants_stats[target_name]["combat_stats"]["damage_received_in_turn"] += crit_damage
@@ -320,10 +304,10 @@ class Initiative_Module():
                     dc = self.combatants_stats[attacker_name]["dc"]
                     if self.dc_check(target_name, dc, attack["dc_type"]) is False:
                         if attack["has_dc_effect_on_hit"] is True:
-                            normal_damage += self.roll_dice(attack["dc_effect_on_hit"])
+                            normal_damage += self.roll_dice(attack["dc_effect_on_hit"], attacker_name=attacker_name)
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                     elif attack["has_dc_effect_on_hit"] is True and attack["if_save"] == "half":
-                        normal_damage += self.roll_dice(attack["dc_effect_on_hit"])/2
+                        normal_damage += self.roll_dice(attack["dc_effect_on_hit"], attacker_name=attacker_name)/2
             if "Paralyzed" not in conditions and "Unconscious" not in conditions:
                 damage = normal_damage
             else:
