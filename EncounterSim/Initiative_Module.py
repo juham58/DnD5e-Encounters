@@ -288,6 +288,7 @@ class Initiative_Module():
                             crit_damage += self.roll_dice(attack["dc_effect_on_hit"], is_crit=True)
                             if attack["lingering_damage"] != "":
                                 self.combatants_stats[target_name]["combat_stats"]["lingering_damage"].append(attack["dc_effect_on_hit"])
+                                self.combatants_stats[target_name]["combat_stats"]["lingering_damage_save_type"].append((attack["dc_type"], dc))
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                     elif attack["has_dc_effect_on_hit"] is True and attack["if_save"] == "half":
                         crit_damage += self.roll_dice(attack["dc_effect_on_hit"], is_crit=True)/2
@@ -309,6 +310,7 @@ class Initiative_Module():
                             normal_damage += self.roll_dice(attack["dc_effect_on_hit"], attacker_name=attacker_name)
                             if attack["lingering_damage"] != "":
                                 self.combatants_stats[target_name]["combat_stats"]["lingering_damage"].append(attack["dc_effect_on_hit"])
+                                self.combatants_stats[target_name]["combat_stats"]["lingering_damage_save_type"].append((attack["dc_type"], dc))
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                     elif attack["has_dc_effect_on_hit"] is True and attack["if_save"] == "half":
                         normal_damage += self.roll_dice(attack["dc_effect_on_hit"], attacker_name=attacker_name)/2
@@ -336,12 +338,12 @@ class Initiative_Module():
         self.combatants_hp[combatant_name] += heal_amount
         if self.combatants_stats[combatant_name]["max_hp"] <= self.combatants_hp[combatant_name]:
             self.combatants_hp[combatant_name] = self.combatants_stats[combatant_name]["max_hp"]
-        if self.combatants_stats[combatant_name]["combat_stats"]["is_downed"]:
+        if self.combatants_stats[combatant_name]["combat_stats"]["is_downed"] and heal_amount > 0:
             self.combatants_stats[combatant_name]["combat_stats"]["death_saves"][0] = 0
             self.combatants_stats[combatant_name]["combat_stats"]["death_saves"][1] = 0
             self.combatants_stats[combatant_name]["combat_stats"]["is_downed"] = False
             self.remove_condition(combatant_name, "Unconscious")
-        if len(self.combatants_stats[combatant_name]["combat_stats"]["lingering_damage"]) > 0:
+        if len(self.combatants_stats[combatant_name]["combat_stats"]["lingering_damage"]) > 0 and heal_amount > 0:
             self.combatants_stats[combatant_name]["combat_stats"]["lingering_damage"] = []
 
     def gauss_circle_problem(self, rayon):
@@ -1624,6 +1626,20 @@ class Initiative_Module():
                                     break
                     self.condition_check(attacker_name)
                     self.heal(attacker_name, self.combatants_stats[attacker_name]["combat_stats"]["regeneration"])
+                    if len(self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage"]) > 0:
+                        lingering_damage_to_take = 0
+                        lingering_damages_to_remove = []
+                        for i in range(len(self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage"])):
+                            lingering_damage_to_take += self.dice_roll(self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage"][i])
+                            if self.dc_check(attacker_name, self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage_save_type"][i][1], self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage"][i][0]):
+                                lingering_damages_to_remove.append((self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage"][i], self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage_save_type"][i][1], self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage_save_type"][i][0]))
+                        if len(lingering_damages_to_remove) > 0:
+                            for i in range(len(lingering_damages_to_remove)):
+                                self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage"].remove(lingering_damages_to_remove[i][0])
+                                self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage_save_type"].remove(lingering_damages_to_remove[i][1])
+                                self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage_save_type"].remove(lingering_damages_to_remove[i][2])
+                        self.combatants_hp[attacker_name] -= lingering_damage_to_take
+                        self.check_for_death()
                     for monster_name in self.legendary_monsters:
                         if attacker_name in self.legend_actions_order[monster_name]:
                             self.execute_legend_action(monster_name)

@@ -867,3 +867,12 @@ save.set_action_in_arsenal(action_type="melee", name="Necrotic Burst", dice_roll
 save.set_action_in_arsenal(action_type="aoe", name="Howl", has_attack_mod=False, has_dc=True, dc_type="con", dice_rolls="20d6", condition="Frightened", aoe_size=30, damage_type="psychic", has_recharge=True, recharge=5)
 save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multiattack_list=["Necrotic Burst", "Necrotic Burst", "Necrotic Burst"])
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Crystal Bird", ac=15, hp=350, dc=19, ini_mod=8, attack_mod=13, number_of_attacks=2, legend_actions_charges=3, focus_type="focused")
+save.set_abilities(9, 0, 5, -4, 0, -1)
+save.set_saves(9, 4, 5, -4, 4, -1)
+save.set_action(action_type="melee", name="Beak", dice_rolls="4d12+9", dc_type="con", has_dc_effect_on_hit=True, dc_effect_on_hit="1d6", lingering_damage="1d6")
+save.set_action(action_type="aoe", name="Crystal Wings", dice_rolls="4d12+9", dc_type="dex", aoe_shape="cone", aoe_size=30, dc_effect_on_hit="1d6", lingering_damage="1d6")
+save.set_legend_action(action_type="melee", charge_cost=1, name="Beak", dice_rolls="4d12+9", dc_type="con", has_dc_effect_on_hit=True, dc_effect_on_hit="1d6", lingering_damage="1d6")
+save.save_main_stats()
