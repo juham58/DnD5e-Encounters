@@ -286,6 +286,8 @@ class Initiative_Module():
                     if self.dc_check(target_name, dc, attack["dc_type"]) is False:
                         if attack["has_dc_effect_on_hit"] is True:
                             crit_damage += self.roll_dice(attack["dc_effect_on_hit"], is_crit=True)
+                            if attack["lingering_damage"] != "":
+                                self.combatants_stats[target_name]["combat_stats"]["lingering_damage"].append(attack["dc_effect_on_hit"])
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                     elif attack["has_dc_effect_on_hit"] is True and attack["if_save"] == "half":
                         crit_damage += self.roll_dice(attack["dc_effect_on_hit"], is_crit=True)/2
@@ -305,6 +307,8 @@ class Initiative_Module():
                     if self.dc_check(target_name, dc, attack["dc_type"]) is False:
                         if attack["has_dc_effect_on_hit"] is True:
                             normal_damage += self.roll_dice(attack["dc_effect_on_hit"], attacker_name=attacker_name)
+                            if attack["lingering_damage"] != "":
+                                self.combatants_stats[target_name]["combat_stats"]["lingering_damage"].append(attack["dc_effect_on_hit"])
                         self.set_condition(target_name, attack["condition"], dc, attack["dc_type"])
                     elif attack["has_dc_effect_on_hit"] is True and attack["if_save"] == "half":
                         normal_damage += self.roll_dice(attack["dc_effect_on_hit"], attacker_name=attacker_name)/2
@@ -337,6 +341,8 @@ class Initiative_Module():
             self.combatants_stats[combatant_name]["combat_stats"]["death_saves"][1] = 0
             self.combatants_stats[combatant_name]["combat_stats"]["is_downed"] = False
             self.remove_condition(combatant_name, "Unconscious")
+        if len(self.combatants_stats[combatant_name]["combat_stats"]["lingering_damage"]) > 0:
+            self.combatants_stats[combatant_name]["combat_stats"]["lingering_damage"] = []
 
     def gauss_circle_problem(self, rayon):
         resultat = 1
@@ -901,7 +907,7 @@ class Initiative_Module():
                     if recharge_seen and multiattack_seen:
                         return attack
 
-    def choose_aoe_or_single(self, attacker_name):
+    def choose_aoe_or_single(self, attacker_name, healing=False):
         enemy_hps = []
         attack_type_decision = ""
         for name in self.combatants_hp.keys():
@@ -951,25 +957,123 @@ class Initiative_Module():
             else:
                 attack_type_decision = "single"
         return attack_type_decision
+    
+    def get_damage_condition_from_max_hp_percent(self, current_hp_percent):
+        if current_hp_percent >= 100:
+            return "Healthy"
+        elif current_hp_percent > 50:
+            return "Injured"
+        elif current_hp_percent <= 50 and current_hp_percent > 15:
+            return "Bloodied"
+        else:
+            return "Critical"
+        
+    def damage_condition_as_int(self, damage_condition):
+        if damage_condition == "Healthy":
+            return 3
+        elif damage_condition == "Injured":
+            return 2
+        elif damage_condition == "Bloodied":
+            return 1
+        elif damage_condition == "Critical":
+            return 0
+        else:
+            return 4
 
-    def spell_decision(self, caster_name):
+    def choose_damage_or_healing_spell(self, caster_name):
+        allies_total_hp = []
+        allies_hp = []
+        allies_damage_condition = []
+        downed_allies = []
+        for name in self.combatants_hp.keys():
+            if not self.combatants_stats[caster_name]["is_monster"]:
+                if self.combatants_stats[name]["is_monster"]:
+                    continue
+                else:
+                    allies_hp.append(self.combatants_hp[name])
+                    allies_total_hp.append(self.combatants_stats[name]["max_hp"])
+                    allies_damage_condition.append(self.get_damage_condition_from_max_hp_percent(math.floor(100*self.combatants_hp[name]/self.combatants_stats[name]["max_hp"])))
+                    if self.combatants_hp[name] == 0:
+                        downed_allies.append(name)
+            else:
+                if self.combatants_stats[name]["is_monster"]:
+                    allies_hp.append(self.combatants_hp[name])
+                    allies_total_hp.append(self.combatants_stats[name]["max_hp"])
+                    allies_damage_condition.append(self.get_damage_condition_from_max_hp_percent(math.floor(100*self.combatants_hp[name]/self.combatants_stats[name]["max_hp"])))
+                    if self.combatants_hp[name] == 0:
+                        downed_allies.append(name)
+                else:
+                    continue
+        number_of_allies_in_critical_condition = allies_damage_condition.count("Critical")
+        number_of_allies_in_bloodied_condition = allies_damage_condition.count("Bloodied")
+        if number_of_allies_in_critical_condition == 1:
+            attack_type_decision = "single"
+            is_healing = True
+        elif number_of_allies_in_bloodied_condition == 1:
+            attack_type_decision = "single"
+            is_healing = True
+        elif number_of_allies_in_critical_condition+number_of_allies_in_bloodied_condition >= 2:
+            attack_type_decision = "multiple"
+            is_healing = True
+        else:
+            attack_type_decision = "single"
+            is_healing = False
+        return is_healing, attack_type_decision
+
+    def spell_decision(self, caster_name, cast_cantrip=False):
         spellbook = self.combatants_stats[caster_name]["spellbook"]
         spell_slots = self.combatants_stats[caster_name]["combat_stats"]["spell_slots"]
         spell_level_to_use = 0
-        spell_type_decision = self.choose_aoe_or_single(caster_name)
+        chose_healing, healing_spell_type = self.choose_damage_or_healing_spell(caster_name)
+        if not chose_healing:
+            spell_type_decision = self.choose_aoe_or_single(caster_name)
+        else:
+            spell_type_decision = healing_spell_type
         chosen_spell = {}
         spell_name = ""
 
         # Détermine le niveau le plus élevé disponible
-        for spell_level in reversed(spell_slots.keys()):
-            if spell_slots[spell_level] > 0:
-                spell_level_to_use = spell_level
-                break
+        if not cast_cantrip:
+            for spell_level in reversed(spell_slots.keys()):
+                if spell_slots[spell_level] > 0:
+                    spell_level_to_use = spell_level
+                    break
+                else:
+                    continue
+        if chose_healing:
+            healing_spell_available = False
+            for spell_known in spellbook:
+                if type(spell_known) == str:
+                    if self.spells_database[spell_known]["is_heal"] and self.spells_database[spell_known]["level"] <= spell_level_to_use:
+                        healing_spell_available = True
+                        chosen_spell = spell_known
+                        break
+                else:
+                    if self.spells_database[spell_known[0]]["is_heal"] and self.spells_database[spell_known[0]]["level"] <= spell_level_to_use:
+                        healing_spell_available = True
+                        chosen_spell = spell_known
+                        break
+        if chose_healing and not healing_spell_available:
+            spell_type_decision = self.choose_aoe_or_single(caster_name)
+        if chose_healing and healing_spell_available:
+            if type(spell_known) == tuple:
+                chosen_spell_name = chosen_spell[0]
             else:
-                continue
-        
-        # Détermine si single target ou is_aoe
-        if spell_type_decision == "is_aoe":
+                chosen_spell_name = chosen_spell
+            # check if healing with chosen number of targets is available, otherwise keep chosen spell
+            if (self.spells_database[chosen_spell_name]["n_targets"] <= 1 and spell_type_decision == "multiple") or (self.spells_database[chosen_spell_name]["n_targets"] > 1 and spell_type_decision == "single"):
+                for spell_known in spellbook:
+                    if type(spell_known) == str:
+                        if self.spells_database[spell_known]["is_heal"] and self.spells_database[spell_known]["level"] <= spell_level_to_use:
+                            if (spell_type_decision == "single" and self.spells_database[spell_known]["n_targets"] <= 1) or (spell_type_decision == "multiple" and self.spells_database[spell_known]["n_targets"] > 1):
+                                chosen_spell = spell_known
+                                break
+                    else:
+                        if self.spells_database[spell_known[0]]["is_heal"] and self.spells_database[spell_known[0]]["level"] <= spell_level_to_use:
+                            if (spell_type_decision == "single" and self.spells_database[spell_known[0]]["n_targets"] <= 1) or (spell_type_decision == "multiple" and self.spells_database[spell_known[0]]["n_targets"] > 1):
+                                chosen_spell = spell_known
+                                break
+        elif spell_type_decision == "is_aoe":
             aoe_available = False
             for spell_known in spellbook:
                 if type(spell_known) == str:
@@ -1025,8 +1129,8 @@ class Initiative_Module():
         logging.info("Chose {} at level {}.".format(spell_name, spell_level_to_use))
         return chosen_spell, spell_name, spell_level_to_use
 
-    def cast_spell(self, caster_name):
-        spell, spell_name, spell_level = self.spell_decision(caster_name)
+    def cast_spell(self, caster_name, cast_cantrip=False):
+        spell, spell_name, spell_level = self.spell_decision(caster_name, cast_cantrip=cast_cantrip)
         if spell_level > 0:
             self.combatants_stats[caster_name]["combat_stats"]["spell_slots"][spell_level] -= 1
             if self.combatants_stats[caster_name]["combat_stats"]["spell_slots"][spell_level] < 0:
@@ -1043,6 +1147,8 @@ class Initiative_Module():
             if target == None:
                 return
             self.magic_missile(caster_name, target, spell_level)
+        elif spell["is_heal"]:
+            self.healing_spell(caster_name, spell)
         elif spell["has_attack_mod"]:
             spell["attack_mod"] = self.combatants_stats[caster_name]["attack_mod"]
             target = self.set_target(caster_name, attack_range=spell["range"])
@@ -1056,7 +1162,76 @@ class Initiative_Module():
             self.dc_attack(caster_name, target, spell)
         elif spell["is_aoe"]:
             self.aoe_attack(caster_name, spell, attack_name=spell_name)
+        if spell["is_bonus_action"] and not cast_cantrip:
+            self.cast_spell(caster_name, cast_cantrip=True)
 
+    def healing_spell(self, caster_name, spell):
+        if type(spell) == str:
+            spell = self.spells_database[spell]
+        elif type(spell) == tuple:
+            spell = self.spells_database[spell[0]]
+        allies_total_hp = []
+        allies_hp = []
+        allies_damage_condition = []
+        allies_names = []
+        downed_allies = []
+        targets = []
+        for name in self.combatants_hp.keys():
+            if not self.combatants_stats[caster_name]["is_monster"]:
+                if self.combatants_stats[name]["is_monster"]:
+                    continue
+                else:
+                    allies_hp.append(self.combatants_hp[name])
+                    allies_total_hp.append(self.combatants_stats[name]["max_hp"])
+                    allies_damage_condition.append(self.get_damage_condition_from_max_hp_percent(math.floor(100*self.combatants_hp[name]/self.combatants_stats[name]["max_hp"])))
+                    allies_names.append(name)
+                    if self.combatants_hp[name] == 0:
+                        downed_allies.append(name)
+            else:
+                if self.combatants_stats[name]["is_monster"]:
+                    allies_hp.append(self.combatants_hp[name])
+                    allies_total_hp.append(self.combatants_stats[name]["max_hp"])
+                    allies_damage_condition.append(self.get_damage_condition_from_max_hp_percent(math.floor(100*self.combatants_hp[name]/self.combatants_stats[name]["max_hp"])))
+                    if self.combatants_hp[name] == 0:
+                        downed_allies.append(name)
+                else:
+                    continue
+        allies_names_indices = list(range(len(allies_names)))
+        sorted_allies_names_indices = sorted(allies_names_indices, key=lambda i: self.damage_condition_as_int(allies_damage_condition[i]))
+        if spell["n_targets"] > 1:
+            is_multiple_targets_spell = True
+        else:
+            is_multiple_targets_spell = False
+        if not is_multiple_targets_spell:
+            if len(downed_allies) == 1:
+                targets.append(downed_allies[0])
+            elif len(downed_allies) > 1:
+                targets.append(random.choice(downed_allies))
+            else:
+                targets.append(allies_names[sorted_allies_names_indices[0]])
+        else:
+            downed_allies_targeted = 0
+            for i in range(min(len(downed_allies), spell["n_targets"])):
+                if downed_allies_targeted < len(downed_allies):
+                    targets.append(downed_allies[i])
+                    downed_allies_targeted += 1
+                else:
+                    break
+            allies_targeted = downed_allies_targeted
+            if allies_targeted < spell["n_targets"]:
+                for name in allies_names:
+                    if name not in targets:
+                        targets.append(name)
+                        allies_targeted += 1
+                    if allies_targeted >= spell["n_targets"]:
+                        break
+        heal_amount = self.roll_dice(spell["dice_rolls"])
+        if spell["can_add_spellcasting_mod"]:
+            heal_amount += self.combatants_stats[caster_name]["spellcasting_mod"]
+        if self.verbose:
+            print("{} heals {} for {} HP!".format(caster_name, targets, heal_amount))
+        for target in targets:
+            self.heal(target, heal_amount)
     
     def divine_smite_decision(self, attacker_name, target_name, straight_roll):
         if straight_roll >= self.combatants_stats[attacker_name]["crits_on"]:
@@ -1465,12 +1640,6 @@ class Initiative_Module():
             return (1, self.player_deaths, rounds, players_damage)
                 
 
-# fix incapacitated et doublons de conditions
 
 # À FAIRE:
 # Gérer les debuffs (conditions) (Majoritairement done)
-# Implémenter les aoe et les attaques différentes
-
-# Besoin d'une manière de décider qui est attaqué (Check: random pour l'instant)
-# Besoin d'une manière de distinguer les frontliners
-# Simuler des stratégies

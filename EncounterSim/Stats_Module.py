@@ -13,6 +13,8 @@ class MainStats():
         self.ini_mod = 0
         self.ini_adv = False
         self.attack_mod = 0
+        self.spellcasting_ability = ""
+        self.spellcasting_mod = 0
         self.number_of_attacks = 1
         self.creature_type = "humanoid"
         self.resistances = []
@@ -43,6 +45,7 @@ class MainStats():
                             "focused_target": "",
                             "conditions": [],
                             "conditions_info": [],
+                            "lingering_damage": [], 
                             "death_saves": [0, 0],
                             "regeneration": 0,
                             "advantage_on_attack": False,
@@ -66,18 +69,18 @@ class MainStats():
                                             7: 0, 
                                             8: 0, 
                                             9: 0}}
-        self.abilities = {"str": 10,
-                          "dex": 10,
-                          "con": 10,
-                          "wis": 10,
-                          "int": 10,
-                          "cha": 10}
-        self.saves = {"str": 10,
-                      "dex": 10,
-                      "con": 10,
-                      "wis": 10,
-                      "int": 10,
-                      "cha": 10}
+        self.abilities = {"str": 0,
+                          "dex": 0,
+                          "con": 0,
+                          "wis": 0,
+                          "int": 0,
+                          "cha": 0}
+        self.saves = {"str": 0,
+                      "dex": 0,
+                      "con": 0,
+                      "wis": 0,
+                      "int": 0,
+                      "cha": 0}
         self.spellbook = []
         self.actions = []
         self.action_arsenal = {}
@@ -88,7 +91,11 @@ class MainStats():
     def add_avg_dmg(self, x, y, z):
         self.avg_attack_dmg += round(x*((y+1)/2)+z)
 
-    def set_main_stats(self, name, ac=10, hp=25, dc=10, speed=30, ini_mod=None, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], vulnerabilities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, eldritch_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0, max_ki_points=0, focus_type="random", evasion=False, crits_on=20, move_behavior="Frontliner", has_bonus_action_dash=False):
+    def set_spellcasting_mod(self):
+        if self.spellcasting_ability != "" and self.spellcasting_ability.lower in ["str", "dex", "con", "int", "wis", "cha"]:
+            self.spellcasting_mod = self.abilities[self.spellcasting_ability.lower]
+
+    def set_main_stats(self, name, ac=10, hp=25, dc=10, speed=30, ini_mod=None, ini_adv=False, attack_mod=0, number_of_attacks=1, resistances=[], immunities=[], vulnerabilities=[], creature_type="humanoid", legend_actions_charges=0, legend_resistances=0, regeneration=0, is_monster=True, is_frontliner=True, sneak_attack_dices=0, brutal_critical=0, divine_smite=False, eldritch_smite=False, bardic_inspiration=[False, "1d6"], advantage_if_attacked=False, disadvantage_if_attacked=False, magic_resistance=False, is_mythic=False, mythic_hp=0, max_ki_points=0, focus_type="random", evasion=False, crits_on=20, move_behavior="Frontliner", has_bonus_action_dash=False, spellcasting_ability=""):
         self.name = name
         self.ac = ac
         self.max_hp = hp
@@ -96,6 +103,7 @@ class MainStats():
         self.ini_mod = ini_mod
         self.ini_adv = ini_adv
         self.attack_mod = attack_mod
+        self.spellcasting_ability = spellcasting_ability
         self.number_of_attacks = number_of_attacks
         self.resistances = resistances
         self.immunities = immunities
@@ -176,7 +184,7 @@ class MainStats():
                             8: lvl_8, 
                             9: lvl_9}
 
-    def set_action(self, action_type="melee", attack_mod=-99, name="", range=0, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", return_dict=False):
+    def set_action(self, action_type="melee", attack_mod=-99, name="", range=0, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", return_dict=False, lingering_damage=""):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
@@ -198,6 +206,7 @@ class MainStats():
         act_dict["auto_success"] = auto_success
         act_dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
         act_dict["dc_effect_on_hit"] = dc_effect_on_hit
+        act_dict["lingering_damage"] = lingering_damage
         act_dict["has_advantage"] = has_advantage
         act_dict["is_heal"] = is_heal
         act_dict["heal_type"] = heal_type
@@ -214,7 +223,7 @@ class MainStats():
         act_dict["action_python_function"] = action_python_function
         self.actions.append(act_dict)
 
-    def set_action_in_arsenal(self, action_type="melee", name="", attack_mod=-99, range=0, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", has_recharge=False, recharge=6, recharge_ready=True, is_multiattack=False, multiattack_list=[]):
+    def set_action_in_arsenal(self, action_type="melee", name="", attack_mod=-99, range=0, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, heal_type="damage_dealt", has_recharge=False, recharge=6, recharge_ready=True, is_multiattack=False, multiattack_list=[], lingering_damage=""):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
@@ -238,6 +247,7 @@ class MainStats():
         act_dict["auto_success"] = auto_success
         act_dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
         act_dict["dc_effect_on_hit"] = dc_effect_on_hit
+        act_dict["lingering_damage"] = lingering_damage
         act_dict["has_advantage"] = has_advantage
         act_dict["is_heal"] = is_heal
         act_dict["heal_type"] = heal_type
@@ -250,7 +260,7 @@ class MainStats():
         act_dict["multiattack_list"] = multiattack_list
         self.action_arsenal[name] = act_dict
 
-    def set_legend_action(self, action_type="melee", name="", attack_mod=-99, range=0, charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False):
+    def set_legend_action(self, action_type="melee", name="", attack_mod=-99, range=0, charge_cost=1, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, is_heal=False, lingering_damage=""):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
@@ -273,11 +283,12 @@ class MainStats():
         act_dict["auto_success"] = auto_success
         act_dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
         act_dict["dc_effect_on_hit"] = dc_effect_on_hit
+        act_dict["lingering_damage"] = lingering_damage
         act_dict["has_advantage"] = has_advantage
         act_dict["is_heal"] = is_heal
         self.legend_actions.append(act_dict)
 
-    def set_mythic_action(self, action_type="melee", name="", range=0, charge_cost=1, attack_mod=-99, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False):
+    def set_mythic_action(self, action_type="melee", name="", range=0, charge_cost=1, attack_mod=-99, has_attack_mod=True, has_dc=False, dc_type="", dice_rolls=[], condition="", is_aoe=False, aoe_size=30, aoe_shape="sphere", damage_type="nonmagical", if_save="half", auto_success=False, has_dc_effect_on_hit=False, dc_effect_on_hit=[], has_advantage=False, lingering_damage=""):
         act_dict = {}
         act_dict["action_type"] = action_type
         act_dict["name"] = name
@@ -300,6 +311,7 @@ class MainStats():
         act_dict["auto_success"] = auto_success
         act_dict["has_dc_effect_on_hit"] = has_dc_effect_on_hit
         act_dict["dc_effect_on_hit"] = dc_effect_on_hit
+        act_dict["lingering_damage"] = lingering_damage
         act_dict["has_advantage"] = has_advantage
         self.legend_actions.append(act_dict)
 
@@ -313,6 +325,7 @@ class MainStats():
         self.custom_stats.append((key, value))
     
     def save_main_stats(self):
+        self.set_spellcasting_mod()
         act_dict = {self.name: {
                 "name": self.name,
                 "avg_attack_dmg": self.avg_attack_dmg, 
@@ -323,6 +336,7 @@ class MainStats():
                 "ini_mod": self.ini_mod,
                 "ini_adv": self.ini_adv,
                 "attack_mod": self.attack_mod,
+                "spellcasting_mod": self.spellcasting_mod,
                 "number_of_attacks": self.number_of_attacks,
                 "resistances": self.resistances,
                 "immunities": self.immunities,

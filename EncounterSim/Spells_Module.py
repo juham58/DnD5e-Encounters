@@ -61,7 +61,7 @@ class Spells_Database():
         return conditions_found
 
 
-    def add_spell(self, name, level, spell_type="damage", dice_rolls="8d6", range=120, has_attack_mod=False, has_dc=False, is_aoe=False, dc_type="", condition="", aoe_size=20, aoe_shape="sphere", damage_type="", if_save="", has_dc_effect_on_hit=False, dc_effect_on_hit="", is_heal=False, heal_type="damage_dealt", is_upcastable=False, upcast_effect="", concentration=False):
+    def add_spell(self, name, level, spell_type="damage", dice_rolls="8d6", range=120, has_attack_mod=False, has_dc=False, is_aoe=False, dc_type="", condition="", aoe_size=20, aoe_shape="sphere", damage_type="", if_save="", has_dc_effect_on_hit=False, dc_effect_on_hit="", is_heal=False, heal_type="damage_dealt", is_upcastable=False, upcast_effect="", concentration=False, is_bonus_action=False, n_targets=1, can_add_spellcasting_mod=False):
         spell_dict = {}
         spell_dict["level"] = level
         spell_dict["range"] = range
@@ -84,6 +84,9 @@ class Spells_Database():
         spell_dict["upcast_effect"] = upcast_effect
         spell_dict["has_advantage"] = False
         spell_dict["concentration"] = concentration
+        spell_dict["is_bonus_action"] = is_bonus_action
+        spell_dict["n_targets"] = n_targets
+        spell_dict["can_add_spellcasting_mod"] = can_add_spellcasting_mod
         self.database[name] = spell_dict
     
     def edit_spell(self, spell_name, elements_to_edit=[], edits=[]):
@@ -117,6 +120,10 @@ class Spells_Database():
                     level = 0
                 else:
                     level = int(spell["level"])
+                if "bonus action" in spell["casting_time"]:
+                    is_bonus_action = True
+                else:
+                    is_bonus_action = False
                 if len(re.findall("\d+", spell["range"])) > 0:
                     range = int(re.findall("\d+", spell["range"])[0])
                 if len(re.findall("spell attack", spell["description"])) > 0 and len(re.findall("make \w+\s(\w+)\ssaving throw", spell["description"])) > 0:
@@ -159,7 +166,7 @@ class Spells_Database():
                 else:
                     if_save = "no_damage"
 
-                if len(re.findall("regai\w+\shit points", spell["description"])) > 0 and re.findall("can't regain hit points", spell["description"]) == 0:
+                if len(re.findall("regai\w+\shit points", spell["description"])) > 0 and len(re.findall("can't regain hit points", spell["description"])) == 0:
                     is_heal = True
                     heal_type = "roll"
                 else:
@@ -185,7 +192,7 @@ class Spells_Database():
                             aoe_size=aoe_size, aoe_shape=aoe_shape, damage_type=damage_type, 
                             if_save=if_save, has_dc_effect_on_hit=has_dc_effect_on_hit, dc_effect_on_hit=dc_effect_on_hit, 
                             is_heal=is_heal, heal_type=heal_type, is_upcastable=is_upcastable, upcast_effect=upcast_effect,
-                            concentration=concentration)
+                            concentration=concentration, is_bonus_action=is_bonus_action)
 
 sd = Spells_Database()
 #sd.parse_spells_json()
@@ -203,6 +210,11 @@ sd.edit_spell("Meteor Swarm", ["dice_rolls", "range"], ["40d6", 5280])
 sd.edit_spell("Finger of Death", ["dice_rolls"], ["7d8+30"])
 sd.edit_spell("Sacred Flame", ["has_dc", "dc_type"], [True, "dex"])
 sd.edit_spell("Hypnotic Pattern", ["condition"], ["Incapacitated"])
+sd.edit_spell("Healing Word", ["dice_rolls", "can_add_spellcasting_mod"], ["2d4", True])
+sd.edit_spell("Mass Healing Word", ["dice_rolls", "n_targets", "can_add_spellcasting_mod"], ["2d4", 6, True])
+sd.edit_spell("Cure Wounds", ["dice_rolls", "upcast_effect", "can_add_spellcasting_mod"], ["2d8", "2d8", True])
+sd.edit_spell("Mass Cure Wounds", ["dice_rolls", "n_targets", "can_add_spellcasting_mod"], ["5d8", 6, True])
+sd.edit_spell("Heal", ["dice_rolls"], ["70"])
 #sd.add_spell("Firebolt", 0, dice_rolls="1d10", range=120, has_attack_mod=True, has_dc=False, is_aoe=False, damage_type="fire")
 #sd.print_spell("Cloud of Daggers")
 #sd.print_spell("Bless")
@@ -211,6 +223,7 @@ sd.edit_spell("Hypnotic Pattern", ["condition"], ["Incapacitated"])
 sd.print_spell("Magic Missile")
 sd.print_spell("Scorching Ray")
 sd.print_spell("Hypnotic Pattern")
+sd.print_spell("Mass Healing Word")
 sd.save_spells()
 
 
