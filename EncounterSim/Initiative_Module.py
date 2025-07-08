@@ -1636,8 +1636,8 @@ class Initiative_Module():
                         if len(lingering_damages_to_remove) > 0:
                             for i in range(len(lingering_damages_to_remove)):
                                 self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage"].remove(lingering_damages_to_remove[i][0])
-                                self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage_save_type"].remove(lingering_damages_to_remove[i][1])
-                                self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage_save_type"].remove(lingering_damages_to_remove[i][2])
+                                self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage_save_type"].remove((lingering_damages_to_remove[i][2], lingering_damages_to_remove[i][1]))
+                                #self.combatants_stats[attacker_name]["combat_stats"]["lingering_damage_save_type"].remove(lingering_damages_to_remove[i][2])
                         self.combatants_hp[attacker_name] -= lingering_damage_to_take
                         self.check_for_death()
                     for monster_name in self.legendary_monsters:
