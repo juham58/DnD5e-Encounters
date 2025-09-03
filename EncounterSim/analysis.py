@@ -178,7 +178,8 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 #monsters_test(100, "Husk Zombie", 15, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], list_of_monsters_to_import=["Revenant"])
 #monsters_test(50, "Lours", 25, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
 #monsters_test(50, "Devil Knight", 15, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cedrik"], list_of_monsters_to_import=["Devil Crossbowman", "Devil Knight Captain"], verbose=False)
-monsters_test(100, "Void Viper", 10, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Morgane"])
+#monsters_test(100, "Vampire Spawn", 20, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
+monsters_test(100, "Vampire Spawn", 5, ["Kara"])
 
 #monsters_test(50, "Skeleton", 150, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 #monsters_test(300, "Thug", 10, ["Ewyn", "Gowon", "Iaachus", "Melvin", "Reaghan", "Vilgefortz"])
