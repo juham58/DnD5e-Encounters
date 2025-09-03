@@ -215,3 +215,70 @@ save.set_saves(0, 4, 1, 10, 6, -1)
 save.set_action(action_type="melee", name="Shortsword, +2", dice_rolls="1d6+11", damage_type="magical")
 save.set_action(action_type="melee", name="Shortsword, +2", dice_rolls="1d6+11", damage_type="magical")
 save.save_main_stats()
+
+###########
+## VALASSI
+###########
+
+save = MainStats()
+save.set_main_stats("Chloé", ac=15, hp=35, dc=10, ini_mod=2, attack_mod=5, number_of_attacks=1, is_monster=False, resistances=["nonmagical", "magical"]) # rage
+save.set_abilities(3, 2, 3, -1, 1, -1)
+save.set_saves(5, 2, 5, -1, 1, -1)
+save.set_action(action_type="melee", name="Greataxe", dice_rolls="1d12+5", damage_type="magical") # avec rage
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Alexis", ac=14, hp=21, dc=10, ini_mod=3, attack_mod=5, number_of_attacks=1, is_monster=False, sneak_attack_dices=2, move_behavior="Ranged") # rage
+save.set_abilities(-1, 3, 1, 0, 1, 3)
+save.set_saves(-1, 5, 1, 2, 1, 3)
+save.set_action(action_type="ranged", name="Shortbow", dice_rolls="1d6+5", damage_type="magical", has_advantage=True) # avec rage
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Jeanne", ac=11, hp=20, ini_mod=1, attack_mod=5, number_of_attacks=1, is_monster=False, dc=14, move_behavior="Ranged", spellcasting_ability="cha")
+save.set_abilities(0, 1, 3, 0, -1, 3)
+save.set_saves(0, 3, 3, 0, -1, 5)
+save.set_action(name="Spellcasting", action_type="spell")
+save.set_spell_slots(4, 2, 0, 0, 0, 0, 0, 0, 0)
+save.set_spellbook(["Burning Hands", "Thunderwave", ("Sorcerous Burst", "1d8")])
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Laurence", ac=16, hp=33, dc=11, ini_mod=2, attack_mod=5, number_of_attacks=2, is_monster=False) # avec Wildshape Lion
+save.set_abilities(3, 2, 3, 1, 3, -1)
+save.set_saves(3, 2, 3, 3, 5, -1)
+save.set_action(action_type="melee", name="Rend", dice_rolls="1d8+3", damage_type="magical")
+save.set_action(action_type="melee", name="Rend", dice_rolls="1d8+3", damage_type="magical")
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Elias Wizard", ac=12, hp=20, ini_mod=2, attack_mod=5, number_of_attacks=1, is_monster=False, dc=13, move_behavior="Ranged", spellcasting_ability="int")
+save.set_abilities(0, 2, 2, 3, 1, 0)
+save.set_saves(0, 2, 2, 5, 3, 0)
+save.set_action(name="Spellcasting", action_type="spell")
+save.set_spell_slots(4, 2, 0, 0, 0, 0, 0, 0, 0)
+save.set_spellbook(["Scorching Ray", "Burning Hands", "Magic Missile", ("Toll the Dead", "1d12")])
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Elias Fighter", ac=15, hp=25, dc=10, ini_mod=3, attack_mod=7, number_of_attacks=1, is_monster=False, crits_on=19, move_behavior="Ranged")
+save.set_abilities(1, 3, 1, 2, 2, -1)
+save.set_saves(3, 3, 3, 2, 2, -1)
+save.set_action(action_type="melee", name="Longbow", dice_rolls="1d8+3", damage_type="magical")
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Cassandra Ranger", ac=15, hp=28, dc=10, ini_mod=3, attack_mod=5, number_of_attacks=1, is_monster=False, crits_on=19, move_behavior="Ranged", spellcasting_ability="wis")
+save.set_abilities(0, 3, 2, 2, 2, -1)
+save.set_saves(3, 3, 3, 2, 2, -1)
+save.set_action(action_type="melee", name="Longbow", dice_rolls="1d8+1d6+3", damage_type="magical")
+save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Cassandra Cleric", ac=18, hp=24, ini_mod=2, attack_mod=5, number_of_attacks=1, is_monster=False, dc=13, spellcasting_ability="wis")
+save.set_abilities(0, 3, 2, 0, 3, -1)
+save.set_saves(0, 3, 2, 0, 5, 1)
+save.set_action(name="Spellcasting", action_type="spell")
+save.set_spell_slots(4, 2, 0, 0, 0, 0, 0, 0, 0)
+save.set_spellbook(["Cure Wounds", "Healing Word", "Guiding Bolt", ("Frostbite", "1d6+3")])
+save.save_main_stats()

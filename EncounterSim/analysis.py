@@ -75,6 +75,7 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, m
 #combat_analysis(5000, ["Zoldane Vitruve"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
 #combat_analysis(10, ["Malicious Shadow"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], verbose=False)
 #combat_analysis(1000, ["Crystal Bird"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], verbose=False)
+#combat_analysis(10, ["Barbed Devil 2024"], ["Chloé", "Alexis", "Laurence", "Jeanne", "Elias Wizard", "Cassandra Ranger"], verbose=True)
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
     total_start_time = time.process_time()
@@ -179,7 +180,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 #monsters_test(50, "Lours", 25, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
 #monsters_test(50, "Devil Knight", 15, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cedrik"], list_of_monsters_to_import=["Devil Crossbowman", "Devil Knight Captain"], verbose=False)
 #monsters_test(100, "Vampire Spawn", 20, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
-monsters_test(100, "Vampire Spawn", 5, ["Kara"])
+#monsters_test(100, "Vampire Spawn", 5, ["Kara"])
 
 #monsters_test(50, "Skeleton", 150, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 #monsters_test(300, "Thug", 10, ["Ewyn", "Gowon", "Iaachus", "Melvin", "Reaghan", "Vilgefortz"])
@@ -190,7 +191,7 @@ monsters_test(100, "Vampire Spawn", 5, ["Kara"])
 #monsters_test(50, "Gnoll Pack Lord", 50, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 
 #monsters_test(50, "Veteran", 15, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian"])
-#monsters_test(200, "Assassin", 8, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian", "Cornelia"])
+monsters_test(200, "Skeleton", 10, ["Chloé", "Alexis", "Laurence", "Jeanne", "Elias Wizard", "Cassandra Ranger"], list_of_monsters_to_import=["Barbed Devil 2024"])
 
 
 #ini = Initiative_Module()

@@ -1149,6 +1149,11 @@ class Initiative_Module():
             if target == None:
                 return
             self.magic_missile(caster_name, target, spell_level)
+        elif spell_name == "Sorcerous Burst":
+            target = self.set_target(caster_name, attack_range=120)
+            if target == None:
+                return
+            self.sorcerous_burst(caster_name, target)
         elif spell["is_heal"]:
             self.healing_spell(caster_name, spell)
         elif spell["has_attack_mod"]:
@@ -1354,6 +1359,26 @@ class Initiative_Module():
                 print(caster_name, "hits with Magic Missile",n_missile, "and does:", missile_damage, "force damage!")
             if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
                 self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
+        self.check_for_death()
+
+    def sorcerous_burst(self, caster_name, target_name):
+        attack_roll = self.roll_dice("1d20")
+        first_roll = self.roll_dice("1d8")
+        second_roll = self.roll_dice("1d8")
+        if attack_roll+self.combatants_stats[caster_name]["spellcasting_mod"] >= self.combatants_stats[target_name]["ac"]:
+            second_roll = 0
+        damage = first_roll+second_roll
+        if first_roll == 8 or second_roll == 8:
+            for _ in range(self.combatants_stats[caster_name]["spellcasting_mod"]):
+                new_roll = self.roll_dice("1d8")
+                damage += 1
+                if new_roll != 8:
+                    break
+        self.combatants_hp[target_name] -= damage
+        if self.verbose:
+            print(caster_name, "hits with Sorcerous Burst and does:", damage, "magical damage!")
+        if self.combatants_stats[target_name]["combat_stats"]["is_downed"] is True:
+            self.combatants_stats[target_name]["combat_stats"]["death_saves"][0] += 1
         self.check_for_death()
 
     def shift_frontline(self, shifter_name):
