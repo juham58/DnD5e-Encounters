@@ -74,7 +74,7 @@ def combat_analysis(iterations, monsters_list, list_of_players, verbose=False, m
 #combat_analysis(5000, ["Grenat", "Cinabre", "Vermillon"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
 #combat_analysis(5000, ["Zoldane Vitruve"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cornelia"], verbose=False)
 #combat_analysis(10, ["Malicious Shadow"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], verbose=False)
-#combat_analysis(1000, ["Crystal Bird"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], verbose=False)
+combat_analysis(1000, ["Adult Blue Dragon"], ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], verbose=False)
 #combat_analysis(10, ["Barbed Devil 2024"], ["Chloé", "Alexis", "Laurence", "Jeanne", "Elias Wizard", "Cassandra Ranger"], verbose=True)
 
 def monsters_test(iterations, monster_name, number_of_monsters, list_of_players, list_of_monsters_to_import=[], verbose=False):
@@ -191,7 +191,7 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 #monsters_test(50, "Gnoll Pack Lord", 50, ["Gaspard Maupassant", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
 
 #monsters_test(50, "Veteran", 15, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Illian"])
-monsters_test(200, "Skeleton", 10, ["Chloé", "Alexis", "Laurence", "Jeanne", "Elias Wizard", "Cassandra Ranger"], list_of_monsters_to_import=["Barbed Devil 2024"])
+#monsters_test(200, "Skeleton", 10, ["Chloé", "Alexis", "Laurence", "Jeanne", "Elias Wizard", "Cassandra Ranger"], list_of_monsters_to_import=["Barbed Devil 2024"])
 
 
 #ini = Initiative_Module()

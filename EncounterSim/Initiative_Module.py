@@ -372,7 +372,9 @@ class Initiative_Module():
             else:
                 maximum_number_of_squares = (((2*aoe_size+1)//5)**2)//4
         if aoe_shape == "line":
-            maximum_number_of_squares = aoe_shape[1]*aoe_shape[2]//2
+            maximum_number_of_squares = aoe_size//20
+            if maximum_number_of_squares < 2:
+                maximum_number_of_squares = 2
         if self.combatants_stats[attacker_name]["is_monster"]:
             number_of_targets = len(self.players_names)
         if self.combatants_stats[attacker_name]["is_monster"] is False:
