@@ -890,3 +890,11 @@ save.set_action_in_arsenal(action_type="melee", name="Rend", dice_rolls="2d8+1d1
 save.set_action_in_arsenal(action_type="aoe", name="Lightning Breath", has_attack_mod=False, has_dc=True, dc_type="dex", dice_rolls="11d10", aoe_size=90, aoe_shape="line", damage_type="lightning", has_recharge=True, recharge=4)
 save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multiattack_list=["Rend", "Rend", "Rend"])
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Vampire Familiar", ac=15, hp=65, ini_mod=5, attack_mod=5, number_of_attacks=2, resistances=["necrotic"])
+save.set_abilities(3, 3, 2, 0, 0, 2)
+save.set_saves(3, 5, 2, 0, 2, 2)
+save.set_action(action_type="melee", name="Umbral Dagger", dice_rolls="1d4+3d4+3")
+save.set_action(action_type="melee", name="Umbral Dagger", dice_rolls="1d4+3d4+3")
+save.save_main_stats()
