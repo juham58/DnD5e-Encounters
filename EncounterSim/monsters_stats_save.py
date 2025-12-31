@@ -898,3 +898,19 @@ save.set_saves(3, 5, 2, 0, 2, 2)
 save.set_action(action_type="melee", name="Umbral Dagger", dice_rolls="1d4+3d4+3")
 save.set_action(action_type="melee", name="Umbral Dagger", dice_rolls="1d4+3d4+3")
 save.save_main_stats()
+
+save = MainStats()
+save.set_main_stats("Inquisition Sharpshooter", ac=15, hp=82, ini_mod=4, attack_mod=6, number_of_attacks=3)
+save.set_abilities(2, 4, 3, 0, 1, 2)
+save.set_saves(2, 7, 3, 0, 1, 2)
+save.set_action(action_type="ranged", range=150, name="Rifle", dice_rolls="2d12+14")
+save.set_action(action_type="ranged", range=150, name="Rifle", dice_rolls="2d12+14")
+save.set_action(action_type="ranged", range=150, name="Rifle", dice_rolls="2d12+14")
+save.save_main_stats()
+
+save = MainStats() # if not incapacitated, antimagic field in 15 feet emanation
+save.set_main_stats("Inquisition Barrier", ac=21, hp=280, ini_mod=4, attack_mod=6, number_of_attacks=1, dc=13)
+save.set_abilities(2, 4, 3, 0, 1, 2)
+save.set_saves(2, 7, 3, 0, 1, 2)
+save.set_action(action_type="aoe", aoe_size=20, aoe_shape="cone", name="Music Box Burst", dice_rolls="8d6+8", dc_type="dex", has_dc_effect_on_hit=True, dc_effect_on_hit=["Stunned"]) # if fail, antimagic field effect until the end of target's next turn
+save.save_main_stats()
