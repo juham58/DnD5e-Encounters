@@ -281,15 +281,6 @@ save.set_action(action_type="melee", name="Longsword", dice_rolls="1d8+3")
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Vampire", ac=16, hp=144, dc=20, ini_mod=4, attack_mod=9, number_of_attacks=2, regeneration=20, legend_actions_charges=3, resistances=["nonmagical", "necrotic"])
-save.set_abilities(4, 4, 4, 3, 2, 4)
-save.set_saves(4, 9, 4, 3, 7, 9)
-save.set_action(action_type="melee", name="Claws", dice_rolls="1d8+4")
-save.set_action(action_type="melee", name="Bite", dice_rolls="1d6+3d6+4")
-save.set_legend_action(action_type="melee", charge_cost=1, name="Claws", dice_rolls=[(1,8,4)])
-save.save_main_stats()
-
-save = MainStats()
 save.set_main_stats("Vampire Spawn", ac=15, hp=82, dc=13, ini_mod=8, attack_mod=6, creature_type="undead", number_of_attacks=2, regeneration=10, resistances=["nonmagical", "necrotic"])
 save.set_abilities(3, 3, 3, 0, 0, 1)
 save.set_saves(3, 6, 3, 0, 3, 1)
@@ -298,11 +289,12 @@ save.set_action(action_type="melee", name="Bite", dice_rolls="1d6+2d6+3")
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Vampire", ac=16, hp=144, dc=18, ini_mod=4, attack_mod=9, number_of_attacks=2, legend_actions_charges=3, creature_type="undead", resistances=["necrotic", "nonmagical"], legend_resistances=3, regeneration=20)
+save.set_main_stats("Vampire", ac=16, hp=195, dc=17, ini_mod=4, attack_mod=9, number_of_attacks=2, legend_actions_charges=3, creature_type="undead", resistances=["necrotic", "nonmagical"], legend_resistances=3, regeneration=20)
 save.set_abilities(4, 4, 4, 3, 2, 4)
 save.set_saves(4, 9, 4, 3, 7, 9)
-save.set_action(action_type="melee", name="Unarmed Strike", dice_rolls="1d8+4", damage_type="nonmagical")
-save.set_action(action_type="melee", name="Bite", dice_rolls="3d6", damage_type="necrotic")
+save.set_action(action_type="melee", name="Unarmed Strike", dice_rolls="1d8+2d6+4", damage_type="nonmagical")
+save.set_action(action_type="melee", name="Unarmed Strike", dice_rolls="1d8+2d6+4", damage_type="nonmagical")
+save.set_action(action_type="melee", name="Bite", dice_rolls="1d4+3d8", damage_type="necrotic", is_heal=True, heal_type="damage_dealt")
 save.set_legend_action(action_type="melee", charge_cost=1, name="Unarmed Strike", dice_rolls="1d8+4", damage_type="nonmagical")
 save.save_main_stats()
 
@@ -892,7 +884,7 @@ save.set_action_in_arsenal(action_type="multiattack", name="Multiattack", multia
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Vampire Familiar", ac=15, hp=65, ini_mod=5, attack_mod=5, number_of_attacks=2, resistances=["necrotic"])
+save.set_main_stats("Vampire Familiar", ac=15, hp=65, ini_mod=5, attack_mod=5, number_of_attacks=2, resistances=["necrotic"], creature_type="undead")
 save.set_abilities(3, 3, 2, 0, 0, 2)
 save.set_saves(3, 5, 2, 0, 2, 2)
 save.set_action(action_type="melee", name="Umbral Dagger", dice_rolls="1d4+3d4+3")
@@ -913,4 +905,12 @@ save.set_main_stats("Inquisition Barrier", ac=21, hp=280, ini_mod=4, attack_mod=
 save.set_abilities(2, 4, 3, 0, 1, 2)
 save.set_saves(2, 7, 3, 0, 1, 2)
 save.set_action(action_type="aoe", aoe_size=20, aoe_shape="cone", name="Music Box Burst", dice_rolls="8d6+8", dc_type="dex", has_dc_effect_on_hit=True, dc_effect_on_hit=["Stunned"]) # if fail, antimagic field effect until the end of target's next turn
+save.save_main_stats()
+
+save = MainStats() # blindsight
+save.set_main_stats("Giant Mutant Bat", ac=15, hp=50, ini_mod=3, attack_mod=5, number_of_attacks=2, immunities=["Blinded"])
+save.set_abilities(2, 3, 0, -4, 1, -2)
+save.set_saves(2, 3, 0, -4, 1, -2)
+save.set_action(action_type="melee", name="Draining Bite", dice_rolls="4d4+3")
+save.set_action(action_type="melee", name="Draining Bite", dice_rolls="4d4+3")
 save.save_main_stats()

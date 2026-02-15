@@ -90,13 +90,22 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
     player_deaths_list = []
     number_of_rounds = []
     players_damage = {}
+    if type(number_of_monsters) == tuple:
+        number_of_monster_for_loop = number_of_monsters[0]
     for player in list_of_players:
         players_damage[player] = 0
-    for i in tqdm(range(number_of_monsters)):
+    for i in tqdm(range(number_of_monster_for_loop)):
         start_time = time.process_time()
         for _ in range(iterations):
             ini = Initiative_Module()
-            ini.import_group(monster_name, i+1)
+            if type(monster_name) == tuple:
+                for m in range(len(monster_name)):
+                    if m == 0:
+                        ini.import_group(monster_name[m], i+1)
+                    else:
+                        ini.import_group(monster_name[m], number_of_monsters[m])
+            else:
+                ini.import_group(monster_name, i+1)
             ini.import_monsters(list_of_monsters_to_import)
             ini.import_players(list_of_players)
             combat_end = ini.combat(verbose=verbose)
@@ -122,6 +131,8 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
         players_damage[player] = 100*players_damage[player]/total_damage
     total_time = time.process_time() - total_start_time
     print("Total time:", total_time)
+    if type(monster_name) == tuple:
+        monster_name = monster_name[0]
     plt.figure()
     plt.plot(list_of_monsters, list_of_success_rates)
     plt.xlim(left=1)
@@ -179,7 +190,8 @@ def monsters_test(iterations, monster_name, number_of_monsters, list_of_players,
 #monsters_test(100, "Husk Zombie", 15, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], list_of_monsters_to_import=["Revenant"])
 #monsters_test(50, "Lours", 25, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
 #monsters_test(50, "Devil Knight", 15, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz", "Cedrik"], list_of_monsters_to_import=["Devil Crossbowman", "Devil Knight Captain"], verbose=False)
-monsters_test(100, "Inquisition Sharpshooter", 20, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], list_of_monsters_to_import=["Inquisition Barrier"])
+monsters_test(100, ("Giant Mutant Bat", "Vampire Spawn"), (25, 5), ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"])
+#monsters_test(100, "Vampire Spawn", 6, ["Gwenyth", "Kal", "Kara", "Denis", "Ghaz"], list_of_monsters_to_import=["Vampire"])
 #monsters_test(100, "Vampire Spawn", 5, ["Kara"])
 
 #monsters_test(50, "Skeleton", 150, ["John", "Faramir", "Augustin", "Rand al'Thor", "Victoriana", "Dorran"])
