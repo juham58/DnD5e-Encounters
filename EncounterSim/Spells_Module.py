@@ -225,6 +225,7 @@ sd.print_spell("Magic Missile")
 sd.print_spell("Scorching Ray")
 sd.print_spell("Hypnotic Pattern")
 sd.print_spell("Mass Healing Word")
+sd.print_spell("Sunbeam")
 sd.save_spells()
 
 

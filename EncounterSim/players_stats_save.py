@@ -136,24 +136,24 @@ save.save_main_stats()
 ###########
 
 save = MainStats()
-save.set_main_stats("Gwenyth", ac=17, hp=140, dc=15, ini_mod=8, attack_mod=14, number_of_attacks=2, is_monster=False, focus_type="focused", move_behavior="Ranged")
+save.set_main_stats("Gwenyth", ac=19, hp=166, dc=15, ini_mod=8, attack_mod=15, number_of_attacks=2, is_monster=False, focus_type="focused", move_behavior="Ranged")
 save.set_abilities(-1, 5, 4, 1, 3, 0)
-save.set_saves(-1, 9, 4, 5, 7, 0)
+save.set_saves(-1, 10, 4, 5, 8, 0)
 save.set_action(action_type="ranged", name="Longbow", range=150, dice_rolls="1d8+2d6+10", damage_type="magical") # avec Hunter's Mark+Sneak Attack+Favored Foe
 save.set_action(action_type="ranged", name="Longbow", range=150, dice_rolls="1d8+1d6+10", damage_type="magical") # avec Hunter's Mark
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Kal", ac=16, hp=146, dc=10, ini_mod=2, ini_adv=True, attack_mod=14, number_of_attacks=3, is_monster=False, resistances=["nonmagical", "magical", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "radiant", "thunder"]) # totem of the bear+rage
+save.set_main_stats("Kal", ac=21, hp=170, dc=10, ini_mod=2, ini_adv=True, attack_mod=15, number_of_attacks=3, is_monster=False, resistances=["nonmagical", "magical", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "radiant", "thunder"]) # totem of the bear+rage
 save.set_abilities(7, 2, 4, 0, 1, -1)
-save.set_saves(11, 2, 8, 0, 1, -1)
+save.set_saves(12, 2, 9, 0, 1, -1)
 save.set_action(action_type="melee", name="Meteorite-Forged Longsword", dice_rolls="1d8+12", damage_type="magical", dc_type="str", has_dc_effect_on_hit=True, dc_effect_on_hit=["Restrained"]) # avec rage
 save.set_action(action_type="melee", name="Meteorite-Forged Longsword", dice_rolls="1d8+12", damage_type="magical") # avec rage
 save.set_action(action_type="melee", name="Meteorite-Forged Longsword", dice_rolls="1d8+12", damage_type="magical") # two-weapon fighting avec rage
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Kara", ac=18, hp=111, dc=15, ini_mod=5, attack_mod=8, number_of_attacks=3, is_monster=False, max_ki_points=12, evasion=True, resistances=["fire"])
+save.set_main_stats("Kara", ac=23, hp=135, dc=15, ini_mod=5, attack_mod=13, number_of_attacks=3, is_monster=False, max_ki_points=12, evasion=True, resistances=["fire"])
 save.set_abilities(0, 5, 2, 1, 3, 0)
 save.set_saves(4, 9, 2, 1, 3, 0)
 save.set_action(action_type="melee", name="Unarmed Strike", dice_rolls="1d8+8", damage_type="magical")
@@ -164,22 +164,22 @@ save.save_main_stats()
 
 save = MainStats()
 #save.set_main_stats("Denis", ac=14, hp=42, dc=14, ini_mod=1, attack_mod=8, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused", crits_on=19) # 59 max hp
-save.set_main_stats("Denis", ac=16, hp=118, dc=19, ini_mod=1, attack_mod=15, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused", crits_on=19) # 59 max hp
+save.set_main_stats("Denis", ac=18, hp=142, dc=19, ini_mod=1, attack_mod=16, number_of_attacks=2, is_monster=False, divine_smite=True, focus_type="focused", crits_on=19) # 59 max hp
 save.set_abilities(1, 1, 2, 0, -1, 6)
 save.set_saves(7, 7, 8, 6, 9, 16)
 save.set_action(action_type="melee", name="Holy Avenger Halberd", dice_rolls="1d10+13", damage_type="magical") # + hexblade's curse (accurate si focused)
 save.set_action(action_type="melee", name="Holy Avenger Halberd", dice_rolls="1d10+13", damage_type="magical") # + hexblade's curse (accurate si focused)
-save.set_spell_slots(4, 4, 0, 0, 0, 0, 0, 0, 0)
+save.set_spell_slots(2, 5, 2, 0, 0, 0, 0, 0, 0)
 save.save_main_stats()
 
 save = MainStats()
-save.set_main_stats("Ghaz", ac=21, hp=126, dc=19, ini_mod=-1, attack_mod=11, number_of_attacks=1, is_monster=False, move_behavior="Support", spellcasting_ability="wis")
+save.set_main_stats("Ghaz", ac=23, hp=155, dc=20, ini_mod=-1, attack_mod=12, number_of_attacks=1, is_monster=False, move_behavior="Support", spellcasting_ability="wis")
 save.set_abilities(3, -1, 4, -1, 5, 2)
-save.set_saves(3, -1, 4, -1, 9, 6)
+save.set_saves(3, -1, 4, -1, 10, 7)
 save.set_action(name="Spellcasting", action_type="spell")
 #save.set_spell_slots(4, 3, 3, 3, 1, 0, 0, 0, 0)
 save.set_spell_slots(4, 3, 3, 3, 2, 1, 0, 0, 0)
-save.set_spellbook(["Mass Healing Word", "Cure Wounds", "Healing Word", "Guiding Bolt", ("Sacred Flame", "2d8")])
+save.set_spellbook(["Sunbeam", "Heal", "Mass Healing Word", "Cure Wounds", "Healing Word", "Guiding Bolt", ("Sacred Flame", "2d8")])
 save.save_main_stats()
 
 save = MainStats()
